@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse de la satisfaction client — Portfolio Data Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --noir: #0a0a0a;
+            --blanc: #fafafa;
+            --accent: #00d9ff;
+            --accent-dark: #0099cc;
+            --violet: #6366f1;
+            --vert: #10b981;
+            --orange: #f59e0b;
+            --rose: #ec4899;
+            --rouge: #ef4444;
+            --gris: #64748b;
+            --gris-clair: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--noir);
+            color: var(--blanc);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Particles Background */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 217, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 217, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 500;
+            transition: gap 0.3s ease;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .back-button:hover {
+            gap: 0.8rem;
+        }
+
+        .nav-title {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--gris);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            padding: 8rem 4rem 4rem;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            width: 100%;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gris);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .meta-icon {
+            color: var(--accent);
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, var(--blanc) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.3rem;
+            color: var(--gris);
+            line-height: 1.8;
+            max-width: 900px;
+            margin-bottom: 2rem;
+        }
+
+        .tags {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 0.6rem 1.2rem;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--accent);
+        }
+
+        /* Stats Banner */
+        .stats-banner {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 4rem auto;
+            max-width: 1200px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--gris);
+            font-size: 0.95rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            max-width: 1200px;
+            margin: 0 auto 6rem;
+            padding: 0 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .section-content {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--gris);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: rgba(0, 217, 255, 0.05);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+        }
+
+        .highlight-box strong {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Challenge Cards */
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .challenge-card {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--rouge);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
+        }
+
+        .challenge-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--blanc);
+        }
+
+        .challenge-card p {
+            color: var(--gris);
+            line-height: 1.6;
+        }
+
+        /* Solution Steps */
+        .solution-steps {
+            margin-top: 2rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            min-width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--vert), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--vert);
+        }
+
+        .step-content p {
+            color: var(--gris);
+            line-height: 1.8;
+        }
+
+        .step-details {
+            background: rgba(16, 185, 129, 0.05);
+            border-left: 3px solid var(--vert);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 5px;
+        }
+
+        .step-details ul {
+            list-style: none;
+            margin-top: 0.5rem;
+        }
+
+        .step-details li {
+            padding: 0.3rem 0;
+            color: var(--gris);
+        }
+
+        .step-details li::before {
+            content: "→ ";
+            color: var(--vert);
+            font-weight: bold;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 3rem auto;
+            max-width: 1200px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chart-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .chart-header h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--accent);
+        }
+
+        .chart-header p {
+            color: var(--gris);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .result-card {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--vert);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+        }
+
+        .result-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--vert), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--vert);
+        }
+
+        .result-card p {
+            color: var(--gris);
+            line-height: 1.6;
+        }
+
+        /* Key Insights */
+        .insights-list {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .insight-item {
+            background: rgba(99, 102, 241, 0.05);
+            border-left: 4px solid var(--violet);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .insight-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateX(10px);
+        }
+
+        .insight-item strong {
+            color: var(--violet);
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-item p {
+            color: var(--gris);
+            line-height: 1.6;
+        }
+
+        /* Technologies Used */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
+        }
+
+        .tech-item h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .tech-item p {
+            color: var(--gris);
+            font-size: 0.9rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(99, 102, 241, 0.1));
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 20px;
+            padding: 4rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 6rem auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section h2 {
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            color: var(--gris);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            color: var(--blanc);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--violet), var(--rose));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cta-button:hover::before {
+            opacity: 1;
+        }
+
+        .cta-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .cta-secondary::before {
+            background: var(--accent);
+        }
+
+        .cta-secondary:hover {
+            color: var(--noir);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 4rem;
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--blanc);
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        footer p {
+            color: var(--gris);
+        }
+
+        /* Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            nav {
+                padding: 1.5rem 2rem;
+            }
+
+            .hero, .content-section, .cta-section {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+
+            .stats-banner, .section-content, .chart-container {
+                padding: 2rem;
+            }
+
+            .challenge-grid, .results-grid, .tech-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step {
+                flex-direction: column;
+            }
+
+            .step-number {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Canvas pour particles -->
+    <canvas id="particles-canvas"></canvas>
+    
+    <!-- Grid Background -->
+    <div class="grid-bg"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="portfolio-data-analyst.html" class="back-button">
+            <span>←</span>
+            <span>Retour au portfolio</span>
+        </a>
+        <div class="nav-title">Projet #01</div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span class="meta-item">
+                    <span class="meta-icon">📁</span>
+                    <span>Customer Analytics</span>
+                </span>
+                <span class="meta-item">
+                    <span class="meta-icon">📅</span>
+                    <span>2024</span>
+                </span>
+                <span class="meta-item">
+                    <span class="meta-icon">⏱️</span>
+                    <span>3 mois</span>
+                </span>
+            </div>
+
+            <h1>Analyse de la satisfaction client</h1>
+            
+            <p class="hero-description">
+                Dashboard interactif analysant 50 000+ réponses clients pour identifier les leviers d'amélioration de l'expérience utilisateur et augmenter le NPS de 15 points.
+            </p>
+
+            <div class="tags">
+                <span class="tag">Python</span>
+                <span class="tag">SQL</span>
+                <span class="tag">Tableau</span>
+                <span class="tag">NLP</span>
+                <span class="tag">Pandas</span>
+                <span class="tag">Sentiment Analysis</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Banner -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">+15</div>
+                <div class="stat-label">Points de NPS</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">50K+</div>
+                <div class="stat-label">Réponses analysées</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">-40%</div>
+                <div class="stat-label">Temps de réponse</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Départements impactés</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Context Section -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">01</div>
+            <h2>Contexte du projet</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                L'entreprise, un leader du e-commerce avec plus de 500 000 clients actifs, faisait face à une baisse progressive de son Net Promoter Score (NPS), passant de 42 à 31 en l'espace de 18 mois. Cette tendance négative commençait à impacter les taux de rétention et les recommandations organiques.
+            </p>
+            <p>
+                Les feedbacks clients étaient collectés via plusieurs canaux (email, chatbot, réseaux sociaux, support client) mais aucune analyse consolidée n'était effectuée. L'équipe Customer Success travaillait en silos, sans vue d'ensemble des problématiques récurrentes.
+            </p>
+            
+            <div class="highlight-box">
+                <strong>💡 Objectif stratégique</strong>
+                Développer un système d'analyse de la satisfaction client permettant d'identifier les pain points majeurs, de prioriser les actions d'amélioration, et de suivre l'évolution du NPS en temps réel.
+            </div>
+
+            <p>
+                Le projet a été lancé avec un budget limité et un délai de 3 mois pour obtenir des résultats mesurables. L'enjeu était crucial : chaque point de NPS perdu représentait environ 2% de baisse du taux de recommandation, impactant directement l'acquisition organique.
+            </p>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">02</div>
+            <h2>Problématiques identifiées</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                Une phase d'audit initial de 2 semaines a permis d'identifier plusieurs problématiques majeures bloquant l'exploitation efficace des données de satisfaction client.
+            </p>
+
+            <div class="challenge-grid">
+                <div class="challenge-card">
+                    <div class="challenge-icon">🗂️</div>
+                    <h3>Données dispersées</h3>
+                    <p>Les feedbacks clients étaient éparpillés sur 7 sources différentes (email, Zendesk, Trustpilot, réseaux sociaux, enquêtes NPS, chatbot, appels) sans système de centralisation.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">📊</div>
+                    <h3>Absence d'analyse structurée</h3>
+                    <p>Les équipes lisaient manuellement quelques commentaires sans méthode statistique robuste. Aucun processus de catégorisation ou d'analyse de sentiment n'était en place.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">⏰</div>
+                    <h3>Délais de traitement</h3>
+                    <p>Le temps moyen entre la réception d'un feedback négatif et une action corrective était de 2-3 semaines, rendant impossible toute résolution proactive.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">🎯</div>
+                    <h3>Manque de priorisation</h3>
+                    <p>Sans quantification objective de l'impact de chaque problème, les équipes ne savaient pas sur quoi concentrer leurs efforts d'amélioration.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">📉</div>
+                    <h3>Biais de perception</h3>
+                    <p>Les clients insatisfaits étaient 3x plus susceptibles de laisser un avis, créant un biais important dans la perception des problèmes réels.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">🔄</div>
+                    <h3>Absence de suivi</h3>
+                    <p>Aucun système de monitoring des améliorations n'existait. Impossible de mesurer l'impact des actions correctives sur la satisfaction.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">03</div>
+            <h2>Solutions apportées</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                J'ai développé une solution data-driven en 4 phases, combinant ingénierie des données, analyse statistique avancée, et visualisation interactive pour transformer les feedbacks clients en insights actionnables.
+            </p>
+
+            <div class="solution-steps">
+                <!-- Step 1 -->
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Centralisation et nettoyage des données</h3>
+                        <p>
+                            Mise en place d'un pipeline ETL automatisé pour consolider toutes les sources de feedback dans une base de données PostgreSQL unique.
+                        </p>
+                        <div class="step-details">
+                            <strong>Actions réalisées :</strong>
+                            <ul>
+                                <li>Connexion API avec Zendesk, Trustpilot, et Survey Monkey</li>
+                                <li>Scraping quotidien des mentions sur réseaux sociaux (Twitter, Facebook)</li>
+                                <li>Parsing et extraction des emails de feedback</li>
+                                <li>Dédoublonnage et normalisation des données (50 000+ entrées)</li>
+                                <li>Création d'un schéma de données unifié avec métadonnées contextuelles</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Analyse de sentiment et catégorisation NLP</h3>
+                        <p>
+                            Application de techniques de Natural Language Processing pour extraire automatiquement les sentiments et thématiques principales des commentaires clients.
+                        </p>
+                        <div class="step-details">
+                            <strong>Techniques utilisées :</strong>
+                            <ul>
+                                <li>Analyse de sentiment avec VADER et TextBlob (précision : 87%)</li>
+                                <li>Topic modeling avec LDA pour identifier 12 thématiques récurrentes</li>
+                                <li>Named Entity Recognition pour extraire produits et services mentionnés</li>
+                                <li>Classification automatique : Livraison, Produit, Service Client, Prix, Site Web</li>
+                                <li>Détection des urgences via mots-clés critiques (remboursement, arnaque, jamais)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Analyse statistique et identification des drivers</h3>
+                        <p>
+                            Réalisation d'analyses statistiques avancées pour quantifier l'impact de chaque facteur sur le NPS global et identifier les leviers prioritaires.
+                        </p>
+                        <div class="step-details">
+                            <strong>Analyses effectuées :</strong>
+                            <ul>
+                                <li>Analyse de corrélation entre chaque catégorie et le NPS</li>
+                                <li>Régression linéaire multiple pour identifier les principaux drivers</li>
+                                <li>Segmentation des clients selon profil de satisfaction (K-means clustering)</li>
+                                <li>Analyse de cohortes pour suivre l'évolution temporelle</li>
+                                <li>Tests A/B pour mesurer l'impact des actions correctives</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Dashboard interactif Tableau</h3>
+                        <p>
+                            Création d'un dashboard Tableau temps réel permettant aux équipes de visualiser les KPIs, explorer les feedbacks par catégorie, et suivre l'impact des améliorations.
+                        </p>
+                        <div class="step-details">
+                            <strong>Fonctionnalités du dashboard :</strong>
+                            <ul>
+                                <li>Vue d'ensemble : NPS actuel, évolution, répartition promoteurs/détracteurs</li>
+                                <li>Heatmap des problématiques par catégorie et gravité</li>
+                                <li>Exploration détaillée des verbatims par filtres multiples</li>
+                                <li>Alertes automatiques sur chutes anormales du NPS</li>
+                                <li>Tracking des actions correctives et mesure d'impact</li>
+                                <li>Comparaisons temporelles et benchmarks internes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chart Section -->
+    <section class="chart-container reveal">
+        <div class="chart-header">
+            <h3>Évolution du NPS sur 6 mois</h3>
+            <p>Impact mesurable des actions d'amélioration mises en place</p>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="npsChart"></canvas>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">04</div>
+            <h2>Résultats et impact</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                Le projet a généré des résultats mesurables dès le 2ème mois, avec des améliorations continues sur l'ensemble des KPIs de satisfaction client.
+            </p>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-icon">📈</div>
+                    <h3>NPS +15 points</h3>
+                    <p>Passage de 31 à 46 en 6 mois, dépassant l'objectif initial de +10 points et retrouvant le niveau de 2 ans auparavant.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">⚡</div>
+                    <h3>Temps de réponse -40%</h3>
+                    <p>Réduction du délai moyen de traitement des feedbacks négatifs de 2-3 semaines à 4-5 jours grâce aux alertes automatiques.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">🎯</div>
+                    <h3>3 Quick Wins identifiés</h3>
+                    <p>Découverte de 3 problèmes majeurs à impact élevé et résolution rapide : délais de livraison, clarté des descriptions produits, process de retour.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">👥</div>
+                    <h3>Adoption par 5 départements</h3>
+                    <p>Le dashboard a été adopté par Customer Success, Produit, Logistique, Marketing et Direction pour piloter leurs décisions.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">💰</div>
+                    <h3>ROI de 320%</h3>
+                    <p>Estimation de l'impact financier via augmentation de la rétention (+8%) et réduction des coûts de support (-12%).</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">🔄</div>
+                    <h3>Process pérennisé</h3>
+                    <p>Mise en place d'un processus de suivi mensuel des KPIs et d'amélioration continue basé sur les insights data.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Insights Section -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">05</div>
+            <h2>Insights clés découverts</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                L'analyse approfondie des données a révélé plusieurs insights contre-intuitifs qui ont transformé la stratégie customer experience de l'entreprise.
+            </p>
+
+            <ul class="insights-list">
+                <li class="insight-item">
+                    <strong>💡 Biais de négativité 3:1</strong>
+                    <p>Les clients insatisfaits étaient 3 fois plus susceptibles de laisser un avis que les clients satisfaits, créant un biais majeur dans la perception des problèmes. La mise en place d'enquêtes proactives auprès d'un échantillon représentatif a permis de rééquilibrer la vision.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Le délai de livraison : pain point #1</strong>
+                    <p>Contrairement à l'hypothèse initiale de l'équipe (qui pensait que le prix était le problème majeur), le délai de livraison représentait 42% des feedbacks négatifs. Cette découverte a conduit à une refonte complète de la logistique.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Impact du support client sur la rétention</strong>
+                    <p>Les clients ayant interagi avec le support client (même pour un problème) avaient un taux de rétention 25% supérieur aux autres. Cela a motivé l'entreprise à être plus proactive dans l'engagement client.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Effet disproportionné des descriptions produits</strong>
+                    <p>Les retours liés à des "produits ne correspondant pas à la description" ne représentaient que 8% des feedbacks mais causaient 31% des détracteurs. L'amélioration des fiches produits est devenue une priorité absolue.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Saisonnalité de la satisfaction</strong>
+                    <p>Le NPS variait de 15 points entre basse saison (avril-mai) et haute saison (novembre-décembre), révélant des problèmes structurels de capacité logistique pendant les pics.</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Technologies Section -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">06</div>
+            <h2>Stack technique utilisée</h2>
+        </div>
+        <div class="section-content">
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>Python</h4>
+                    <p>Pandas, NumPy pour manipulation de données</p>
+                </div>
+                <div class="tech-item">
+                    <h4>NLP</h4>
+                    <p>NLTK, spaCy, VADER, TextBlob</p>
+                </div>
+                <div class="tech-item">
+                    <h4>SQL</h4>
+                    <p>PostgreSQL pour stockage centralisé</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Tableau</h4>
+                    <p>Dashboard interactif et visualisations</p>
+                </div>
+                <div class="tech-item">
+                    <h4>APIs</h4>
+                    <p>Zendesk, Trustpilot, Survey Monkey</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Machine Learning</h4>
+                    <p>Scikit-learn pour clustering et régression</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section reveal">
+        <h2>Intéressé par ce type d'analyse ?</h2>
+        <p>Je peux vous aider à transformer vos données clients en insights actionnables</p>
+        <div class="cta-buttons">
+            <a href="mailto:votre@email.com" class="cta-button">
+                <span>Discutons de votre projet</span>
+                <span>→</span>
+            </a>
+            <a href="portfolio-data-analyst.html" class="cta-button cta-secondary">
+                <span>Voir d'autres projets</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Data Analyst Portfolio. Transformant les données en décisions.</p>
+    </footer>
+
+    <script>
+        // ===== PARTICLES ANIMATION =====
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 60;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.fillStyle = 'rgba(0, 217, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.strokeStyle = `rgba(0, 217, 255, ${0.2 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // ===== SCROLL REVEAL =====
+        const reveals = document.querySelectorAll('.reveal');
+        
+        function revealOnScroll() {
+            reveals.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        // ===== NPS CHART =====
+        const ctx2 = document.getElementById('npsChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: ['Mois 0', 'Mois 1', 'Mois 2', 'Mois 3', 'Mois 4', 'Mois 5', 'Mois 6'],
+                datasets: [
+                    {
+                        label: 'NPS Score',
+                        data: [31, 33, 36, 39, 42, 44, 46],
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#00d9ff',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'Objectif',
+                        data: [31, 34, 37, 40, 40, 40, 40],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [10, 5],
+                        fill: false,
+                        tension: 0,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#fafafa',
+                            font: {
+                                size: 14,
+                                family: 'Outfit'
+                            },
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(10, 10, 10, 0.9)',
+                        titleColor: '#00d9ff',
+                        bodyColor: '#fafafa',
+                        borderColor: '#00d9ff',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + ' points';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 50,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value + ' pts';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
