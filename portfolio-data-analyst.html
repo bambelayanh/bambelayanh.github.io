@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio — Data Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --noir: #0a0a0a;
+            --blanc: #fafafa;
+            --accent: #00d9ff;
+            --accent-dark: #0099cc;
+            --violet: #6366f1;
+            --vert: #10b981;
+            --orange: #f59e0b;
+            --rose: #ec4899;
+            --gris: #64748b;
+            --gris-clair: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--noir);
+            color: var(--blanc);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Particles Background */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 217, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 217, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .logo {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--violet) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--blanc);
+            font-weight: 400;
+            position: relative;
+            transition: color 0.3s ease;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--violet));
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::before {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            padding: 0 4rem;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 1200px;
+            animation: fadeInUp 1s ease 0.3s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-tag {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+            animation: fadeInUp 1s ease 0.5s backwards;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--violet) 50%, var(--rose) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: var(--gris);
+            font-weight: 300;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 1s ease 0.7s backwards;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 0.9s backwards;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            color: var(--blanc);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--violet), var(--rose));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cta-button:hover::before {
+            opacity: 1;
+        }
+
+        .cta-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .cta-secondary::before {
+            background: var(--accent);
+        }
+
+        .cta-secondary:hover {
+            color: var(--noir);
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 4rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .stat-label {
+            color: var(--gris);
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }
+
+        /* About Section */
+        .about {
+            padding: 8rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .about-text h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 2rem;
+            letter-spacing: -2px;
+        }
+
+        .about-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--gris);
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .tech-tag {
+            padding: 0.6rem 1.2rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--violet);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--violet);
+            transition: all 0.3s ease;
+        }
+
+        .tech-tag:hover {
+            background: var(--violet);
+            color: var(--blanc);
+            transform: translateY(-2px);
+        }
+
+        .about-visual {
+            position: relative;
+            height: 500px;
+            perspective: 1000px;
+        }
+
+        .data-card {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .data-card:nth-child(1) {
+            top: 0;
+            left: 0;
+            width: 60%;
+            transform: rotateY(-5deg) rotateX(5deg);
+        }
+
+        .data-card:nth-child(2) {
+            top: 40%;
+            right: 0;
+            width: 55%;
+            transform: rotateY(5deg) rotateX(-5deg);
+        }
+
+        .data-card:nth-child(3) {
+            bottom: 0;
+            left: 10%;
+            width: 50%;
+            transform: rotateY(-3deg) rotateX(3deg);
+        }
+
+        .data-card:hover {
+            transform: rotateY(0) rotateX(0) translateZ(20px) !important;
+            border-color: var(--accent);
+        }
+
+        .data-card h4 {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .mini-chart {
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(180deg, rgba(0, 217, 255, 0.2) 0%, transparent 100%);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 15%;
+            background: linear-gradient(180deg, var(--accent), var(--violet));
+            border-radius: 5px 5px 0 0;
+            animation: barGrow 1s ease backwards;
+        }
+
+        @keyframes barGrow {
+            from {
+                transform: scaleY(0);
+            }
+            to {
+                transform: scaleY(1);
+            }
+        }
+
+        /* Portfolio Section */
+        .portfolio {
+            padding: 8rem 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--gris);
+            font-size: 1.2rem;
+            margin-bottom: 4rem;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .portfolio-item {
+            position: relative;
+            height: 450px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 60px rgba(0, 217, 255, 0.3);
+        }
+
+        .portfolio-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, 
+                rgba(0, 217, 255, 0.1) 0%, 
+                rgba(99, 102, 241, 0.1) 50%,
+                rgba(236, 72, 153, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .portfolio-item:hover::before {
+            opacity: 1;
+        }
+
+        .portfolio-image {
+            width: 100%;
+            height: 60%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portfolio-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(10, 10, 10, 0.9) 100%);
+        }
+
+        .chart-preview {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .portfolio-content {
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .project-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .project-tag {
+            padding: 0.3rem 0.8rem;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--accent);
+        }
+
+        .portfolio-item h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+        }
+
+        .portfolio-item p {
+            font-size: 0.95rem;
+            color: var(--gris);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .view-project {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: gap 0.3s ease;
+        }
+
+        .view-project:hover {
+            gap: 1rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-content {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 4rem;
+            position: relative;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: fixed;
+            top: 2rem;
+            right: 4rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--blanc);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-close:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: rotate(90deg);
+        }
+
+        .modal-header {
+            margin-bottom: 3rem;
+        }
+
+        .modal-header h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .modal-meta {
+            display: flex;
+            gap: 2rem;
+            color: var(--gris);
+            font-size: 0.95rem;
+        }
+
+        .modal-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .modal-section {
+            margin-bottom: 3rem;
+        }
+
+        .modal-section h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .modal-section p {
+            color: var(--gris);
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .insight-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .insight-list li {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--accent);
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: var(--gris);
+        }
+
+        .insight-list strong {
+            color: var(--blanc);
+        }
+
+        /* Skills Section */
+        .skills {
+            padding: 8rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .skill-card {
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--violet), var(--rose));
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .skill-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .skill-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.2);
+        }
+
+        .skill-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .skill-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .skill-card p {
+            color: var(--gris);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .skill-level {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--violet));
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 8rem 4rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .contact h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+        }
+
+        .contact p {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            color: var(--gris);
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1.2rem 2.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: var(--blanc);
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .contact-link:hover {
+            border-color: var(--accent);
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 4rem;
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--blanc);
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        footer p {
+            color: var(--gris);
+        }
+
+        /* Scroll Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            nav {
+                padding: 1.5rem 2rem;
+            }
+
+            .nav-links {
+                gap: 1.5rem;
+            }
+
+            .hero, .about, .portfolio, .skills, .contact {
+                padding: 4rem 2rem;
+            }
+
+            .about {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 2rem;
+                margin: 2rem auto;
+            }
+
+            .modal-close {
+                right: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Canvas pour particles -->
+    <canvas id="particles-canvas"></canvas>
+    
+    <!-- Grid Background -->
+    <div class="grid-bg"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">DATA_ANALYST</div>
+        <ul class="nav-links">
+            <li><a href="#about">À propos</a></li>
+            <li><a href="#portfolio">Projets</a></li>
+            <li><a href="#skills">Compétences</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-tag">📊 DATA ANALYST</div>
+            <h1>Transformer les données<br>en <span class="gradient-text">insights actionnables</span></h1>
+            <p class="hero-subtitle">Spécialiste en analyse de données, visualisation et storytelling data-driven pour guider les décisions stratégiques</p>
+            <div class="cta-group">
+                <a href="#portfolio" class="cta-button">
+                    <span>Voir mes projets</span>
+                    <span>→</span>
+                </a>
+                <a href="#contact" class="cta-button cta-secondary">
+                    <span>Me contacter</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats reveal">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Projets d'analyse</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">1M+</div>
+                <div class="stat-label">Lignes de données</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">15+</div>
+                <div class="stat-label">Dashboards créés</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Satisfaction client</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about reveal">
+        <div class="about-text">
+            <h2>Analyste passionné par la donnée</h2>
+            <p>Data Analyst avec une expertise approfondie en analyse statistique, visualisation de données et business intelligence. Je transforme des datasets complexes en insights clairs et actionnables.</p>
+            <p>Mon approche combine rigueur analytique, créativité dans la présentation des données et focus sur l'impact business. Chaque analyse que je mène vise à répondre à des questions stratégiques concrètes.</p>
+            <p>Expert en Python, SQL, Power BI et Tableau, je maîtrise l'ensemble de la chaîne de valeur data : de l'extraction et nettoyage des données jusqu'à la présentation d'insights exploitables.</p>
+            
+            <div class="tech-stack">
+                <div class="tech-tag">Python</div>
+                <div class="tech-tag">SQL</div>
+                <div class="tech-tag">Power BI</div>
+                <div class="tech-tag">Tableau</div>
+                <div class="tech-tag">Excel</div>
+                <div class="tech-tag">R</div>
+                <div class="tech-tag">Pandas</div>
+                <div class="tech-tag">NumPy</div>
+            </div>
+        </div>
+        <div class="about-visual">
+            <div class="data-card">
+                <h4>PERFORMANCE METRICS</h4>
+                <div class="mini-chart">
+                    <div class="chart-bar" style="left: 5%; height: 60%; animation-delay: 0.1s;"></div>
+                    <div class="chart-bar" style="left: 22%; height: 75%; animation-delay: 0.2s;"></div>
+                    <div class="chart-bar" style="left: 39%; height: 85%; animation-delay: 0.3s;"></div>
+                    <div class="chart-bar" style="left: 56%; height: 70%; animation-delay: 0.4s;"></div>
+                    <div class="chart-bar" style="left: 73%; height: 95%; animation-delay: 0.5s;"></div>
+                </div>
+            </div>
+            <div class="data-card">
+                <h4>DATA INSIGHTS</h4>
+                <div class="mini-chart">
+                    <div class="chart-bar" style="left: 5%; height: 80%; animation-delay: 0.2s;"></div>
+                    <div class="chart-bar" style="left: 22%; height: 65%; animation-delay: 0.3s;"></div>
+                    <div class="chart-bar" style="left: 39%; height: 90%; animation-delay: 0.4s;"></div>
+                    <div class="chart-bar" style="left: 56%; height: 75%; animation-delay: 0.5s;"></div>
+                    <div class="chart-bar" style="left: 73%; height: 85%; animation-delay: 0.6s;"></div>
+                </div>
+            </div>
+            <div class="data-card">
+                <h4>GROWTH TRENDS</h4>
+                <div class="mini-chart">
+                    <div class="chart-bar" style="left: 5%; height: 50%; animation-delay: 0.3s;"></div>
+                    <div class="chart-bar" style="left: 22%; height: 60%; animation-delay: 0.4s;"></div>
+                    <div class="chart-bar" style="left: 39%; height: 75%; animation-delay: 0.5s;"></div>
+                    <div class="chart-bar" style="left: 56%; height: 85%; animation-delay: 0.6s;"></div>
+                    <div class="chart-bar" style="left: 73%; height: 100%; animation-delay: 0.7s;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="portfolio">
+        <h2 class="section-title reveal">Projets d'analyse</h2>
+        <p class="section-subtitle reveal">Découvrez comment j'ai transformé des données en décisions stratégiques</p>
+        <div class="portfolio-grid">
+            <!-- Projet 1 -->
+            <div class="portfolio-item reveal" data-project="1">
+                <div class="portfolio-image">
+                    <div class="chart-preview">
+                        <canvas id="chart1" width="300" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="portfolio-content">
+                    <div class="project-tags">
+                        <span class="project-tag">Python</span>
+                        <span class="project-tag">SQL</span>
+                        <span class="project-tag">Tableau</span>
+                    </div>
+                    <h3>Analyse de la satisfaction client</h3>
+                    <p>Dashboard interactif analysant 50k+ réponses clients pour identifier les leviers d'amélioration de l'expérience utilisateur</p>
+                    <a href="proget1.html" class="view-project">Voir le projet <span>→</span></a>
+                </div>
+            </div>
+
+            <!-- Projet 2 -->
+            <div class="portfolio-item reveal" data-project="2">
+                <div class="portfolio-image">
+                    <div class="chart-preview">
+                        <canvas id="chart2" width="300" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="portfolio-content">
+                    <div class="project-tags">
+                        <span class="project-tag">Power BI</span>
+                        <span class="project-tag">DAX</span>
+                        <span class="project-tag">Excel</span>
+                    </div>
+                    <h3>Optimisation des ventes e-commerce</h3>
+                    <p>Analyse prédictive des tendances de vente ayant permis d'augmenter le CA de 23% en 6 mois</p>
+                    <a href="proget2.html" class="view-project">Voir le projet <span>→</span></a>
+                </div>
+            </div>
+
+            <!-- Projet 3 -->
+            <div class="portfolio-item reveal" data-project="3">
+                <div class="portfolio-image">
+                    <div class="chart-preview">
+                        <canvas id="chart3" width="300" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="portfolio-content">
+                    <div class="project-tags">
+                        <span class="project-tag">Python</span>
+                        <span class="project-tag">Pandas</span>
+                        <span class="project-tag">Seaborn</span>
+                    </div>
+                    <h3>Segmentation comportementale</h3>
+                    <p>Clustering de clients basé sur le comportement d'achat pour personnaliser les campagnes marketing</p>
+                    <a href="proget3.html" class="view-project">Voir le projet <span>→</span></a>
+                </div>
+            </div>
+
+            <!-- Projet 4 -->
+            <div class="portfolio-item reveal" data-project="4">
+                <div class="portfolio-image">
+                    <div class="chart-preview">
+                        <canvas id="chart4" width="300" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="portfolio-content">
+                    <div class="project-tags">
+                        <span class="project-tag">SQL</span>
+                        <span class="project-tag">BigQuery</span>
+                        <span class="project-tag">Looker</span>
+                    </div>
+                    <h3>Analyse de rétention utilisateurs</h3>
+                    <p>Étude des patterns de churn et recommandations ayant réduit l'attrition de 15%</p>
+                    <a href="#" class="view-project">Voir le projet <span>→</span></a>
+                </div>
+            </div>
+
+            <!-- Projet 5 -->
+            <div class="portfolio-item reveal" data-project="5">
+                <div class="portfolio-image">
+                    <div class="chart-preview">
+                        <canvas id="chart5" width="300" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="portfolio-content">
+                    <div class="project-tags">
+                        <span class="project-tag">R</span>
+                        <span class="project-tag">ggplot2</span>
+                        <span class="project-tag">Shiny</span>
+                    </div>
+                    <h3>Dashboard financier interactif</h3>
+                    <p>Outil de suivi des KPIs financiers en temps réel pour le comité de direction</p>
+                    <a href="#" class="view-project">Voir le projet <span>→</span></a>
+                </div>
+            </div>
+
+            <!-- Projet 6 -->
+            <div class="portfolio-item reveal" data-project="6">
+                <div class="portfolio-image">
+                    <div class="chart-preview">
+                        <canvas id="chart6" width="300" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="portfolio-content">
+                    <div class="project-tags">
+                        <span class="project-tag">Python</span>
+                        <span class="project-tag">Scikit-learn</span>
+                        <span class="project-tag">ML</span>
+                    </div>
+                    <h3>Prédiction de la demande</h3>
+                    <p>Modèle de machine learning pour anticiper les pics de demande et optimiser les stocks</p>
+                    <a href="#" class="view-project">Voir le projet <span>→</span></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal pour les projets -->
+    <div id="project-modal" class="modal">
+        <div class="modal-close" onclick="closeModal()">×</div>
+        <div class="modal-content" id="modal-content">
+            <!-- Le contenu sera inséré dynamiquement -->
+        </div>
+    </div>
+
+    <!-- Skills Section -->
+    <section id="skills" class="skills">
+        <h2 class="section-title reveal">Compétences techniques</h2>
+        <div class="skills-grid">
+            <div class="skill-card reveal">
+                <div class="skill-icon">🐍</div>
+                <h3>Python & Analytics</h3>
+                <p>Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn pour l'analyse et la visualisation de données complexes</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 95%"></div>
+                </div>
+            </div>
+            <div class="skill-card reveal">
+                <div class="skill-icon">🗄️</div>
+                <h3>SQL & Databases</h3>
+                <p>Requêtes complexes, optimisation, PostgreSQL, MySQL, BigQuery pour l'extraction et manipulation de données</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 90%"></div>
+                </div>
+            </div>
+            <div class="skill-card reveal">
+                <div class="skill-icon">📊</div>
+                <h3>Data Visualization</h3>
+                <p>Power BI, Tableau, Looker pour créer des dashboards interactifs et des visualisations percutantes</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 92%"></div>
+                </div>
+            </div>
+            <div class="skill-card reveal">
+                <div class="skill-icon">📈</div>
+                <h3>Statistiques & ML</h3>
+                <p>Analyse statistique, tests d'hypothèses, régression, clustering, et modèles prédictifs</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 85%"></div>
+                </div>
+            </div>
+            <div class="skill-card reveal">
+                <div class="skill-icon">📑</div>
+                <h3>Excel Avancé</h3>
+                <p>Tableaux croisés dynamiques, macros VBA, Power Query pour l'analyse et l'automatisation</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 93%"></div>
+                </div>
+            </div>
+            <div class="skill-card reveal">
+                <div class="skill-icon">🎯</div>
+                <h3>Business Intelligence</h3>
+                <p>Transformation de données en insights actionnables, storytelling data-driven et KPI tracking</p>
+                <div class="skill-level">
+                    <div class="skill-progress" style="width: 88%"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact reveal">
+        <div class="contact-content">
+            <h2>Discutons de votre projet data</h2>
+            <p>Besoin d'une analyse approfondie ou d'un dashboard sur-mesure ? Contactez-moi pour en discuter.</p>
+            <div class="contact-links">
+                <a href="/cdn-cgi/l/email-protection#02746d76706742676f636b6e2c616d6f" class="contact-link">
+                    <span>📧</span>
+                    <span>Email</span>
+                </a>
+                <a href="https://linkedin.com" target="_blank" class="contact-link">
+                    <span>💼</span>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="https://github.com" target="_blank" class="contact-link">
+                    <span>💻</span>
+                    <span>GitHub</span>
+                </a>
+                <a href="https://kaggle.com" target="_blank" class="contact-link">
+                    <span>📊</span>
+                    <span>Kaggle</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Data Analyst Portfolio. Transformant les données en décisions.</p>
+    </footer>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // ===== PARTICLES ANIMATION =====
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.fillStyle = 'rgba(0, 217, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.strokeStyle = `rgba(0, 217, 255, ${0.2 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // ===== SMOOTH SCROLL =====
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // ===== SCROLL REVEAL =====
+        const reveals = document.querySelectorAll('.reveal');
+        
+        function revealOnScroll() {
+            reveals.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        // ===== SKILL PROGRESS ANIMATION =====
+        const skillObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const progress = entry.target.querySelector('.skill-progress');
+                    if (progress) {
+                        progress.style.width = progress.style.width;
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.skill-card').forEach(card => {
+            skillObserver.observe(card);
+        });
+
+        // ===== CHARTS =====
+        function createChart(canvasId, type, data, colors) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+            
+            new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: colors,
+                        borderColor: colors.map(c => c.replace('0.6', '1')),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: type === 'bar' || type === 'line' ? {
+                        y: { display: false, beginAtZero: true },
+                        x: { display: false }
+                    } : {}
+                }
+            });
+        }
+
+        // Charts pour les projets
+        setTimeout(() => {
+            createChart('chart1', 'line', {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                values: [65, 72, 78, 85, 88, 92]
+            }, ['rgba(0, 217, 255, 0.6)']);
+
+            createChart('chart2', 'bar', {
+                labels: ['T1', 'T2', 'T3', 'T4'],
+                values: [45, 52, 68, 85]
+            }, ['rgba(99, 102, 241, 0.6)']);
+
+            createChart('chart3', 'doughnut', {
+                labels: ['Segment A', 'Segment B', 'Segment C', 'Segment D'],
+                values: [30, 25, 25, 20]
+            }, ['rgba(0, 217, 255, 0.6)', 'rgba(99, 102, 241, 0.6)', 'rgba(236, 72, 153, 0.6)', 'rgba(245, 158, 11, 0.6)']);
+
+            createChart('chart4', 'line', {
+                labels: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
+                values: [85, 80, 75, 72, 70, 68]
+            }, ['rgba(236, 72, 153, 0.6)']);
+
+            createChart('chart5', 'bar', {
+                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                values: [120, 145, 167, 189]
+            }, ['rgba(16, 185, 129, 0.6)']);
+
+            createChart('chart6', 'line', {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                values: [100, 115, 130, 140, 165, 180]
+            }, ['rgba(245, 158, 11, 0.6)']);
+        }, 500);
+
+        // ===== MODAL SYSTEM =====
+        const projectData = {
+            1: {
+                title: "Analyse de la satisfaction client",
+                category: "Customer Analytics",
+                date: "2024",
+                tools: "Python, SQL, Tableau",
+                description: "Analyse approfondie de 50 000+ réponses clients pour identifier les leviers d'amélioration de l'expérience utilisateur et augmenter le NPS de 15 points.",
+                challenge: "L'entreprise faisait face à un taux de satisfaction client en baisse constante. Les retours clients étaient dispersés sur plusieurs canaux (email, chatbot, réseaux sociaux) et aucune analyse consolidée n'était disponible.",
+                approach: "J'ai développé un pipeline de données automatisé pour centraliser tous les feedbacks clients, appliqué du NLP pour extraire les sentiments et thématiques principales, et créé un dashboard Tableau interactif pour suivre les KPIs en temps réel.",
+                results: [
+                    "Augmentation du NPS de 15 points en 6 mois",
+                    "Identification de 3 pain points majeurs résultant en des quick wins",
+                    "Réduction du temps de réponse moyen de 40%",
+                    "Dashboard adopté par 5 départements différents"
+                ],
+                insights: [
+                    "Les clients insatisfaits étaient 3x plus susceptibles de laisser un avis que les clients satisfaits, créant un biais dans les données brutes",
+                    "Le délai de livraison était le facteur #1 d'insatisfaction, alors que l'équipe pensait que c'était le prix",
+                    "Les clients ayant interagi avec le support client avaient un taux de rétention 25% supérieur"
+                ]
+            },
+            2: {
+                title: "Optimisation des ventes e-commerce",
+                category: "Sales Analytics",
+                date: "2024",
+                tools: "Power BI, DAX, Excel",
+                description: "Dashboard prédictif des ventes permettant d'anticiper les tendances et d'optimiser la stratégie commerciale, résultant en une augmentation du CA de 23% en 6 mois.",
+                challenge: "Le département ventes manquait de visibilité sur les performances en temps réel et les prévisions étaient basées sur des intuitions plutôt que des données.",
+                approach: "Création d'un modèle prédictif basé sur l'historique de ventes, la saisonnalité et les facteurs externes. Développement d'un dashboard Power BI avec des KPIs actionables et des alertes automatiques.",
+                results: [
+                    "Augmentation du CA de 23% en 6 mois",
+                    "Réduction des ruptures de stock de 35%",
+                    "Amélioration de la précision des prévisions de 40%",
+                    "ROI de 380% sur l'investissement dans l'analyse"
+                ],
+                insights: [
+                    "Les ventes du week-end suivaient un pattern différent des jours de semaine, nécessitant une stratégie marketing différenciée",
+                    "Les promotions supérieures à 30% cannibalisaient les ventes futures sans augmenter le volume global",
+                    "Le cross-selling générait 45% du revenu mais était sous-exploité"
+                ]
+            },
+            3: {
+                title: "Segmentation comportementale clients",
+                category: "Marketing Analytics",
+                date: "2024",
+                tools: "Python, Pandas, Seaborn, K-Means",
+                description: "Clustering avancé de la base clients pour personnaliser les campagnes marketing et augmenter le taux de conversion de 32%.",
+                challenge: "Les campagnes marketing étaient génériques et le taux de conversion restait faible malgré des investissements marketing importants.",
+                approach: "Application d'algorithmes de clustering (K-Means, DBSCAN) sur des features comportementales (fréquence d'achat, panier moyen, catégories préférées) pour identifier 5 segments distincts avec des stratégies marketing ciblées.",
+                results: [
+                    "Augmentation du taux de conversion de 32%",
+                    "Réduction du coût d'acquisition client de 28%",
+                    "Amélioration de l'engagement email de 45%",
+                    "5 personas clients actionnables créés"
+                ],
+                insights: [
+                    "Un segment 'VIP' de seulement 8% des clients généraient 42% du revenu",
+                    "Les 'chasseurs de promos' avaient une valeur à vie 60% inférieure aux acheteurs réguliers",
+                    "Les nouveaux clients nécessitaient 3 touches marketing avant le premier achat"
+                ]
+            },
+            4: {
+                title: "Analyse de rétention utilisateurs",
+                category: "Product Analytics",
+                date: "2024",
+                tools: "SQL, BigQuery, Looker",
+                description: "Étude approfondie des patterns de churn et création d'un modèle prédictif ayant permis de réduire l'attrition de 15%.",
+                challenge: "Le taux de churn augmentait trimestriellement sans qu'on en comprenne les causes profondes. Les actions de rétention étaient réactives plutôt que préventives.",
+                approach: "Analyse de cohortes détaillée, identification des signaux faibles de churn, et développement d'un score de propension au churn permettant d'activer des campagnes de rétention ciblées.",
+                results: [
+                    "Réduction du churn de 15%",
+                    "Augmentation de la lifetime value de 22%",
+                    "Identification de 7 signaux prédictifs de churn",
+                    "ROI positif dès le 3ème mois"
+                ],
+                insights: [
+                    "Les utilisateurs inactifs pendant 14 jours avaient 73% de chances de churner dans les 30 jours",
+                    "Le support client n'était pas un facteur de churn, contrairement aux hypothèses initiales",
+                    "Les utilisateurs ayant complété l'onboarding avaient un taux de rétention 4x supérieur"
+                ]
+            },
+            5: {
+                title: "Dashboard financier interactif",
+                category: "Financial Analytics",
+                date: "2024",
+                tools: "R, ggplot2, Shiny",
+                description: "Outil de suivi des KPIs financiers en temps réel pour faciliter la prise de décision stratégique du comité de direction.",
+                challenge: "Les rapports financiers étaient produits manuellement chaque mois avec un délai de 2 semaines, rendant impossible la prise de décision agile.",
+                approach: "Automatisation complète du reporting financier avec connexion directe aux bases de données ERP, création d'un dashboard Shiny interactif avec drill-downs par département, région et catégorie.",
+                results: [
+                    "Réduction du temps de reporting de 80%",
+                    "Accès aux données financières en temps réel",
+                    "Adoption par 100% du comité de direction",
+                    "12 heures/semaine économisées pour l'équipe finance"
+                ],
+                insights: [
+                    "Les coûts opérationnels variaient de 40% entre les régions pour des opérations identiques",
+                    "Les décisions budgétaires étaient prises avec 3 semaines de retard en moyenne",
+                    "La visualisation interactive a permis d'identifier 5 opportunités d'optimisation non détectées auparavant"
+                ]
+            },
+            6: {
+                title: "Prédiction de la demande",
+                category: "Machine Learning",
+                date: "2024",
+                tools: "Python, Scikit-learn, XGBoost",
+                description: "Modèle de machine learning pour anticiper les pics de demande et optimiser la gestion des stocks, réduisant les coûts de 18%.",
+                challenge: "Les ruptures de stock et le sur-stockage coûtaient cher à l'entreprise. Les prévisions basées sur les moyennes historiques n'étaient pas assez précises.",
+                approach: "Développement d'un modèle de prédiction de la demande basé sur XGBoost intégrant des variables temporelles, promotionnelles et externes (météo, événements). Déploiement d'un pipeline de réentraînement automatique.",
+                results: [
+                    "Réduction des coûts de stockage de 18%",
+                    "Diminution des ruptures de stock de 42%",
+                    "Précision du modèle : 89% (MAPE)",
+                    "Intégration avec le système ERP pour automatisation"
+                ],
+                insights: [
+                    "La météo avait un impact significatif (+25%) sur certaines catégories de produits",
+                    "Les promotions concurrentes affectaient la demande de manière prévisible",
+                    "Les modèles simples (régression linéaire) performaient mieux sur certains segments que les modèles complexes"
+                ]
+            }
+        };
+
+        // Gestion des clics sur les projets
+        document.querySelectorAll('.portfolio-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                const projectId = this.getAttribute('data-project');
+
+                // Projets 1, 2, 3 : clic sur toute la carte => redirection vers la page dédiée
+                if (projectId === '1') {
+                    window.location.href = 'proget1.html';
+                    return;
+                }
+                if (projectId === '2') {
+                    window.location.href = 'proget2.html';
+                    return;
+                }
+                if (projectId === '3') {
+                    window.location.href = 'proget3.html';
+                    return;
+                }
+
+                // Projets 4, 5, 6 : on garde le comportement actuel (modal uniquement si clic sur "Voir le projet")
+                if (!e.target.closest('.view-project')) return;
+                e.preventDefault();
+                
+                openModal(projectId);
+            });
+        });
+
+        function openModal(projectId) {
+            const project = projectData[projectId];
+            const modal = document.getElementById('project-modal');
+            const content = document.getElementById('modal-content');
+            
+            content.innerHTML = `
+                <div class="modal-header">
+                    <h2>${project.title}</h2>
+                    <div class="modal-meta">
+                        <span>📁 ${project.category}</span>
+                        <span>📅 ${project.date}</span>
+                        <span>🛠️ ${project.tools}</span>
+                    </div>
+                </div>
+
+                <div class="modal-image">
+                    <canvas id="modal-chart" width="800" height="300"></canvas>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Vue d'ensemble</h3>
+                    <p>${project.description}</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Le défi</h3>
+                    <p>${project.challenge}</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Mon approche</h3>
+                    <p>${project.approach}</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Résultats clés</h3>
+                    <ul class="insight-list">
+                        ${project.results.map(result => `<li>✓ ${result}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Insights principaux</h3>
+                    <ul class="insight-list">
+                        ${project.insights.map(insight => `<li><strong>💡</strong> ${insight}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Créer un graphique dans la modal
+            setTimeout(() => {
+                const ctx = document.getElementById('modal-chart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Mois 1', 'Mois 2', 'Mois 3', 'Mois 4', 'Mois 5', 'Mois 6'],
+                            datasets: [{
+                                label: 'Performance',
+                                data: [65, 72, 78, 85, 88, 92],
+                                borderColor: 'rgba(0, 217, 255, 1)',
+                                backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: '#64748b'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: '#64748b'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }, 100);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('project-modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fermer la modal en cliquant en dehors
+        document.getElementById('project-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Fermer la modal avec Échap
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
