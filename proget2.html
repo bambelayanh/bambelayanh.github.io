@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimisation des ventes e-commerce — Portfolio Data Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --noir: #0a0a0a;
+            --blanc: #fafafa;
+            --accent: #00d9ff;
+            --accent-dark: #0099cc;
+            --violet: #6366f1;
+            --vert: #10b981;
+            --orange: #f59e0b;
+            --rose: #ec4899;
+            --rouge: #ef4444;
+            --gris: #64748b;
+            --gris-clair: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--noir);
+            color: var(--blanc);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 217, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 217, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 500;
+            transition: gap 0.3s ease;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .back-button:hover {
+            gap: 0.8rem;
+        }
+
+        .nav-title {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--gris);
+        }
+
+        .hero {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            padding: 8rem 4rem 4rem;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            width: 100%;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gris);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .meta-icon {
+            color: var(--orange);
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, var(--blanc) 0%, var(--orange) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.3rem;
+            color: var(--gris);
+            line-height: 1.8;
+            max-width: 900px;
+            margin-bottom: 2rem;
+        }
+
+        .tags {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 0.6rem 1.2rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--orange);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--orange);
+        }
+
+        .stats-banner {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 4rem auto;
+            max-width: 1200px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, var(--orange), var(--rose));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--gris);
+            font-size: 0.95rem;
+        }
+
+        .content-section {
+            max-width: 1200px;
+            margin: 0 auto 6rem;
+            padding: 0 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--orange), var(--rose));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .section-content {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--gris);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 4px solid var(--orange);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+        }
+
+        .highlight-box strong {
+            color: var(--orange);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .challenge-card {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--rouge);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
+        }
+
+        .challenge-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--blanc);
+        }
+
+        .challenge-card p {
+            color: var(--gris);
+            line-height: 1.6;
+        }
+
+        .solution-steps {
+            margin-top: 2rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            min-width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--orange), var(--rose));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--orange);
+        }
+
+        .step-content p {
+            color: var(--gris);
+            line-height: 1.8;
+        }
+
+        .step-details {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 3px solid var(--orange);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 5px;
+        }
+
+        .step-details ul {
+            list-style: none;
+            margin-top: 0.5rem;
+        }
+
+        .step-details li {
+            padding: 0.3rem 0;
+            color: var(--gris);
+        }
+
+        .step-details li::before {
+            content: "→ ";
+            color: var(--orange);
+            font-weight: bold;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 3rem auto;
+            max-width: 1200px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chart-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .chart-header h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--orange);
+        }
+
+        .chart-header p {
+            color: var(--gris);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .result-card {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--vert);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+        }
+
+        .result-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--vert), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--vert);
+        }
+
+        .result-card p {
+            color: var(--gris);
+            line-height: 1.6;
+        }
+
+        .insights-list {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .insight-item {
+            background: rgba(99, 102, 241, 0.05);
+            border-left: 4px solid var(--violet);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .insight-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateX(10px);
+        }
+
+        .insight-item strong {
+            color: var(--violet);
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-item p {
+            color: var(--gris);
+            line-height: 1.6;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            border-color: var(--orange);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);
+        }
+
+        .tech-item h4 {
+            color: var(--orange);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .tech-item p {
+            color: var(--gris);
+            font-size: 0.9rem;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(236, 72, 153, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 20px;
+            padding: 4rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 6rem auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section h2 {
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            color: var(--gris);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(135deg, var(--orange), var(--rose));
+            color: var(--blanc);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--rose), var(--violet));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cta-button:hover::before {
+            opacity: 1;
+        }
+
+        .cta-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-secondary {
+            background: transparent;
+            border: 2px solid var(--orange);
+            color: var(--orange);
+        }
+
+        .cta-secondary::before {
+            background: var(--orange);
+        }
+
+        .cta-secondary:hover {
+            color: var(--noir);
+        }
+
+        footer {
+            padding: 3rem 4rem;
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--blanc);
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        footer p {
+            color: var(--gris);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 968px) {
+            nav {
+                padding: 1.5rem 2rem;
+            }
+
+            .hero, .content-section, .cta-section {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+
+            .stats-banner, .section-content, .chart-container {
+                padding: 2rem;
+            }
+
+            .challenge-grid, .results-grid, .tech-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step {
+                flex-direction: column;
+            }
+
+            .step-number {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="grid-bg"></div>
+
+    <nav>
+        <a href="portfolio-data-analyst.html" class="back-button">
+            <span>←</span>
+            <span>Retour au portfolio</span>
+        </a>
+        <div class="nav-title">Projet #02</div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span class="meta-item">
+                    <span class="meta-icon">📁</span>
+                    <span>Sales Analytics</span>
+                </span>
+                <span class="meta-item">
+                    <span class="meta-icon">📅</span>
+                    <span>2024</span>
+                </span>
+                <span class="meta-item">
+                    <span class="meta-icon">⏱️</span>
+                    <span>4 mois</span>
+                </span>
+            </div>
+
+            <h1>Optimisation des ventes e-commerce</h1>
+            
+            <p class="hero-description">
+                Dashboard prédictif des ventes permettant d'anticiper les tendances et d'optimiser la stratégie commerciale, résultant en une augmentation du CA de 23% en 6 mois.
+            </p>
+
+            <div class="tags">
+                <span class="tag">Power BI</span>
+                <span class="tag">DAX</span>
+                <span class="tag">Excel</span>
+                <span class="tag">Time Series</span>
+                <span class="tag">Forecasting</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">+23%</div>
+                <div class="stat-label">Augmentation du CA</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">-35%</div>
+                <div class="stat-label">Ruptures de stock</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">+40%</div>
+                <div class="stat-label">Précision prévisions</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">380%</div>
+                <div class="stat-label">ROI du projet</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">01</div>
+            <h2>Contexte du projet</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                Une plateforme e-commerce de moyenne envergure (20M€ de CA annuel) rencontrait des difficultés majeures dans la gestion de ses opérations commerciales. Le département ventes travaillait sans visibilité temps réel sur les performances et les prévisions étaient basées uniquement sur l'intuition des équipes.
+            </p>
+            <p>
+                Les ruptures de stock étaient fréquentes sur les produits phares tandis que d'autres références accumulaient des invendus. Le surstockage générait des coûts de stockage importants et nécessitait des démarques régulières impactant la marge.
+            </p>
+            
+            <div class="highlight-box">
+                <strong>💡 Objectif stratégique</strong>
+                Développer un système de business intelligence permettant d'analyser les performances en temps réel, d'optimiser les prévisions de ventes, et d'améliorer la gestion des stocks pour maximiser le chiffre d'affaires et la rentabilité.
+            </div>
+
+            <p>
+                Le projet a été initié avec un budget de 50K€ et devait démontrer un ROI positif dans les 6 mois. L'enjeu était triple : augmenter le CA, réduire les coûts opérationnels, et améliorer l'expérience client en évitant les ruptures de stock.
+            </p>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">02</div>
+            <h2>Problématiques identifiées</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                Une analyse approfondie de 3 semaines a révélé plusieurs problématiques structurelles qui empêchaient une gestion optimale des ventes.
+            </p>
+
+            <div class="challenge-grid">
+                <div class="challenge-card">
+                    <div class="challenge-icon">📊</div>
+                    <h3>Absence de visibilité temps réel</h3>
+                    <p>Les KPIs de ventes n'étaient disponibles qu'en fin de mois via des exports Excel manuels. Impossible de réagir rapidement aux tendances émergentes.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">🔮</div>
+                    <h3>Prévisions basiques</h3>
+                    <p>Les prévisions de ventes étaient calculées par simple moyenne historique, sans prise en compte de la saisonnalité, des promotions ou des tendances marché.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">📦</div>
+                    <h3>Gestion des stocks inefficace</h3>
+                    <p>30% des références en rupture de stock régulière, tandis que 25% des références présentaient plus de 6 mois de stock. Coût de stockage en hausse de 15%/an.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">💰</div>
+                    <h3>Optimisation des prix manuelle</h3>
+                    <p>Les décisions de prix et de promotions étaient prises sans analyse d'élasticité ou de cannibalisation entre produits.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">🎯</div>
+                    <h3>Segmentation client inexistante</h3>
+                    <p>Aucune analyse de la performance par segment client, canal d'acquisition, ou géographie. Stratégie marketing uniforme pour tous.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">📈</div>
+                    <h3>Données silotées</h3>
+                    <p>Les données de ventes, stocks, marketing et finance étaient dans des systèmes séparés sans connexion. Vision parcellaire de la performance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">03</div>
+            <h2>Solutions apportées</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                J'ai conçu et implémenté une solution BI complète combinant modélisation prédictive, dashboards interactifs, et automatisation des reportings pour transformer la gestion commerciale.
+            </p>
+
+            <div class="solution-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Architecture de données unifiée</h3>
+                        <p>
+                            Création d'un entrepôt de données centralisé intégrant toutes les sources : ERP (ventes, stocks), CRM (clients), Google Analytics (web), et données marketing.
+                        </p>
+                        <div class="step-details">
+                            <strong>Actions réalisées :</strong>
+                            <ul>
+                                <li>Extraction automatisée quotidienne depuis 5 sources de données</li>
+                                <li>Transformation et nettoyage des données (règles de gestion, dédoublonnage)</li>
+                                <li>Création d'un modèle de données en étoile optimisé pour l'analyse</li>
+                                <li>Mise en place de tables de dimensions (produits, clients, temps, géographie)</li>
+                                <li>Calculs DAX avancés pour KPIs métier (panier moyen, taux de conversion, LTV)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Modèle prédictif de prévision des ventes</h3>
+                        <p>
+                            Développement d'un modèle de forecasting intégrant saisonnalité, tendances, et facteurs exogènes pour prédire les ventes à 30, 60 et 90 jours.
+                        </p>
+                        <div class="step-details">
+                            <strong>Techniques utilisées :</strong>
+                            <ul>
+                                <li>Analyse des séries temporelles (décomposition saisonnière, détection de tendances)</li>
+                                <li>Modélisation Prophet de Facebook pour prévisions avec régresseurs externes</li>
+                                <li>Intégration des événements (soldes, Black Friday, lancements produits)</li>
+                                <li>Backtesting sur 18 mois pour validation du modèle (MAPE < 12%)</li>
+                                <li>Calibration mensuelle automatique pour amélioration continue</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Dashboards Power BI interactifs</h3>
+                        <p>
+                            Création de 4 dashboards Power BI pour différentes audiences : Direction, Sales, Operations, Marketing. Mise à jour automatique quotidienne.
+                        </p>
+                        <div class="step-details">
+                            <strong>Dashboards créés :</strong>
+                            <ul>
+                                <li>Vue Exécutive : KPIs principaux, tendances CA, top/flop produits, alertes</li>
+                                <li>Analyse Ventes : Performance par canal, région, vendeur, évolution panier moyen</li>
+                                <li>Gestion Stocks : Niveaux de stock, rotations, prévisions besoins, alertes ruptures</li>
+                                <li>Marketing ROI : Performance campagnes, coût d'acquisition, conversion par source</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Système d'alertes et recommandations</h3>
+                        <p>
+                            Mise en place d'alertes automatiques et de recommandations actionnables basées sur les données pour guider les décisions opérationnelles.
+                        </p>
+                        <div class="step-details">
+                            <strong>Fonctionnalités implémentées :</strong>
+                            <ul>
+                                <li>Alertes email automatiques en cas de baisse anormale des ventes (-20% vs prévision)</li>
+                                <li>Notifications ruptures de stock imminentes (< 7 jours de stock)</li>
+                                <li>Recommandations de réapprovisionnement basées sur prévisions</li>
+                                <li>Identification produits à promouvoir (forte marge, bon stock, demande croissante)</li>
+                                <li>Détection opportunités cross-sell/up-sell par analyse de panier</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="chart-container reveal">
+        <div class="chart-header">
+            <h3>Évolution du chiffre d'affaires mensuel</h3>
+            <p>Comparaison réalisé vs prévisions sur 8 mois</p>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">04</div>
+            <h2>Résultats et impact</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                Le projet a généré des résultats exceptionnels dès les premiers mois, transformant la gestion commerciale et dépassant tous les objectifs initiaux.
+            </p>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-icon">💰</div>
+                    <h3>CA +23% en 6 mois</h3>
+                    <p>Augmentation du chiffre d'affaires de 1,67M€ à 2,05M€/mois grâce à l'optimisation des stocks et des promotions ciblées.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">📦</div>
+                    <h3>Ruptures de stock -35%</h3>
+                    <p>Réduction drastique des ruptures grâce aux prévisions précises et alertes proactives de réapprovisionnement.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">🎯</div>
+                    <h3>Précision prévisions +40%</h3>
+                    <p>MAPE passé de 22% à 11,8% sur les prévisions à 30 jours, permettant une meilleure planification opérationnelle.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">💸</div>
+                    <h3>Coûts stockage -18%</h3>
+                    <p>Réduction des coûts de stockage de 120K€ annuels grâce à l'optimisation des niveaux de stock.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">⚡</div>
+                    <h3>Temps reporting -80%</h3>
+                    <p>Automatisation complète des rapports mensuels, libérant 40h/mois pour l'équipe ventes pour se concentrer sur l'action.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">📈</div>
+                    <h3>ROI de 380%</h3>
+                    <p>Retour sur investissement de 380% la première année (190K€ de gains vs 50K€ investis).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">05</div>
+            <h2>Insights clés découverts</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                L'analyse des données de ventes a révélé plusieurs patterns et opportunités insoupçonnés qui ont guidé la stratégie commerciale.
+            </p>
+
+            <ul class="insights-list">
+                <li class="insight-item">
+                    <strong>💡 Pattern week-end vs semaine</strong>
+                    <p>Les ventes du week-end suivaient un comportement radicalement différent des jours de semaine (panier moyen +35%, catégories différentes). Cela a conduit à développer une stratégie marketing spécifique weekend avec des promotions ciblées, augmentant les ventes week-end de 28%.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Seuil critique des promotions à 30%</strong>
+                    <p>Les promotions supérieures à 30% cannibalisaient les ventes futures sans augmenter le volume global. Les clients attendaient les promos, diminuant les ventes à prix plein. Limitation des promos à 25% maximum a augmenté la marge de 4 points.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Potentiel inexploité du cross-selling</strong>
+                    <p>Le cross-selling générait 45% du revenu mais seulement 12% des ventes en bénéficiaient. L'analyse des paniers a permis d'identifier 150 combinaisons produits à fort potentiel. Mise en place de recommandations = +8% de panier moyen.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Impact météo sur catégories spécifiques</strong>
+                    <p>Certaines catégories (jardinage, bricolage extérieur) étaient fortement corrélées aux prévisions météo (+40% de ventes par degré au-dessus de 20°C). Intégration de la météo dans les prévisions a amélioré la précision de 15% sur ces catégories.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Segments clients à valeur très différenciée</strong>
+                    <p>20% des clients généraient 68% du CA. La segmentation RFM a identifié des VIP nécessitant un traitement premium et des clients à potentiel sous-exploité. Programme fidélité ciblé = +15% de rétention sur les VIP.</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">06</div>
+            <h2>Stack technique utilisée</h2>
+        </div>
+        <div class="section-content">
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>Power BI</h4>
+                    <p>Dashboards interactifs et visualisations</p>
+                </div>
+                <div class="tech-item">
+                    <h4>DAX</h4>
+                    <p>Calculs avancés et mesures KPIs</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Python</h4>
+                    <p>Prophet pour forecasting et ETL</p>
+                </div>
+                <div class="tech-item">
+                    <h4>SQL Server</h4>
+                    <p>Data warehouse et requêtes complexes</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Excel</h4>
+                    <p>Power Query pour transformations</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Power Automate</h4>
+                    <p>Automatisation alertes et rapports</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section reveal">
+        <h2>Besoin d'optimiser vos ventes ?</h2>
+        <p>Je peux vous aider à développer des solutions BI sur-mesure</p>
+        <div class="cta-buttons">
+            <a href="mailto:votre@email.com" class="cta-button">
+                <span>Discutons de votre projet</span>
+                <span>→</span>
+            </a>
+            <a href="portfolio-data-analyst.html" class="cta-button cta-secondary">
+                <span>Voir d'autres projets</span>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Data Analyst Portfolio. Transformant les données en décisions.</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 60;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.fillStyle = 'rgba(245, 158, 11, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.strokeStyle = `rgba(245, 158, 11, ${0.2 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const reveals = document.querySelectorAll('.reveal');
+        
+        function revealOnScroll() {
+            reveals.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        const ctx2 = document.getElementById('salesChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû'],
+                datasets: [
+                    {
+                        label: 'CA Réalisé (K€)',
+                        data: [1670, 1720, 1780, 1850, 1920, 1990, 2020, 2050],
+                        backgroundColor: 'rgba(245, 158, 11, 0.6)',
+                        borderColor: '#f59e0b',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Prévisions (K€)',
+                        data: [1650, 1700, 1760, 1830, 1900, 1980, 2010, 2040],
+                        backgroundColor: 'rgba(99, 102, 241, 0.3)',
+                        borderColor: '#6366f1',
+                        borderWidth: 2,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#fafafa',
+                            font: {
+                                size: 14,
+                                family: 'Outfit'
+                            },
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(10, 10, 10, 0.9)',
+                        titleColor: '#f59e0b',
+                        bodyColor: '#fafafa',
+                        borderColor: '#f59e0b',
+                        borderWidth: 1,
+                        padding: 12
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value + 'K€';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
