@@ -1043,7 +1043,7 @@
                     </div>
                     <h3>Analyse de la satisfaction client</h3>
                     <p>Dashboard interactif analysant 50k+ réponses clients pour identifier les leviers d'amélioration de l'expérience utilisateur</p>
-                    <a href="#" class="view-project">Voir le projet <span>→</span></a>
+                    <a href="proget1.html" class="view-project">Voir le projet <span>→</span></a>
                 </div>
             </div>
 
@@ -1062,7 +1062,7 @@
                     </div>
                     <h3>Optimisation des ventes e-commerce</h3>
                     <p>Analyse prédictive des tendances de vente ayant permis d'augmenter le CA de 23% en 6 mois</p>
-                    <a href="#" class="view-project">Voir le projet <span>→</span></a>
+                    <a href="proget2.html" class="view-project">Voir le projet <span>→</span></a>
                 </div>
             </div>
 
@@ -1081,7 +1081,7 @@
                     </div>
                     <h3>Segmentation comportementale</h3>
                     <p>Clustering de clients basé sur le comportement d'achat pour personnaliser les campagnes marketing</p>
-                    <a href="#" class="view-project">Voir le projet <span>→</span></a>
+                    <a href="proget3.html" class="view-project">Voir le projet <span>→</span></a>
                 </div>
             </div>
 
@@ -1557,10 +1557,26 @@
         // Gestion des clics sur les projets
         document.querySelectorAll('.portfolio-item').forEach(item => {
             item.addEventListener('click', function(e) {
+                const projectId = this.getAttribute('data-project');
+
+                // Projets 1, 2, 3 : clic sur toute la carte => redirection vers la page dédiée
+                if (projectId === '1') {
+                    window.location.href = 'proget1.html';
+                    return;
+                }
+                if (projectId === '2') {
+                    window.location.href = 'proget2.html';
+                    return;
+                }
+                if (projectId === '3') {
+                    window.location.href = 'proget3.html';
+                    return;
+                }
+
+                // Projets 4, 5, 6 : on garde le comportement actuel (modal uniquement si clic sur "Voir le projet")
                 if (!e.target.closest('.view-project')) return;
                 e.preventDefault();
                 
-                const projectId = this.getAttribute('data-project');
                 openModal(projectId);
             });
         });
