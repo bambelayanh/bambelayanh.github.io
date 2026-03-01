@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segmentation comportementale clients — Portfolio Data Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --noir: #0a0a0a;
+            --blanc: #fafafa;
+            --accent: #ec4899;
+            --violet: #6366f1;
+            --vert: #10b981;
+            --orange: #f59e0b;
+            --cyan: #00d9ff;
+            --rouge: #ef4444;
+            --gris: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--noir);
+            color: var(--blanc);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(236, 72, 153, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(236, 72, 153, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 500;
+            transition: gap 0.3s ease;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .back-button:hover {
+            gap: 0.8rem;
+        }
+
+        .nav-title {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--gris);
+        }
+
+        .hero {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            padding: 8rem 4rem 4rem;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gris);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .meta-icon {
+            color: var(--accent);
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, var(--blanc) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.3rem;
+            color: var(--gris);
+            line-height: 1.8;
+            max-width: 900px;
+            margin-bottom: 2rem;
+        }
+
+        .tags {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 0.6rem 1.2rem;
+            background: rgba(236, 72, 153, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--accent);
+        }
+
+        .stats-banner {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 4rem auto;
+            max-width: 1200px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--gris);
+            font-size: 0.95rem;
+        }
+
+        .content-section {
+            max-width: 1200px;
+            margin: 0 auto 6rem;
+            padding: 0 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .section-content {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+        }
+
+        .section-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--gris);
+            margin-bottom: 1.5rem;
+        }
+
+        .highlight-box {
+            background: rgba(236, 72, 153, 0.05);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+        }
+
+        .highlight-box strong {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .challenge-card {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--rouge);
+        }
+
+        .challenge-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-card p {
+            color: var(--gris);
+            line-height: 1.6;
+        }
+
+        .solution-steps {
+            margin-top: 2rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            min-width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .step-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .step-content p {
+            color: var(--gris);
+            line-height: 1.8;
+        }
+
+        .step-details {
+            background: rgba(236, 72, 153, 0.05);
+            border-left: 3px solid var(--accent);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 5px;
+        }
+
+        .step-details ul {
+            list-style: none;
+            margin-top: 0.5rem;
+        }
+
+        .step-details li {
+            padding: 0.3rem 0;
+            color: var(--gris);
+        }
+
+        .step-details li::before {
+            content: "→ ";
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 3rem auto;
+            max-width: 1200px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chart-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .chart-header h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--accent);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .result-card {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--vert);
+        }
+
+        .result-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--vert), var(--cyan));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--vert);
+        }
+
+        .result-card p {
+            color: var(--gris);
+            line-height: 1.6;
+        }
+
+        .insights-list {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .insight-item {
+            background: rgba(99, 102, 241, 0.05);
+            border-left: 4px solid var(--violet);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+        }
+
+        .insight-item strong {
+            color: var(--violet);
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-item p {
+            color: var(--gris);
+            line-height: 1.6;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .tech-item h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-item p {
+            color: var(--gris);
+            font-size: 0.9rem;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(99, 102, 241, 0.1));
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 20px;
+            padding: 4rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 6rem auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            color: var(--blanc);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .cta-secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        footer {
+            padding: 3rem 4rem;
+            background: rgba(255, 255, 255, 0.02);
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        footer p {
+            color: var(--gris);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 968px) {
+            nav, .hero, .content-section, .cta-section {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+            .stats-banner, .section-content, .chart-container {
+                padding: 2rem;
+            }
+            .challenge-grid, .results-grid, .tech-grid {
+                grid-template-columns: 1fr;
+            }
+            .step {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="grid-bg"></div>
+
+    <nav>
+        <a href="portfolio-data-analyst.html" class="back-button">
+            <span>←</span>
+            <span>Retour au portfolio</span>
+        </a>
+        <div class="nav-title">Projet #03</div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span class="meta-item">
+                    <span class="meta-icon">📁</span>
+                    <span>Marketing Analytics</span>
+                </span>
+                <span class="meta-item">
+                    <span class="meta-icon">📅</span>
+                    <span>2024</span>
+                </span>
+                <span class="meta-item">
+                    <span class="meta-icon">⏱️</span>
+                    <span>3 mois</span>
+                </span>
+            </div>
+
+            <h1>Segmentation comportementale clients</h1>
+            
+            <p class="hero-description">
+                Clustering avancé de la base clients pour personnaliser les campagnes marketing et augmenter le taux de conversion de 32%.
+            </p>
+
+            <div class="tags">
+                <span class="tag">Python</span>
+                <span class="tag">Pandas</span>
+                <span class="tag">Scikit-learn</span>
+                <span class="tag">K-Means</span>
+                <span class="tag">RFM Analysis</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">+32%</div>
+                <div class="stat-label">Taux de conversion</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">-28%</div>
+                <div class="stat-label">Coût d'acquisition</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Segments identifiés</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">+45%</div>
+                <div class="stat-label">Engagement email</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">01</div>
+            <h2>Contexte du projet</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                Une entreprise B2C avec une base de 250 000 clients actifs investissait massivement dans le marketing digital (1,2M€/an) mais constatait un ROI marketing en baisse constante. Les campagnes email, SMS et publicités ciblées utilisaient une approche "one-size-fits-all" sans personnalisation.
+            </p>
+            <p>
+                Le taux de conversion stagnait à 2,3% malgré des budgets croissants, et le coût d'acquisition client augmentait de 15% par an. L'équipe marketing suspectait que tous les clients n'avaient pas les mêmes besoins et comportements, mais sans données pour le prouver.
+            </p>
+            
+            <div class="highlight-box">
+                <strong>💡 Objectif stratégique</strong>
+                Segmenter la base clients selon des critères comportementaux objectifs pour personnaliser les campagnes marketing, améliorer le ROI et réduire le coût d'acquisition client.
+            </div>
+
+            <p>
+                Le projet devait aboutir à des personas actionnables utilisables immédiatement par les équipes marketing, avec des recommandations concrètes pour chaque segment.
+            </p>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">02</div>
+            <h2>Problématiques identifiées</h2>
+        </div>
+        <div class="section-content">
+            <div class="challenge-grid">
+                <div class="challenge-card">
+                    <div class="challenge-icon">🎯</div>
+                    <h3>Marketing générique</h3>
+                    <p>Tous les clients recevaient les mêmes messages marketing sans considération pour leurs préférences, historique d'achat ou valeur. Taux d'ouverture email : 18% seulement.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">💸</div>
+                    <h3>ROI marketing en baisse</h3>
+                    <p>Le retour sur investissement marketing diminuait chaque trimestre. Coût d'acquisition passé de 45€ à 67€ en 18 mois, avec une conversion stable à 2,3%.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">👥</div>
+                    <h3>Méconnaissance des segments</h3>
+                    <p>Aucune analyse formelle des différents profils clients. Les équipes travaillaient sur intuition sans données objectives sur la diversité comportementale.</p>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-icon">📊</div>
+                    <h3>Données inexploitées</h3>
+                    <p>2 ans d'historique transactionnel, comportemental et démographique disponibles mais jamais analysés de manière approfondie.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">03</div>
+            <h2>Solutions apportées</h2>
+        </div>
+        <div class="section-content">
+            <div class="solution-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Collecte et préparation des données</h3>
+                        <p>
+                            Consolidation de toutes les données clients : transactionnelles, comportementales web, engagement marketing, et support client.
+                        </p>
+                        <div class="step-details">
+                            <strong>Données collectées :</strong>
+                            <ul>
+                                <li>Historique d'achats (24 mois) : montant, fréquence, récence</li>
+                                <li>Comportement web : pages visitées, durée sessions, taux rebond</li>
+                                <li>Engagement marketing : ouvertures email, clics, conversions</li>
+                                <li>Catégories produits préférées et panier moyen</li>
+                                <li>Données démographiques (âge, région, device utilisé)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Analyse RFM et feature engineering</h3>
+                        <p>
+                            Création de variables comportementales avancées basées sur le modèle RFM (Récence, Fréquence, Montant) enrichi de features complémentaires.
+                        </p>
+                        <div class="step-details">
+                            <strong>Features créées :</strong>
+                            <ul>
+                                <li>Récence : nombre de jours depuis dernier achat</li>
+                                <li>Fréquence : nombre d'achats sur 12 mois</li>
+                                <li>Montant : valeur totale des achats (Customer Lifetime Value)</li>
+                                <li>Panier moyen et évolution tendancielle</li>
+                                <li>Diversité catégorielle : nombre de catégories achetées</li>
+                                <li>Sensibilité promotions : % achats pendant promos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Clustering K-Means et validation</h3>
+                        <p>
+                            Application d'algorithmes de clustering pour identifier les segments naturels, avec validation statistique de la segmentation optimale.
+                        </p>
+                        <div class="step-details">
+                            <strong>Méthodologie :</strong>
+                            <ul>
+                                <li>Standardisation des variables (z-score normalization)</li>
+                                <li>Méthode du coude pour déterminer nombre optimal de clusters (k=5)</li>
+                                <li>K-Means clustering avec 5 segments identifiés</li>
+                                <li>Validation par silhouette score (0.68) et analyse intra/inter-cluster</li>
+                                <li>Profilage détaillé de chaque segment avec statistiques descriptives</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Création de personas et stratégies marketing</h3>
+                        <p>
+                            Transformation des segments statistiques en personas actionnables avec recommandations marketing spécifiques pour chaque profil.
+                        </p>
+                        <div class="step-details">
+                            <strong>Livrables créés :</strong>
+                            <ul>
+                                <li>5 fiches persona détaillées (caractéristiques, motivations, leviers)</li>
+                                <li>Stratégie marketing dédiée par segment (messages, canaux, timing)</li>
+                                <li>Scoring automatique de nouveaux clients pour assignation segment</li>
+                                <li>Dashboard de suivi de la performance par segment</li>
+                                <li>Guides d'activation pour équipes marketing et CRM</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="chart-container reveal">
+        <div class="chart-header">
+            <h3>Répartition des 5 segments clients</h3>
+            <p>Distribution et valeur générée par segment</p>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="segmentChart"></canvas>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">04</div>
+            <h2>Résultats et impact</h2>
+        </div>
+        <div class="section-content">
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-icon">📈</div>
+                    <h3>Conversion +32%</h3>
+                    <p>Taux de conversion passé de 2,3% à 3,0% grâce aux campagnes personnalisées par segment, générant 420K€ de CA additionnel.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">💰</div>
+                    <h3>CAC réduit de 28%</h3>
+                    <p>Coût d'acquisition client diminué de 67€ à 48€ via ciblage optimisé et réduction des campagnes inefficaces sur segments non pertinents.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">📧</div>
+                    <h3>Engagement email +45%</h3>
+                    <p>Taux d'ouverture passé de 18% à 26% et taux de clic de 3,2% à 5,1% grâce à la personnalisation des messages par persona.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">👑</div>
+                    <h3>VIP segment identifié</h3>
+                    <p>8% des clients générant 42% du CA. Programme fidélité premium lancé, augmentant leur fréquence d'achat de 18%.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">🎯</div>
+                    <h3>5 personas actionnables</h3>
+                    <p>Adoption à 100% par les équipes marketing qui utilisent désormais systématiquement les personas pour toutes les campagnes.</p>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">💎</div>
+                    <h3>LTV augmentée de 22%</h3>
+                    <p>Customer Lifetime Value moyenne passée de 480€ à 585€ grâce au nurturing ciblé et à la rétention améliorée.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">05</div>
+            <h2>Insights clés découverts</h2>
+        </div>
+        <div class="section-content">
+            <ul class="insights-list">
+                <li class="insight-item">
+                    <strong>💡 Les "VIP Champions" : 8% des clients, 42% du CA</strong>
+                    <p>Un segment premium de clients très engagés (achat tous les 15j, panier moyen 180€) générant près de la moitié du chiffre d'affaires. Ils méritaient un traitement exclusif avec service client dédié et previews produits. Programme VIP lancé = +18% fréquence d'achat.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Les "Chasseurs de promos" : paradoxe de la valeur</strong>
+                    <p>22% des clients n'achetant que pendant les promotions. Bien que représentant un volume important, leur LTV était 60% inférieure aux acheteurs réguliers (280€ vs 700€). Décision stratégique : réduire investissement marketing sur ce segment au profit des clients à fort potentiel.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Les "Nouveaux prospects" nécessitent 3 touches</strong>
+                    <p>Les nouveaux clients (32% de la base) avaient besoin en moyenne de 3 interactions marketing avant leur premier achat. Mise en place d'un parcours onboarding automatisé sur 21 jours = +40% de conversion des nouveaux inscrits.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Les "Dormants réactivables" : opportunité de 380K€</strong>
+                    <p>15% des clients inactifs depuis 3-9 mois mais avec historique positif. Campagne de réactivation ciblée (offre personnalisée + rappel panier abandonné) a récupéré 28% d'entre eux, générant 380K€ de CA récupéré.</p>
+                </li>
+
+                <li class="insight-item">
+                    <strong>💡 Canal d'acquisition prédit le comportement futur</strong>
+                    <p>Les clients acquis via réseaux sociaux avaient un panier moyen 35% plus élevé que ceux venant de la recherche Google. Réallocation budget vers social media = +25% ROI acquisit publicitaire.</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">06</div>
+            <h2>Stack technique utilisée</h2>
+        </div>
+        <div class="section-content">
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>Python</h4>
+                    <p>Pandas, NumPy pour manipulation données</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Scikit-learn</h4>
+                    <p>K-Means, StandardScaler, PCA</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Seaborn / Matplotlib</h4>
+                    <p>Visualisations et analyses exploratoires</p>
+                </div>
+                <div class="tech-item">
+                    <h4>SQL</h4>
+                    <p>Extraction et agrégation données CRM</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Tableau</h4>
+                    <p>Dashboard de suivi par segment</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Jupyter</h4>
+                    <p>Notebooks d'analyse et documentation</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section reveal">
+        <h2>Besoin de segmenter vos clients ?</h2>
+        <p>Je peux vous aider à identifier et activer vos segments à fort potentiel</p>
+        <div class="cta-buttons">
+            <a href="mailto:votre@email.com" class="cta-button">
+                <span>Discutons de votre projet</span>
+                <span>→</span>
+            </a>
+            <a href="portfolio-data-analyst.html" class="cta-button cta-secondary">
+                <span>Voir d'autres projets</span>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Data Analyst Portfolio. Transformant les données en décisions.</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 60;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.fillStyle = 'rgba(236, 72, 153, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 150) {
+                        ctx.strokeStyle = `rgba(236, 72, 153, ${0.2 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() {
+            reveals.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('active');
+                }
+            });
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        const ctx2 = document.getElementById('segmentChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['VIP Champions (8%)', 'Réguliers (23%)', 'Occasionnels (32%)', 'Chasseurs Promos (22%)', 'Dormants (15%)'],
+                datasets: [{
+                    data: [42, 28, 15, 10, 5],
+                    backgroundColor: [
+                        'rgba(236, 72, 153, 0.8)',
+                        'rgba(99, 102, 241, 0.8)',
+                        'rgba(0, 217, 255, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(100, 116, 139, 0.8)'
+                    ],
+                    borderColor: [
+                        '#ec4899',
+                        '#6366f1',
+                        '#00d9ff',
+                        '#f59e0b',
+                        '#64748b'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#fafafa',
+                            font: {
+                                size: 13,
+                                family: 'Outfit'
+                            },
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(10, 10, 10, 0.9)',
+                        titleColor: '#ec4899',
+                        bodyColor: '#fafafa',
+                        borderColor: '#ec4899',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '% du CA';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
