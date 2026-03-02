@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superstore Orders — Analyse Exploratoire · Portfolio Data Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --noir: #0a0a0a;
+            --blanc: #fafafa;
+            --accent: #00d9ff;
+            --accent-dark: #0099cc;
+            --violet: #6366f1;
+            --vert: #10b981;
+            --orange: #f59e0b;
+            --rose: #ec4899;
+            --rouge: #ef4444;
+            --gris: #64748b;
+            --gris-clair: #1e293b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--noir);
+            color: var(--blanc);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        #particles-canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; opacity: 0.3;
+        }
+
+        .grid-bg {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(0,217,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,217,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0; pointer-events: none;
+        }
+
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 1.5rem 4rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: rgba(10,10,10,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to   { transform: translateY(0);     opacity: 1; }
+        }
+
+        .back-button {
+            display: flex; align-items: center; gap: 0.5rem;
+            text-decoration: none; color: var(--accent);
+            font-weight: 500; transition: gap 0.3s ease;
+            font-family: 'Space Mono', monospace; font-size: 0.9rem;
+        }
+        .back-button:hover { gap: 0.8rem; }
+
+        .nav-title {
+            font-family: 'Space Mono', monospace; font-weight: 700;
+            font-size: 0.9rem; letter-spacing: 1px;
+            text-transform: uppercase; color: var(--gris);
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 70vh; display: flex; align-items: center;
+            justify-content: center; position: relative; z-index: 1;
+            padding: 8rem 4rem 4rem;
+        }
+        .hero-content { max-width: 1200px; width: 100%; animation: fadeInUp 1s ease; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .project-meta { display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .meta-item {
+            display: flex; align-items: center; gap: 0.5rem;
+            color: var(--gris); font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+        .meta-icon { color: var(--accent); }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800;
+            line-height: 1.1; margin-bottom: 1.5rem; letter-spacing: -2px;
+            background: linear-gradient(135deg, var(--blanc) 0%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.3rem; color: var(--gris); line-height: 1.8;
+            max-width: 900px; margin-bottom: 2rem;
+        }
+
+        .tags { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .tag {
+            padding: 0.6rem 1.2rem;
+            background: rgba(0,217,255,0.1);
+            border: 1px solid var(--accent); border-radius: 50px;
+            font-size: 0.85rem; font-family: 'Space Mono', monospace; color: var(--accent);
+        }
+
+        /* Stats Banner */
+        .stats-banner {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 3rem;
+            margin: 4rem auto; max-width: 1200px;
+            position: relative; z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 3rem;
+        }
+        .stat-item { text-align: center; }
+        .stat-value {
+            font-size: 2.8rem; font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 0.5rem;
+        }
+        .stat-label { color: var(--gris); font-size: 0.9rem; }
+
+        /* Content Sections */
+        .content-section {
+            max-width: 1200px; margin: 0 auto 6rem;
+            padding: 0 4rem; position: relative; z-index: 1;
+        }
+        .section-header {
+            display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;
+        }
+        .section-number {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-weight: 800; font-size: 1.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+        h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -1px; }
+
+        .section-content {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 3rem;
+            backdrop-filter: blur(10px);
+        }
+        .section-content p {
+            font-size: 1.1rem; line-height: 1.8; color: var(--gris); margin-bottom: 1.5rem;
+        }
+        .section-content p:last-child { margin-bottom: 0; }
+
+        .highlight-box {
+            background: rgba(0,217,255,0.05);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem; margin: 2rem 0; border-radius: 10px;
+        }
+        .highlight-box strong { color: var(--accent); display: block; margin-bottom: 0.5rem; }
+        .highlight-box p { margin-bottom: 0 !important; }
+
+        /* Challenge Cards */
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem; margin-top: 2rem;
+        }
+        .challenge-card {
+            background: rgba(239,68,68,0.05);
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 15px; padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--rouge);
+            box-shadow: 0 10px 30px rgba(239,68,68,0.2);
+        }
+        .challenge-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .challenge-card h3 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--blanc); }
+        .challenge-card p { color: var(--gris); line-height: 1.6; }
+
+        /* Solution Steps */
+        .solution-steps { margin-top: 2rem; }
+        .step { display: flex; gap: 2rem; margin-bottom: 3rem; align-items: flex-start; }
+        .step-number {
+            min-width: 60px; height: 60px;
+            background: linear-gradient(135deg, var(--vert), var(--accent));
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: 800; font-size: 1.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+        .step-content { flex: 1; }
+        .step-content h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--vert); }
+        .step-content p { color: var(--gris); line-height: 1.8; }
+        .step-details {
+            background: rgba(16,185,129,0.05);
+            border-left: 3px solid var(--vert);
+            padding: 1rem; margin-top: 1rem; border-radius: 5px;
+        }
+        .step-details ul { list-style: none; margin-top: 0.5rem; }
+        .step-details li { padding: 0.3rem 0; color: var(--gris); }
+        .step-details li::before { content: "→ "; color: var(--vert); font-weight: bold; }
+
+        /* ========= CHARTS ZONE ========= */
+        .charts-section {
+            max-width: 1200px; margin: 0 auto 6rem;
+            padding: 0 4rem; position: relative; z-index: 1;
+        }
+        .charts-section-header {
+            display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem;
+        }
+
+        /* Grid 2 charts + 1 wide */
+        .charts-grid-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem; margin-bottom: 2rem;
+        }
+        .charts-grid-bottom { margin-bottom: 2rem; }
+
+        .chart-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: border-color 0.3s ease;
+        }
+        .chart-card:hover { border-color: rgba(0,217,255,0.3); }
+
+        .chart-card-header { margin-bottom: 1.5rem; }
+        .chart-card-header h3 {
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem; color: var(--accent); margin-bottom: 0.3rem;
+        }
+        .chart-card-header p { color: var(--gris); font-size: 0.85rem; }
+
+        .chart-badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: rgba(245,158,11,0.1);
+            border: 1px solid rgba(245,158,11,0.4);
+            border-radius: 20px; padding: 0.25rem 0.7rem;
+            font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--orange);
+            margin-top: 0.5rem;
+        }
+
+        .chart-wrapper-sm { position: relative; height: 260px; }
+        .chart-wrapper-md { position: relative; height: 340px; }
+        .chart-wrapper-lg { position: relative; height: 400px; }
+
+        /* Scatter SVG */
+        .scatter-svg-container {
+            position: relative; height: 400px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .scatter-svg-container svg { width: 100%; height: 100%; }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem; margin-top: 2rem;
+        }
+        .result-card {
+            background: rgba(16,185,129,0.05);
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 15px; padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        .result-card:hover {
+            transform: translateY(-5px); border-color: var(--vert);
+            box-shadow: 0 10px 30px rgba(16,185,129,0.2);
+        }
+        .result-icon {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, var(--vert), var(--accent));
+            border-radius: 10px; display: flex; align-items: center;
+            justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;
+        }
+        .result-card h3 { font-size: 1.3rem; margin-bottom: 0.8rem; color: var(--vert); }
+        .result-card p { color: var(--gris); line-height: 1.6; }
+
+        /* Insights */
+        .insights-list { list-style: none; margin-top: 2rem; }
+        .insight-item {
+            background: rgba(99,102,241,0.05);
+            border-left: 4px solid var(--violet);
+            padding: 1.5rem; margin-bottom: 1.5rem;
+            border-radius: 10px; transition: all 0.3s ease;
+        }
+        .insight-item:hover { background: rgba(99,102,241,0.1); transform: translateX(10px); }
+        .insight-item strong { color: var(--violet); font-size: 1.1rem; display: block; margin-bottom: 0.5rem; }
+        .insight-item p { color: var(--gris); line-height: 1.6; }
+
+        /* Tech Grid */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem; margin-top: 2rem;
+        }
+        .tech-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; padding: 1.5rem; text-align: center;
+            transition: all 0.3s ease;
+        }
+        .tech-item:hover {
+            border-color: var(--accent); transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,217,255,0.2);
+        }
+        .tech-item h4 { color: var(--accent); margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .tech-item p { color: var(--gris); font-size: 0.9rem; }
+
+        /* Download Button */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-top: 1.8rem;
+            padding: 0.75rem 1.6rem;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            border-radius: 50px;
+            color: var(--orange);
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .download-btn::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(245, 158, 11, 0.12);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .download-btn:hover {
+            border-color: var(--orange);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+            transform: translateY(-2px);
+        }
+        .download-btn:hover::before { opacity: 1; }
+        .download-btn span { position: relative; z-index: 1; }
+        .download-icon {
+            width: 18px; height: 18px;
+            position: relative; z-index: 1;
+            flex-shrink: 0;
+        }
+
+        /* CTA */
+        .cta-section {
+            background: linear-gradient(135deg, rgba(0,217,255,0.1), rgba(99,102,241,0.1));
+            border: 1px solid rgba(0,217,255,0.3);
+            border-radius: 20px; padding: 4rem; text-align: center;
+            max-width: 1200px; margin: 6rem auto;
+            position: relative; z-index: 1;
+        }
+        .cta-section h2 { margin-bottom: 1rem; }
+        .cta-section p { color: var(--gris); font-size: 1.2rem; margin-bottom: 2rem; }
+        .cta-buttons { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(135deg, var(--accent), var(--violet));
+            color: var(--blanc); text-decoration: none; font-weight: 600;
+            border-radius: 50px; transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        .cta-button::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--violet), var(--rose));
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .cta-button:hover::before { opacity: 1; }
+        .cta-button span { position: relative; z-index: 1; }
+        .cta-secondary {
+            background: transparent; border: 2px solid var(--accent); color: var(--accent);
+        }
+        .cta-secondary::before { background: var(--accent); }
+        .cta-secondary:hover { color: var(--noir); }
+
+        footer {
+            padding: 3rem 4rem;
+            background: rgba(255,255,255,0.02); color: var(--blanc);
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            position: relative; z-index: 1;
+        }
+        footer p { color: var(--gris); }
+
+        .reveal {
+            opacity: 0; transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 968px) {
+            nav { padding: 1.5rem 2rem; }
+            .hero, .content-section, .cta-section, .charts-section { padding-left: 2rem; padding-right: 2rem; }
+            .stats-banner, .section-content, .chart-card { padding: 2rem; }
+            .challenge-grid, .results-grid, .tech-grid, .charts-grid-top { grid-template-columns: 1fr; }
+            .step { flex-direction: column; }
+            .step-number { align-self: flex-start; }
+        }
+
+        /* ════════════════════════════════════════════
+           MODE JOUR
+        ════════════════════════════════════════════ */
+        body {
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* Theme toggle button */
+        .theme-toggle {
+            background: none;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+            padding: 0.45rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--blanc);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            background: rgba(0,217,255,0.1);
+            color: var(--accent);
+        }
+        body.day-mode .theme-toggle {
+            border-color: rgba(0,0,0,0.2);
+            color: var(--blanc);
+        }
+        body.day-mode .theme-toggle:hover {
+            border-color: var(--accent);
+        }
+
+        /* Day mode — base */
+        body.day-mode { background: #f0f4f8; color: #1a202c; }
+        body.day-mode nav {
+            background: rgba(240,244,248,0.92);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        body.day-mode .grid-bg {
+            background-image:
+                linear-gradient(rgba(0,100,150,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,100,150,0.06) 1px, transparent 1px);
+        }
+
+        /* Day mode — text & labels */
+        body.day-mode .gris,
+        body.day-mode .hero-description,
+        body.day-mode .stat-label,
+        body.day-mode .section-content p,
+        body.day-mode .challenge-card p,
+        body.day-mode .step-content p,
+        body.day-mode .result-card p,
+        body.day-mode .insight-item p,
+        body.day-mode .tech-item p,
+        body.day-mode footer p,
+        body.day-mode .cta-section p { color: #4a5568; }
+
+        body.day-mode .nav-title { color: #718096; }
+
+        /* Day mode — cards */
+        body.day-mode .stats-banner,
+        body.day-mode .section-content,
+        body.day-mode .chart-card,
+        body.day-mode .tech-item {
+            background: rgba(255,255,255,0.85);
+            border-color: rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        body.day-mode .challenge-card {
+            background: rgba(239,68,68,0.04);
+            border-color: rgba(239,68,68,0.2);
+        }
+        body.day-mode .result-card {
+            background: rgba(16,185,129,0.05);
+            border-color: rgba(16,185,129,0.2);
+        }
+        body.day-mode .insight-item {
+            background: rgba(99,102,241,0.05);
+        }
+        body.day-mode .step-details {
+            background: rgba(16,185,129,0.05);
+        }
+        body.day-mode .highlight-box {
+            background: rgba(0,217,255,0.06);
+        }
+
+        /* Day mode — footer */
+        body.day-mode footer {
+            background: rgba(0,0,0,0.04);
+            border-top: 1px solid rgba(0,0,0,0.08);
+            color: #4a5568;
+        }
+
+        /* Day mode — cta section */
+        body.day-mode .cta-section {
+            background: linear-gradient(135deg, rgba(0,217,255,0.08), rgba(99,102,241,0.08));
+            border-color: rgba(0,217,255,0.25);
+        }
+
+        /* Day mode — code blocks (proget2) */
+        body.day-mode .code-block,
+        body.day-mode pre {
+            background: #1e293b !important;
+            color: #e2e8f0 !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        body.day-mode .code-tabs {
+            background: rgba(0,0,0,0.06);
+            border-color: rgba(0,0,0,0.1);
+        }
+        body.day-mode .code-tab {
+            color: #4a5568;
+        }
+        body.day-mode .code-tab.active {
+            background: rgba(0,217,255,0.15);
+            color: var(--accent);
+        }
+
+        /* Day mode — charts: axes and labels readable */
+        body.day-mode .chart-card-header h3 { color: var(--accent); }
+        body.day-mode .chart-card-header p { color: #718096; }
+
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="grid-bg"></div>
+
+    <nav>
+        <a href="portfolio-data-analyst.html" class="back-button">
+            <span>←</span>
+            <span>Retour au portfolio</span>
+        </a>
+        <div class="nav-title">SAE 1.03 · Projet #01</div>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Mode jour/nuit">
+            <span class="toggle-icon">☀️</span>
+            <span class="toggle-label">Mode jour</span>
+        </button>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span class="meta-item">
+                    <span class="meta-icon">📁</span>
+                    <span>SAE 1.03 — Compétence 2 · Traiter les données</span>
+                </span>
+                <span class="meta-item">
+                    <span class="meta-icon">📅</span>
+                    <span>2025–2026</span>
+                </span>
+                <span class="meta-item">
+                    <span class="meta-icon">🏫</span>
+                    <span>IUT Grand Ouest Normandie</span>
+                </span>
+            </div>
+
+            <h1>Analyse exploratoire<br>Superstore Orders</h1>
+
+            <p class="hero-description">
+                Analyse du carnet de commandes de l'entreprise américaine <strong style="color:var(--blanc)">Superstore</strong> sur la période 2019–2022 : préparation des données sous R, construction de 14 visualisations univariées et bivariées, calcul d'indicateurs statistiques, et restitution dans un rapport LaTeX à destination des responsables commerciaux.
+            </p>
+
+            <div class="tags">
+                <span class="tag">R</span>
+                <span class="tag">RStudio</span>
+                <span class="tag">LaTeX</span>
+                <span class="tag">Marp</span>
+                <span class="tag">Statistiques descriptives</span>
+                <span class="tag">Visualisation</span>
+            </div>
+
+            <a href="rapport_SAE.pdf" download="Rapport_SAE_Superstore.pdf" class="download-btn">
+                <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Télécharger le rapport PDF</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Stats Banner -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">9 994</div>
+                <div class="stat-label">Transactions analysées</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">2019–22</div>
+                <div class="stat-label">Période couverte</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">14</div>
+                <div class="stat-label">Visualisations produites</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">r=0.98</div>
+                <div class="stat-label">Corrélation commandes / CA</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">49</div>
+                <div class="stat-label">États américains couverts</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 01 Contexte -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">01</div>
+            <h2>Contexte du projet</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                Superstore est une entreprise américaine spécialisée dans la vente par correspondance de <strong style="color:var(--blanc)">meubles</strong>, de <strong style="color:var(--blanc)">fournitures de bureau</strong> et de <strong style="color:var(--blanc)">produits technologiques</strong>. Elle a mis à disposition un fichier <code style="color:var(--accent);background:rgba(0,217,255,0.1);padding:0.1rem 0.4rem;border-radius:4px;">Superstore_Orders_Dataset.csv</code> recensant l'ensemble des commandes réalisées entre 2019 et 2022 — soit près de 10 000 transactions couvrant 49 États américains.
+            </p>
+            <p>
+                Les variables disponibles incluent la date de commande, la date d'expédition, le mode de livraison, le type de client (segment), la géographie, le produit, le prix de vente unitaire, la quantité, la remise accordée et le profit généré.
+            </p>
+
+            <div class="highlight-box">
+                <strong>🎯 Objectif de la SAE</strong>
+                <p>Réaliser une analyse exploratoire complète de ce jeu de données sous R et RStudio — depuis la préparation du fichier jusqu'à la construction de graphiques commentés — pour apporter des réponses claires aux responsables commerciaux sur les performances par segment, catégorie et zone géographique.</p>
+            </div>
+
+            <p>
+                Le livrable final comprend un <strong style="color:var(--blanc)">rapport PDF de 10 pages rédigé sous LaTeX</strong>, un script R documenté, et une présentation orale supportée par des slides Marp.
+            </p>
+        </div>
+    </section>
+
+    <!-- 02 Problématiques -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">02</div>
+            <h2>Problématiques traitées</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                L'analyse a été structurée autour de 10 questions métier couvrant deux axes : l'analyse individuelle des indicateurs clés, puis l'étude croisée des performances entre variables.
+            </p>
+
+            <div class="challenge-grid">
+                <div class="challenge-card">
+                    <div class="challenge-icon">👥</div>
+                    <h3>Qui sont les clients ?</h3>
+                    <p>Répartition des transactions par segment (Consumer, Corporate, Home Office) et analyse du volume de commandes par type de client.</p>
+                </div>
+                <div class="challenge-card">
+                    <div class="challenge-icon">📦</div>
+                    <h3>Quels produits performent ?</h3>
+                    <p>Classement des catégories et sous-catégories selon le chiffre d'affaires et les bénéfices — dont le détail des fournitures de bureau.</p>
+                </div>
+                <div class="challenge-card">
+                    <div class="challenge-icon">💰</div>
+                    <h3>Distribution des profits</h3>
+                    <p>Caractérisation statistique des profits par transaction : moyenne, médiane, quartiles, valeurs extrêmes et asymétrie de la distribution.</p>
+                </div>
+                <div class="challenge-card">
+                    <div class="challenge-icon">🗺️</div>
+                    <h3>Géographie des performances</h3>
+                    <p>Répartition des bénéfices selon les États — identification des zones déficitaires (Ohio, Texas, Illinois) et des marchés les plus rentables.</p>
+                </div>
+                <div class="challenge-card">
+                    <div class="challenge-icon">🔗</div>
+                    <h3>Associations entre variables</h3>
+                    <p>Mesure des liaisons entre catégorie produit / type de client, État / profit, et sous-catégorie / bénéfice via corrélations et V de Cramér.</p>
+                </div>
+                <div class="challenge-card">
+                    <div class="challenge-icon">📈</div>
+                    <h3>Ventes vs Profit</h3>
+                    <p>Représentation et quantification de la relation entre chiffre d'affaires d'une transaction et son profit — nuage de points et droite de régression.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 Démarche -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">03</div>
+            <h2>Démarche analytique</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                Le projet a suivi trois étapes structurées, du paramétrage de l'environnement de travail jusqu'à la restitution finale.
+            </p>
+
+            <div class="solution-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Environnement & import des données</h3>
+                        <p>Mise en place de l'arborescence projet sous RStudio, création du fichier script avec en-tête (thématique, auteurs, source), import du CSV via les fonctions de base R.</p>
+                        <div class="step-details">
+                            <strong>Actions réalisées :</strong>
+                            <ul>
+                                <li>Création des dossiers <code style="color:var(--vert)">/data</code> et <code style="color:var(--vert)">/scripts</code></li>
+                                <li>Import via <code style="color:var(--vert)">read.csv()</code> avec gestion de l'encodage</li>
+                                <li>Inspection avec <code style="color:var(--vert)">str()</code>, <code style="color:var(--vert)">summary()</code>, <code style="color:var(--vert)">head()</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Préparation & typage des données</h3>
+                        <p>Cohérence des types de variables : conversion des dates en <code style="color:var(--vert)">Date</code>, des catégories en <code style="color:var(--vert)">factor</code>, des numériques en <code style="color:var(--vert)">numeric</code>. Création d'une variable <em>Signe_Benefice</em> (Positif / Négatif) pour faciliter certaines visualisations.</p>
+                        <div class="step-details">
+                            <strong>Variables traitées :</strong>
+                            <ul>
+                                <li>Order.Date, Ship.Date → format Date</li>
+                                <li>Segment, Category, Sub.Category, State → factor</li>
+                                <li>Sales, Profit, Discount, Quantity → numeric</li>
+                                <li>Ajout colonne Signe_Benefice via <code style="color:var(--vert)">ifelse()</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Analyse exploratoire & visualisations</h3>
+                        <p>Construction de 14 graphiques avec les fonctions graphiques de base R (<code style="color:var(--vert)">barplot</code>, <code style="color:var(--vert)">pie</code>, <code style="color:var(--vert)">boxplot</code>, <code style="color:var(--vert)">plot</code>, <code style="color:var(--vert)">hist</code>) accompagnés d'indicateurs statistiques : coefficient de corrélation linéaire, rapport de corrélation (η²), V de Cramér.</p>
+                        <div class="step-details">
+                            <strong>Indicateurs calculés :</strong>
+                            <ul>
+                                <li>Corrélation Profit / Sales : <strong style="color:var(--orange)">r = 0,479</strong></li>
+                                <li>Corrélation Commandes / CA : <strong style="color:var(--orange)">r = 0,983</strong></li>
+                                <li>V de Cramér Catégorie × Segment : <strong style="color:var(--orange)">0,66 %</strong> → liaison négligeable</li>
+                                <li>Rapport de corrélation Sous-catégorie → Profit : <strong style="color:var(--orange)">8,15 %</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 Visualisations clés -->
+    <section class="charts-section reveal">
+        <div class="charts-section-header">
+            <div class="section-number">04</div>
+            <h2>Visualisations clés</h2>
+        </div>
+
+        <!-- Row 1: 2 bar charts -->
+        <div class="charts-grid-top">
+
+            <!-- Chart 1: Segments -->
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Répartition par segment client</h3>
+                    <p>Nombre de transactions par type de client · 2019–2022</p>
+                </div>
+                <div class="chart-wrapper-sm">
+                    <canvas id="chartSegments"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: CA par catégorie -->
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Chiffre d'affaires par catégorie</h3>
+                    <p>Classement des 3 familles de produits selon les ventes totales ($)</p>
+                </div>
+                <div class="chart-wrapper-sm">
+                    <canvas id="chartCA"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Profits Office Supplies + Boxplot profits -->
+        <div class="charts-grid-top">
+
+            <!-- Chart 3: Profits sous-catégories fournitures -->
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Profits — Fournitures de bureau</h3>
+                    <p>Classement des sous-catégories Office Supplies par bénéfice total ($)</p>
+                </div>
+                <div class="chart-wrapper-sm">
+                    <canvas id="chartOffice"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 4: Profit par sous-catégorie boxplot -->
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Profit médian par sous-catégorie (Top 10)</h3>
+                    <p>Distribution des profits — médiane et dispersion inter-quartile</p>
+                    <div class="chart-badge">η² = 8,15 % · liaison faible</div>
+                </div>
+                <div class="chart-wrapper-sm">
+                    <canvas id="chartBoxSub"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Scatter Plot full width -->
+        <div class="charts-grid-bottom">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Profit d'une transaction en fonction du chiffre d'affaires</h3>
+                    <p>Nuage de points — droite de régression (tiretés) · association linéaire positive modérée</p>
+                    <div class="chart-badge">r = 0,479 · corrélation modérée positive</div>
+                </div>
+                <div class="scatter-svg-container">
+                    <svg id="scatterMain" viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="scatterBg" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#0d1117"/>
+                                <stop offset="100%" stop-color="#0a1628"/>
+                            </linearGradient>
+                            <filter id="dotGlow">
+                                <feGaussianBlur stdDeviation="2" result="blur"/>
+                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                            </filter>
+                            <filter id="lineGlow">
+                                <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                            </filter>
+                            <clipPath id="plotArea">
+                                <rect x="80" y="20" width="790" height="320"/>
+                            </clipPath>
+                        </defs>
+
+                        <!-- Background -->
+                        <rect width="900" height="400" fill="url(#scatterBg)" rx="12"/>
+
+                        <!-- Grid -->
+                        <g stroke="rgba(255,255,255,0.06)" stroke-width="0.8">
+                            <line x1="80" y1="20"  x2="80"  y2="340"/>
+                            <line x1="238" y1="20" x2="238" y2="340"/>
+                            <line x1="396" y1="20" x2="396" y2="340"/>
+                            <line x1="554" y1="20" x2="554" y2="340"/>
+                            <line x1="712" y1="20" x2="712" y2="340"/>
+                            <line x1="870" y1="20" x2="870" y2="340"/>
+                            <line x1="80" y1="340" x2="875" y2="340"/>
+                            <line x1="80" y1="260" x2="875" y2="260"/>
+                            <line x1="80" y1="180" x2="875" y2="180"/>
+                            <line x1="80" y1="100" x2="875" y2="100"/>
+                            <line x1="80" y1="20"  x2="875" y2="20"/>
+                        </g>
+
+                        <!-- Zero profit axis (y = 180) -->
+                        <line x1="80" y1="210" x2="875" y2="210" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+
+                        <!-- Regression line from (80,220) to (875,115) -->
+                        <line x1="80" y1="222" x2="875" y2="120" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="10,5" filter="url(#lineGlow)" opacity="0.95"/>
+
+                        <!-- ===== SCATTER POINTS ===== -->
+                        <g clip-path="url(#plotArea)">
+                        <!-- Dense cluster near origin (low sales, profit ~0) -->
+                        <circle cx="95"  cy="212" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="100" cy="206" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="103" cy="218" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="107" cy="203" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="110" cy="222" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="113" cy="210" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="116" cy="200" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="119" cy="215" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="122" cy="207" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="125" cy="195" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="128" cy="225" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="131" cy="212" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="134" cy="198" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="137" cy="222" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="140" cy="190" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="143" cy="215" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="146" cy="228" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="149" cy="202" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="152" cy="209" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="155" cy="218" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="95"  cy="232" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="100" cy="240" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="106" cy="248" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="112" cy="238" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="118" cy="255" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="124" cy="244" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="130" cy="260" r="3" fill="#6366f1" opacity="0.60"/>
+                        <circle cx="88"  cy="228" r="3" fill="#6366f1" opacity="0.65"/>
+                        <!-- Mid range sales -->
+                        <circle cx="165" cy="195" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="172" cy="183" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="180" cy="200" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="188" cy="172" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="196" cy="188" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="204" cy="176" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="213" cy="165" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="220" cy="190" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="168" cy="235" r="3.2" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="178" cy="248" r="3.2" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="192" cy="255" r="3.2" fill="#6366f1" opacity="0.60"/>
+                        <circle cx="208" cy="240" r="3.2" fill="#6366f1" opacity="0.60"/>
+                        <!-- Higher sales -->
+                        <circle cx="250" cy="175" r="3.5" fill="#00d9ff" opacity="0.8"/>
+                        <circle cx="270" cy="160" r="3.5" fill="#00d9ff" opacity="0.8"/>
+                        <circle cx="290" cy="170" r="3.5" fill="#00d9ff" opacity="0.8"/>
+                        <circle cx="310" cy="155" r="3.5" fill="#00d9ff" opacity="0.8"/>
+                        <circle cx="332" cy="145" r="3.5" fill="#00d9ff" opacity="0.8"/>
+                        <circle cx="260" cy="250" r="3.5" fill="#6366f1" opacity="0.6"/>
+                        <circle cx="285" cy="265" r="3.5" fill="#6366f1" opacity="0.55"/>
+                        <!-- Extreme values — outliers -->
+                        <circle cx="430" cy="95"  r="4"   fill="#00d9ff" opacity="0.9" filter="url(#dotGlow)"/>
+                        <circle cx="510" cy="78"  r="4"   fill="#00d9ff" opacity="0.9" filter="url(#dotGlow)"/>
+                        <circle cx="370" cy="112" r="3.8" fill="#00d9ff" opacity="0.85"/>
+                        <circle cx="590" cy="62"  r="4.5" fill="#00d9ff" opacity="0.9" filter="url(#dotGlow)"/>
+                        <circle cx="680" cy="52"  r="4.5" fill="#00d9ff" opacity="0.9" filter="url(#dotGlow)"/>
+                        <!-- Big negative outlier bottom right -->
+                        <circle cx="820" cy="330" r="5"   fill="#ec4899" opacity="0.95" filter="url(#dotGlow)"/>
+                        <!-- Some mid negatives -->
+                        <circle cx="350" cy="280" r="3.5" fill="#6366f1" opacity="0.6"/>
+                        <circle cx="230" cy="290" r="3.5" fill="#6366f1" opacity="0.6"/>
+                        <circle cx="160" cy="300" r="3.5" fill="#6366f1" opacity="0.55"/>
+                        <!-- Big positive outlier -->
+                        <circle cx="750" cy="38"  r="5"   fill="#10b981" opacity="0.9" filter="url(#dotGlow)"/>
+                        </g>
+
+                        <!-- Axes -->
+                        <line x1="80"  y1="20"  x2="80"  y2="345" stroke="rgba(255,255,255,0.35)" stroke-width="1.2"/>
+                        <line x1="75"  y1="340" x2="880" y2="340" stroke="rgba(255,255,255,0.35)" stroke-width="1.2"/>
+
+                        <!-- Tick labels X -->
+                        <text x="80"  y="358" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">0</text>
+                        <text x="238" y="358" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">5 000</text>
+                        <text x="396" y="358" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">10 000</text>
+                        <text x="554" y="358" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">15 000</text>
+                        <text x="712" y="358" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">20 000</text>
+
+                        <!-- Tick labels Y -->
+                        <text x="68" y="344" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">−6 000</text>
+                        <text x="68" y="264" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">−2 000</text>
+                        <text x="68" y="214" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">0</text>
+                        <text x="68" y="184" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">2 000</text>
+                        <text x="68" y="104" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">6 000</text>
+                        <text x="68" y="24"  text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">8 000</text>
+
+                        <!-- Axis titles -->
+                        <text x="480" y="383" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="13" font-family="'Outfit',sans-serif">Sales — Ventes ($)</text>
+                        <text x="18" y="180" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="13" font-family="'Outfit',sans-serif" transform="rotate(-90,18,180)">Profit ($)</text>
+
+                        <!-- Correlation badge -->
+                        <rect x="90" y="28" width="82" height="22" rx="5" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.5)" stroke-width="1"/>
+                        <text x="131" y="43" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="'Space Mono',monospace" font-weight="bold">r = 0.479</text>
+
+                        <!-- Legend -->
+                        <circle cx="640" cy="375" r="4" fill="#00d9ff" opacity="0.8"/>
+                        <text x="648" y="379" fill="rgba(255,255,255,0.5)" font-size="10" font-family="'Outfit',sans-serif">Profit positif</text>
+                        <circle cx="718" cy="375" r="4" fill="#6366f1" opacity="0.8"/>
+                        <text x="726" y="379" fill="rgba(255,255,255,0.5)" font-size="10" font-family="'Outfit',sans-serif">Profit négatif</text>
+                        <circle cx="800" cy="375" r="4" fill="#ec4899" opacity="0.9"/>
+                        <text x="808" y="379" fill="rgba(255,255,255,0.5)" font-size="10" font-family="'Outfit',sans-serif">Outlier</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 05 Résultats -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">05</div>
+            <h2>Principaux résultats</h2>
+        </div>
+        <div class="section-content">
+            <p>L'analyse exploratoire a permis de mettre en lumière plusieurs tendances commerciales significatives sur la période 2019–2022.</p>
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-icon">👤</div>
+                    <h3>Consumer dominant</h3>
+                    <p>Le segment Consumer représente <strong style="color:var(--blanc)">51,94 %</strong> des transactions, devant Corporate (30,22 %) et Home Office (17,84 %).</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon">💻</div>
+                    <h3>Technology en tête</h3>
+                    <p>La catégorie Technology génère le CA le plus élevé (<strong style="color:var(--blanc)">836 154 $</strong>), suivie de Furniture (742 k$) et Office Supplies (719 k$).</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon">📄</div>
+                    <h3>Paper & Binders rentables</h3>
+                    <p>Dans les fournitures de bureau, Paper (34 k$) et Binders (30 k$) sont les sous-catégories les plus bénéficiaires. Supplies est en pertes (−1 190 $).</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon">📊</div>
+                    <h3>Profit asymétrique</h3>
+                    <p>Profit moyen : <strong style="color:var(--blanc)">28,66 $</strong> · Médiane : 8,67 $ · Q3 : 29,36 $. Distribution très asymétrique avec des extrêmes de −6 600 $ à +8 400 $.</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon">🗺️</div>
+                    <h3>Géographie contrastée</h3>
+                    <p>California et New York affichent les meilleurs profits. Ohio, Texas et Illinois enregistrent des pertes. Le Michigan est l'État le plus rentable par transaction (moy. 96 $).</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon">📈</div>
+                    <h3>Volume pilote le CA</h3>
+                    <p>Corrélation très forte entre nombre de commandes et chiffre d'affaires par État (<strong style="color:var(--blanc)">r = 0,983</strong>) : le volume est le premier moteur de croissance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 06 Insights -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">06</div>
+            <h2>Insights clés</h2>
+        </div>
+        <div class="section-content">
+            <p>Plusieurs observations contre-intuitives ont émergé de l'analyse croisée des variables.</p>
+            <ul class="insights-list">
+                <li class="insight-item">
+                    <strong>💡 Chiffre d'affaires ≠ Rentabilité</strong>
+                    <p>La corrélation entre ventes et profit d'une transaction n'est que modérée (r = 0,479). Une transaction à fort CA peut être déficitaire si la remise est élevée — notamment dans le Furniture où certaines commandes à 20 000 $+ affichent un profit négatif.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>💡 Les remises érodent les marges</strong>
+                    <p>Une grande partie des pertes observées correspond à des transactions avec une remise (Discount) importante. Les produits technologiques et les meubles sont les plus exposés à cet effet de ciseau.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>💡 Aucune association segment × catégorie</strong>
+                    <p>Le V de Cramér de 0,66 % indique que la structure des achats est quasi identique pour Consumer, Corporate et Home Office — les trois segments achètent dans les mêmes proportions. La segmentation ne justifie pas une stratégie produit différenciée.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>💡 Ohio & Texas : marchés à risque</strong>
+                    <p>Parmi les 10 États les plus actifs, l'Ohio (−36 $/transaction en moyenne), le Texas et l'Illinois sont systématiquement déficitaires. Des causes opérationnelles (coûts logistiques, politique de remise locale) sont à investiguer pour rétablir la rentabilité.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>💡 Office Supplies : fragmenté mais régulier</strong>
+                    <p>La catégorie Office Supplies présente la plus grande diversité de sous-catégories (9 familles) avec un flux constant de petits achats. Binders et Paper dominent près de la moitié du volume, assurant une base stable de revenus récurrents.</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 07 Stack technique -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">07</div>
+            <h2>Outils & livrables</h2>
+        </div>
+        <div class="section-content">
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>R / RStudio</h4>
+                    <p>Langage de base R — import, typage, graphiques natifs (barplot, boxplot, plot, pie)</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Statistiques</h4>
+                    <p>Corrélation de Pearson, rapport de corrélation η², V de Cramér, quartiles</p>
+                </div>
+                <div class="tech-item">
+                    <h4>LaTeX</h4>
+                    <p>Rapport PDF 10 pages — figures référencées, mise en page scientifique</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Marp</h4>
+                    <p>Présentation orale en Markdown — slides exportées en PDF</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Git</h4>
+                    <p>Versionnage du script et du rapport tout au long du projet</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Superstore CSV</h4>
+                    <p>Dataset réel · 9 994 lignes · 21 variables · commandes 2019–2022</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>Voir d'autres projets</h2>
+        <p>Retour au portfolio ou exploration des projets suivants</p>
+        <div class="cta-buttons">
+            <a href="portfolio-data-analyst.html" class="cta-button">
+                <span>← Retour au portfolio</span>
+            </a>
+            <a href="rapport_SAE.pdf" download="Rapport_SAE_Superstore.pdf" class="cta-button cta-secondary">
+                <svg style="width:16px;height:16px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Télécharger le rapport</span>
+            </a>
+            <a href="proget2.html" class="cta-button cta-secondary">
+                <span>Projet suivant →</span>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025–2026 · IUT Grand Ouest Normandie · BUT Science des Données</p>
+    </footer>
+
+    <script>
+        // ===== PARTICLES =====
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const particles = [];
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = document.body.classList.contains('day-mode') ? 'rgba(0,120,180,0.35)' : 'rgba(0, 217, 255, 0.5)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            for (let i = 0; i < particles.length; i++)
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+                    const d = Math.sqrt(dx*dx + dy*dy);
+                    if (d < 150) { ctx.strokeStyle = document.body.classList.contains('day-mode') ? `rgba(0,120,180,${0.2*(1-d/150)})` : `rgba(0,217,255,${0.2*(1-d/150)})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); }
+                }
+            requestAnimationFrame(animate);
+        }
+        animate();
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+        // ===== SCROLL REVEAL =====
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() {
+            reveals.forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 100)
+                    el.classList.add('active');
+            });
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        // ===== CHARTS =====
+        const DEFAULTS = {
+            plugins: { legend: { display: false }, tooltip: {
+                backgroundColor: 'rgba(10,10,10,0.9)', titleColor: '#00d9ff',
+                bodyColor: '#fafafa', borderColor: '#00d9ff', borderWidth: 1, padding: 10
+            }},
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#64748b', font: { size: 11 } } },
+                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b', font: { size: 11 } } }
+            }
+        };
+
+        // Chart 1 — Segments
+        new Chart(document.getElementById('chartSegments'), {
+            type: 'bar',
+            data: {
+                labels: ['Consumer', 'Corporate', 'Home Office'],
+                datasets: [{
+                    data: [5191, 3020, 1783],
+                    backgroundColor: ['rgba(0,217,255,0.7)', 'rgba(99,102,241,0.7)', 'rgba(245,158,11,0.7)'],
+                    borderColor:      ['#00d9ff', '#6366f1', '#f59e0b'],
+                    borderWidth: 2, borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { ...DEFAULTS.plugins.tooltip,
+                        callbacks: { label: c => c.parsed.y.toLocaleString('fr') + ' transactions' }
+                    }
+                },
+                scales: {
+                    y: { ...DEFAULTS.scales.y, beginAtZero: true,
+                         ticks: { ...DEFAULTS.scales.y.ticks, callback: v => v.toLocaleString('fr') }
+                    },
+                    x: DEFAULTS.scales.x
+                }
+            }
+        });
+
+        // Chart 2 — CA par catégorie
+        new Chart(document.getElementById('chartCA'), {
+            type: 'bar',
+            data: {
+                labels: ['Technology', 'Furniture', 'Office Supplies'],
+                datasets: [{
+                    data: [836154, 741999, 719047],
+                    backgroundColor: ['rgba(16,185,129,0.75)', 'rgba(99,102,241,0.7)', 'rgba(0,217,255,0.65)'],
+                    borderColor:      ['#10b981', '#6366f1', '#00d9ff'],
+                    borderWidth: 2, borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { ...DEFAULTS.plugins.tooltip,
+                        callbacks: { label: c => Math.round(c.parsed.y).toLocaleString('fr') + ' $' }
+                    }
+                },
+                scales: {
+                    y: { ...DEFAULTS.scales.y, beginAtZero: true,
+                         ticks: { ...DEFAULTS.scales.y.ticks, callback: v => (v/1000)+'k $' }
+                    },
+                    x: DEFAULTS.scales.x
+                }
+            }
+        });
+
+        // Chart 3 — Office Supplies profits
+        new Chart(document.getElementById('chartOffice'), {
+            type: 'bar',
+            data: {
+                labels: ['Paper','Binders','Storage','Appliances','Envelopes','Art','Labels','Fasteners','Supplies'],
+                datasets: [{
+                    data: [34054, 30222, 21278, 18138, 6964, 6528, 5546, 950, -1190],
+                    backgroundColor: d => d.raw < 0 ? 'rgba(239,68,68,0.7)' : 'rgba(16,185,129,0.7)',
+                    borderColor: d => d.raw < 0 ? '#ef4444' : '#10b981',
+                    borderWidth: 2, borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { ...DEFAULTS.plugins.tooltip,
+                        callbacks: { label: c => Math.round(c.parsed.x).toLocaleString('fr') + ' $' }
+                    }
+                },
+                scales: {
+                    x: { ...DEFAULTS.scales.y,
+                         ticks: { ...DEFAULTS.scales.y.ticks, callback: v => (v/1000).toFixed(0)+'k' }
+                    },
+                    y: { ...DEFAULTS.scales.x, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                }
+            }
+        });
+
+        // Chart 4 — Profit médian par sous-catégorie
+        new Chart(document.getElementById('chartBoxSub'), {
+            type: 'bar',
+            data: {
+                labels: ['Copiers','Accessories','Phones','Paper','Chairs','Appliances','Storage','Binders','Labels','Art'],
+                datasets: [{
+                    label: 'Profit médian ($)',
+                    data: [180, 54, 38, 25, 43, 19, 24, -8, 15, 13],
+                    backgroundColor: d => d.raw < 0 ? 'rgba(239,68,68,0.65)' : 'rgba(0,217,255,0.65)',
+                    borderColor: d => d.raw < 0 ? '#ef4444' : '#00d9ff',
+                    borderWidth: 2, borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { ...DEFAULTS.plugins.tooltip,
+                        callbacks: { label: c => c.parsed.x.toFixed(2) + ' $ (médiane)' }
+                    }
+                },
+                scales: {
+                    x: { ...DEFAULTS.scales.y, ticks: { ...DEFAULTS.scales.y.ticks, callback: v => v+'$' } },
+                    y: { ...DEFAULTS.scales.x, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                }
+            }
+        });
+
+        // ===== THEME TOGGLE =====
+        (function() {
+            const btn = document.getElementById('theme-toggle');
+            if (!btn) return;
+            const label = btn.querySelector('.toggle-label');
+            const icon  = btn.querySelector('.toggle-icon');
+
+            function getCharts() {
+                return Object.values(Chart.instances || {});
+            }
+
+            function applyChartTheme(isDay) {
+                const gridDay  = 'rgba(0,0,0,0.08)';
+                const gridNight= 'rgba(255,255,255,0.07)';
+                const tickDay  = '#4a5568';
+                const tickNight= '#64748b';
+                const legendDay= '#1a202c';
+                const ttBg     = isDay ? 'rgba(255,255,255,0.95)' : 'rgba(10,10,10,0.9)';
+                const ttTitle  = isDay ? '#0077aa' : '#00d9ff';
+                const ttBody   = isDay ? '#1a202c' : '#fafafa';
+
+                getCharts().forEach(chart => {
+                    const opts = chart.options;
+                    const sc   = opts.scales || {};
+                    ['x','y'].forEach(ax => {
+                        if (sc[ax]) {
+                            if (sc[ax].grid)  sc[ax].grid.color  = isDay ? gridDay  : gridNight;
+                            if (sc[ax].ticks) sc[ax].ticks.color = isDay ? tickDay  : tickNight;
+                        }
+                    });
+                    const plugins = opts.plugins || {};
+                    if (plugins.tooltip) {
+                        plugins.tooltip.backgroundColor = ttBg;
+                        plugins.tooltip.titleColor      = ttTitle;
+                        plugins.tooltip.bodyColor       = ttBody;
+                        plugins.tooltip.borderColor     = ttTitle;
+                    }
+                    if (plugins.legend && plugins.legend.labels) {
+                        plugins.legend.labels.color = isDay ? legendDay : '#fafafa';
+                    }
+                    chart.update('none');
+                });
+            }
+
+            btn.addEventListener('click', () => {
+                const isDay = document.body.classList.toggle('day-mode');
+                icon.textContent  = isDay ? '🌙' : '☀️';
+                label.textContent = isDay ? 'Mode nuit' : 'Mode jour';
+                applyChartTheme(isDay);
+            });
+        })();
+
+    </script>
+</body>
+</html>
+
