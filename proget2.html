@@ -511,6 +511,135 @@
             .step-number { align-self: flex-start; }
             .charts-dual { grid-template-columns: 1fr; padding: 0 2rem; }
         }
+
+        /* ════════════════════════════════════════════
+           MODE JOUR
+        ════════════════════════════════════════════ */
+        body {
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* Theme toggle button */
+        .theme-toggle {
+            background: none;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+            padding: 0.45rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--blanc);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            background: rgba(0,217,255,0.1);
+            color: var(--accent);
+        }
+        body.day-mode .theme-toggle {
+            border-color: rgba(0,0,0,0.2);
+            color: var(--blanc);
+        }
+        body.day-mode .theme-toggle:hover {
+            border-color: var(--accent);
+        }
+
+        /* Day mode — base */
+        body.day-mode { background: #f0f4f8; color: #1a202c; }
+        body.day-mode nav {
+            background: rgba(240,244,248,0.92);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        body.day-mode .grid-bg {
+            background-image:
+                linear-gradient(rgba(0,100,150,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,100,150,0.06) 1px, transparent 1px);
+        }
+
+        /* Day mode — text & labels */
+        body.day-mode .gris,
+        body.day-mode .hero-description,
+        body.day-mode .stat-label,
+        body.day-mode .section-content p,
+        body.day-mode .challenge-card p,
+        body.day-mode .step-content p,
+        body.day-mode .result-card p,
+        body.day-mode .insight-item p,
+        body.day-mode .tech-item p,
+        body.day-mode footer p,
+        body.day-mode .cta-section p { color: #4a5568; }
+
+        body.day-mode .nav-title { color: #718096; }
+
+        /* Day mode — cards */
+        body.day-mode .stats-banner,
+        body.day-mode .section-content,
+        body.day-mode .chart-card,
+        body.day-mode .tech-item {
+            background: rgba(255,255,255,0.85);
+            border-color: rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        body.day-mode .challenge-card {
+            background: rgba(239,68,68,0.04);
+            border-color: rgba(239,68,68,0.2);
+        }
+        body.day-mode .result-card {
+            background: rgba(16,185,129,0.05);
+            border-color: rgba(16,185,129,0.2);
+        }
+        body.day-mode .insight-item {
+            background: rgba(99,102,241,0.05);
+        }
+        body.day-mode .step-details {
+            background: rgba(16,185,129,0.05);
+        }
+        body.day-mode .highlight-box {
+            background: rgba(0,217,255,0.06);
+        }
+
+        /* Day mode — footer */
+        body.day-mode footer {
+            background: rgba(0,0,0,0.04);
+            border-top: 1px solid rgba(0,0,0,0.08);
+            color: #4a5568;
+        }
+
+        /* Day mode — cta section */
+        body.day-mode .cta-section {
+            background: linear-gradient(135deg, rgba(0,217,255,0.08), rgba(99,102,241,0.08));
+            border-color: rgba(0,217,255,0.25);
+        }
+
+        /* Day mode — code blocks (proget2) */
+        body.day-mode .code-block,
+        body.day-mode pre {
+            background: #1e293b !important;
+            color: #e2e8f0 !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        body.day-mode .code-tabs {
+            background: rgba(0,0,0,0.06);
+            border-color: rgba(0,0,0,0.1);
+        }
+        body.day-mode .code-tab {
+            color: #4a5568;
+        }
+        body.day-mode .code-tab.active {
+            background: rgba(0,217,255,0.15);
+            color: var(--accent);
+        }
+
+        /* Day mode — charts: axes and labels readable */
+        body.day-mode .chart-card-header h3 { color: var(--accent); }
+        body.day-mode .chart-card-header p { color: #718096; }
+
     </style>
 </head>
 <body>
@@ -524,6 +653,10 @@
             <span>Retour au portfolio</span>
         </a>
         <div class="nav-title">SAE 1.01 — BUT Science des Données</div>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Mode jour/nuit">
+            <span class="toggle-icon">☀️</span>
+            <span class="toggle-label">Mode jour</span>
+        </button>
     </nav>
 
     <!-- HERO -->
@@ -1258,6 +1391,60 @@
         },
         options: { ...chartDefaults }
     });
+
+        // ===== THEME TOGGLE =====
+        (function() {
+            const btn = document.getElementById('theme-toggle');
+            if (!btn) return;
+            const label = btn.querySelector('.toggle-label');
+            const icon  = btn.querySelector('.toggle-icon');
+
+            function getCharts() {
+                return Object.values(Chart.instances || {});
+            }
+
+            function applyChartTheme(isDay) {
+                const gridDay  = 'rgba(0,0,0,0.08)';
+                const gridNight= 'rgba(255,255,255,0.07)';
+                const tickDay  = '#4a5568';
+                const tickNight= '#64748b';
+                const legendDay= '#1a202c';
+                const ttBg     = isDay ? 'rgba(255,255,255,0.95)' : 'rgba(10,10,10,0.9)';
+                const ttTitle  = isDay ? '#0077aa' : '#00d9ff';
+                const ttBody   = isDay ? '#1a202c' : '#fafafa';
+
+                getCharts().forEach(chart => {
+                    const opts = chart.options;
+                    const sc   = opts.scales || {};
+                    ['x','y'].forEach(ax => {
+                        if (sc[ax]) {
+                            if (sc[ax].grid)  sc[ax].grid.color  = isDay ? gridDay  : gridNight;
+                            if (sc[ax].ticks) sc[ax].ticks.color = isDay ? tickDay  : tickNight;
+                        }
+                    });
+                    const plugins = opts.plugins || {};
+                    if (plugins.tooltip) {
+                        plugins.tooltip.backgroundColor = ttBg;
+                        plugins.tooltip.titleColor      = ttTitle;
+                        plugins.tooltip.bodyColor       = ttBody;
+                        plugins.tooltip.borderColor     = ttTitle;
+                    }
+                    if (plugins.legend && plugins.legend.labels) {
+                        plugins.legend.labels.color = isDay ? legendDay : '#fafafa';
+                    }
+                    chart.update('none');
+                });
+            }
+
+            btn.addEventListener('click', () => {
+                const isDay = document.body.classList.toggle('day-mode');
+                icon.textContent  = isDay ? '🌙' : '☀️';
+                label.textContent = isDay ? 'Mode nuit' : 'Mode jour';
+                applyChartTheme(isDay);
+            });
+        })();
+
     </script>
 </body>
 </html>
+
