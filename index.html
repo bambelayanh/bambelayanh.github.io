@@ -20,6 +20,14 @@
             --gris-clair: #1e293b;
         }
 
+        /* ── Day mode overrides ── */
+        body.day-mode {
+            --noir: #f0f4f8;
+            --blanc: #1a202c;
+            --gris: #4a5568;
+            --gris-clair: #e2e8f0;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -32,7 +40,41 @@
             color: var(--blanc);
             line-height: 1.6;
             overflow-x: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
         }
+
+        /* ── Theme toggle button ── */
+        .theme-toggle {
+            background: none;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+            padding: 0.45rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--blanc);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            background: rgba(0,217,255,0.1);
+            color: var(--accent);
+        }
+        body.day-mode .theme-toggle {
+            border-color: rgba(0,0,0,0.2);
+            color: var(--blanc);
+        }
+        body.day-mode .theme-toggle:hover {
+            border-color: var(--accent);
+            background: rgba(0,217,255,0.1);
+        }
+        .theme-toggle .toggle-icon { font-size: 1rem; }
 
         /* Particles Background */
         #particles-canvas {
@@ -59,6 +101,118 @@
             background-size: 50px 50px;
             z-index: 0;
             pointer-events: none;
+            transition: background-image 0.4s ease;
+        }
+        body.day-mode .grid-bg {
+            background-image:
+                linear-gradient(rgba(0, 100, 150, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 100, 150, 0.06) 1px, transparent 1px);
+        }
+
+        /* Day mode — nav */
+        body.day-mode nav {
+            background: rgba(240, 244, 248, 0.9);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        body.day-mode .nav-links a {
+            color: var(--blanc);
+        }
+        body.day-mode .nav-links {
+            background: rgba(240,244,248,0.98);
+        }
+
+        /* Day mode — cards */
+        body.day-mode .stat-card,
+        body.day-mode .skill-card,
+        body.day-mode .portfolio-item,
+        body.day-mode .data-card {
+            background: rgba(255,255,255,0.85);
+            border-color: rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        body.day-mode .stat-card:hover,
+        body.day-mode .skill-card:hover,
+        body.day-mode .portfolio-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 10px 40px rgba(0, 150, 200, 0.2);
+        }
+
+        /* Day mode — skill level bar track */
+        body.day-mode .skill-level {
+            background: rgba(0,0,0,0.1);
+        }
+
+        /* Day mode — modal */
+        body.day-mode .modal {
+            background: rgba(240,244,248,0.97);
+        }
+        body.day-mode .modal-content {
+            color: var(--blanc);
+        }
+        body.day-mode .modal-image {
+            background: rgba(255,255,255,0.8);
+            border-color: rgba(0,0,0,0.1);
+        }
+        body.day-mode .modal-section p,
+        body.day-mode .modal-section li {
+            color: #4a5568;
+        }
+        body.day-mode .insight-list li {
+            background: rgba(0,0,0,0.04);
+            color: #4a5568;
+        }
+        body.day-mode .insight-list strong {
+            color: var(--blanc);
+        }
+        body.day-mode .modal-close {
+            background: rgba(0,0,0,0.08);
+            border-color: rgba(0,0,0,0.15);
+            color: var(--blanc);
+        }
+
+        /* Day mode — contact links */
+        body.day-mode .contact-link {
+            background: rgba(255,255,255,0.8);
+            border-color: rgba(0,0,0,0.12);
+            color: var(--blanc);
+        }
+        body.day-mode .contact-link:hover {
+            background: rgba(0,217,255,0.1);
+            border-color: var(--accent);
+        }
+
+        /* Day mode — footer */
+        body.day-mode footer {
+            background: rgba(0,0,0,0.04);
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+
+        /* Day mode — hero tag */
+        body.day-mode .hero-tag {
+            background: rgba(0, 217, 255, 0.12);
+        }
+
+        /* Day mode — charts in project cards: force visible axes */
+        body.day-mode .portfolio-image {
+            background: #fff;
+        }
+        body.day-mode .portfolio-image::after {
+            background: linear-gradient(180deg, transparent 0%, rgba(240,244,248,0.85) 100%);
+        }
+
+        /* Day mode — nav toggle bars */
+        body.day-mode .nav-toggle span {
+            background: var(--blanc);
+        }
+
+        /* Day mode — mobile nav dropdown */
+        @media (max-width: 768px) {
+            body.day-mode .nav-links {
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+            }
+            body.day-mode .nav-links a {
+                border-bottom: 1px solid rgba(0,0,0,0.06);
+            }
         }
 
         /* Navigation */
@@ -1108,6 +1262,10 @@
             <li><a href="#skills">Compétences</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Changer de thème">
+            <span class="toggle-icon">☀️</span>
+            <span class="toggle-label">Mode jour</span>
+        </button>
     </nav>
 
     <!-- Hero Section -->
@@ -1461,7 +1619,8 @@
             }
 
             draw() {
-                ctx.fillStyle = 'rgba(0, 217, 255, 0.5)';
+                const isDay = document.body.classList.contains('day-mode');
+                ctx.fillStyle = isDay ? 'rgba(0, 120, 180, 0.35)' : 'rgba(0, 217, 255, 0.5)';
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -1475,6 +1634,7 @@
         }
 
         function connectParticles() {
+            const isDay = document.body.classList.contains('day-mode');
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
@@ -1482,7 +1642,10 @@
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
                     if (distance < 150) {
-                        ctx.strokeStyle = `rgba(0, 217, 255, ${0.2 * (1 - distance / 150)})`;
+                        const alpha = 0.2 * (1 - distance / 150);
+                        ctx.strokeStyle = isDay
+                            ? `rgba(0, 120, 180, ${alpha})`
+                            : `rgba(0, 217, 255, ${alpha})`;
                         ctx.lineWidth = 1;
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
@@ -1592,16 +1755,29 @@
 
         // Charts pour les projets
         setTimeout(() => {
-            createChart('chart1', 'line', {
-                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
-                values: [65, 72, 78, 85, 88, 92]
-            }, ['rgba(0, 217, 255, 0.6)']);
+            chartInstances['chart1'] = new Chart(document.getElementById('chart1'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                    datasets: [{
+                        data: [65, 72, 78, 85, 88, 92],
+                        backgroundColor: ['rgba(0, 217, 255, 0.6)'],
+                        borderColor: ['rgba(0, 217, 255, 1)'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { display: false, beginAtZero: true }, x: { display: false } }
+                }
+            });
 
             // Chart projet 2 — Top 10 pays enseignement (SAE 1.01)
             (function() {
                 const ctx2 = document.getElementById('chart2');
                 if (!ctx2) return;
-                new Chart(ctx2, {
+                chartInstances['chart2'] = new Chart(ctx2, {
                     type: 'bar',
                     data: {
                         labels: ['USA','Germany','France','China','UK','India','Japan','Korea','Iran','Russia'],
@@ -1632,10 +1808,22 @@
                 });
             })();
 
-            createChart('chart3', 'doughnut', {
-                labels: ['Segment A', 'Segment B', 'Segment C', 'Segment D'],
-                values: [30, 25, 25, 20]
-            }, ['rgba(0, 217, 255, 0.6)', 'rgba(99, 102, 241, 0.6)', 'rgba(236, 72, 153, 0.6)', 'rgba(245, 158, 11, 0.6)']);
+            chartInstances['chart3'] = new Chart(document.getElementById('chart3'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Segment A', 'Segment B', 'Segment C', 'Segment D'],
+                    datasets: [{
+                        data: [30, 25, 25, 20],
+                        backgroundColor: ['rgba(0, 217, 255, 0.6)', 'rgba(99, 102, 241, 0.6)', 'rgba(236, 72, 153, 0.6)', 'rgba(245, 158, 11, 0.6)'],
+                        borderColor: ['rgba(0, 217, 255, 1)', 'rgba(99, 102, 241, 1)', 'rgba(236, 72, 153, 1)', 'rgba(245, 158, 11, 1)'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
 
 
         }, 500);
@@ -1862,6 +2050,51 @@
                 });
             });
         }
+        // ===== THEME TOGGLE =====
+        const themeBtn = document.getElementById('theme-toggle');
+        const toggleLabel = themeBtn.querySelector('.toggle-label');
+        const toggleIcon = themeBtn.querySelector('.toggle-icon');
+
+        // Store chart instances so we can update them on theme change
+        const chartInstances = {};
+
+        function applyChartDayMode(isDay) {
+            const gridColorDay  = 'rgba(0,0,0,0.08)';
+            const gridColorNight= 'rgba(255,255,255,0.07)';
+            const tickColorDay  = '#4a5568';
+            const tickColorNight= '#64748b';
+            const bgDay  = 'rgba(255,255,255,0)';
+            const gridC  = isDay ? gridColorDay  : gridColorNight;
+            const tickC  = isDay ? tickColorDay  : tickColorNight;
+            Object.values(chartInstances).forEach(chart => {
+                if (!chart) return;
+                const scales = chart.options.scales;
+                if (scales) {
+                    ['x','y'].forEach(axis => {
+                        if (scales[axis]) {
+                            if (scales[axis].grid) scales[axis].grid.color = gridC;
+                            if (scales[axis].ticks) scales[axis].ticks.color = tickC;
+                        }
+                    });
+                }
+                // tooltip
+                if (chart.options.plugins && chart.options.plugins.tooltip) {
+                    const tt = chart.options.plugins.tooltip;
+                    tt.backgroundColor = isDay ? 'rgba(255,255,255,0.95)' : 'rgba(10,10,10,0.9)';
+                    tt.titleColor      = isDay ? '#0099cc' : '#00d9ff';
+                    tt.bodyColor       = isDay ? '#1a202c' : '#fafafa';
+                    tt.borderColor     = isDay ? '#0099cc' : '#00d9ff';
+                }
+                chart.update('none');
+            });
+        }
+
+        themeBtn.addEventListener('click', () => {
+            const isDay = document.body.classList.toggle('day-mode');
+            toggleIcon.textContent  = isDay ? '🌙' : '☀️';
+            toggleLabel.textContent = isDay ? 'Mode nuit' : 'Mode jour';
+            applyChartDayMode(isDay);
+        });
     </script>
 </body>
 </html>
