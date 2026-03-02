@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyse des universités mondiales — SAE 1.01</title>
+    <title>Superstore Orders — Analyse Exploratoire · Portfolio Data Analyst</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
@@ -19,7 +19,6 @@
             --rouge: #ef4444;
             --gris: #64748b;
             --gris-clair: #1e293b;
-            --bleu: #3b82f6;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -42,8 +41,8 @@
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
             background-image:
-                linear-gradient(rgba(0, 217, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 217, 255, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(0,217,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,217,255,0.03) 1px, transparent 1px);
             background-size: 50px 50px;
             z-index: 0; pointer-events: none;
         }
@@ -53,7 +52,7 @@
             padding: 1.5rem 4rem;
             display: flex; justify-content: space-between; align-items: center;
             z-index: 1000;
-            background: rgba(10, 10, 10, 0.8);
+            background: rgba(10,10,10,0.8);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             animation: slideDown 0.8s ease;
@@ -61,7 +60,7 @@
 
         @keyframes slideDown {
             from { transform: translateY(-100%); opacity: 0; }
-            to   { transform: translateY(0);    opacity: 1; }
+            to   { transform: translateY(0);     opacity: 1; }
         }
 
         .back-button {
@@ -78,13 +77,12 @@
             text-transform: uppercase; color: var(--gris);
         }
 
-        /* ── HERO ── */
+        /* Hero */
         .hero {
             min-height: 70vh; display: flex; align-items: center;
             justify-content: center; position: relative; z-index: 1;
             padding: 8rem 4rem 4rem;
         }
-
         .hero-content { max-width: 1200px; width: 100%; animation: fadeInUp 1s ease; }
 
         @keyframes fadeInUp {
@@ -93,7 +91,6 @@
         }
 
         .project-meta { display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
-
         .meta-item {
             display: flex; align-items: center; gap: 0.5rem;
             color: var(--gris); font-size: 0.9rem;
@@ -115,16 +112,14 @@
         }
 
         .tags { display: flex; gap: 1rem; flex-wrap: wrap; }
-
         .tag {
             padding: 0.6rem 1.2rem;
-            background: rgba(0, 217, 255, 0.08);
-            border: 1px solid var(--accent);
-            border-radius: 50px; font-size: 0.85rem;
-            font-family: 'Space Mono', monospace; color: var(--accent);
+            background: rgba(0,217,255,0.1);
+            border: 1px solid var(--accent); border-radius: 50px;
+            font-size: 0.85rem; font-family: 'Space Mono', monospace; color: var(--accent);
         }
 
-        /* ── KPI BANNER ── */
+        /* Stats Banner */
         .stats-banner {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
@@ -133,51 +128,37 @@
             position: relative; z-index: 1;
             backdrop-filter: blur(10px);
         }
-
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 2.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 3rem;
         }
-
         .stat-item { text-align: center; }
-
         .stat-value {
-            font-size: 2.6rem; font-weight: 800;
+            font-size: 2.8rem; font-weight: 800;
             font-family: 'Space Mono', monospace;
             background: linear-gradient(135deg, var(--accent), var(--violet));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text; margin-bottom: 0.5rem;
         }
-
         .stat-label { color: var(--gris); font-size: 0.9rem; }
 
-        /* ── SECTIONS ── */
+        /* Content Sections */
         .content-section {
-            max-width: 1200px;
-            margin: 0 auto 6rem;
-            padding: 0 4rem;
-            position: relative; z-index: 1;
+            max-width: 1200px; margin: 0 auto 6rem;
+            padding: 0 4rem; position: relative; z-index: 1;
         }
-
         .section-header {
-            display: flex; align-items: center;
-            gap: 1rem; margin-bottom: 2rem;
+            display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;
         }
-
         .section-number {
             width: 50px; height: 50px;
             background: linear-gradient(135deg, var(--accent), var(--violet));
-            border-radius: 12px; display: flex;
-            align-items: center; justify-content: center;
-            font-weight: 800; font-size: 1.5rem;
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-weight: 800; font-size: 1.5rem;
             font-family: 'Space Mono', monospace;
         }
-
-        h2 {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 800; letter-spacing: -1px;
-        }
+        h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -1px; }
 
         .section-content {
             background: rgba(255,255,255,0.03);
@@ -185,75 +166,25 @@
             border-radius: 20px; padding: 3rem;
             backdrop-filter: blur(10px);
         }
-
         .section-content p {
-            font-size: 1.1rem; line-height: 1.8;
-            color: var(--gris); margin-bottom: 1.5rem;
+            font-size: 1.1rem; line-height: 1.8; color: var(--gris); margin-bottom: 1.5rem;
         }
         .section-content p:last-child { margin-bottom: 0; }
 
         .highlight-box {
-            background: rgba(0, 217, 255, 0.05);
+            background: rgba(0,217,255,0.05);
             border-left: 4px solid var(--accent);
             padding: 1.5rem; margin: 2rem 0; border-radius: 10px;
         }
-        .highlight-box strong {
-            color: var(--accent); display: block; margin-bottom: 0.5rem;
-        }
+        .highlight-box strong { color: var(--accent); display: block; margin-bottom: 0.5rem; }
+        .highlight-box p { margin-bottom: 0 !important; }
 
-        /* ── SCHEMA RELATIONNEL ── */
-        .schema-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem; margin-top: 2rem;
-        }
-
-        .schema-table {
-            background: rgba(99,102,241,0.06);
-            border: 1px solid rgba(99,102,241,0.35);
-            border-radius: 14px; padding: 1.5rem;
-            transition: all 0.3s ease;
-        }
-        .schema-table:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(99,102,241,0.2);
-            border-color: var(--violet);
-        }
-        .schema-table-name {
-            font-family: 'Space Mono', monospace;
-            font-size: 1rem; font-weight: 700;
-            color: var(--violet); margin-bottom: 0.8rem;
-        }
-        .schema-table ul { list-style: none; }
-        .schema-table li {
-            padding: 0.25rem 0;
-            font-size: 0.85rem; color: var(--gris);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .schema-table li:last-child { border-bottom: none; }
-        .pk { color: var(--orange) !important; font-weight: 700; }
-        .fk { color: var(--accent) !important; }
-
-        .relation-arrows {
-            display: flex; flex-wrap: wrap; gap: 1rem;
-            margin-top: 2rem; justify-content: center;
-        }
-        .relation-pill {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50px; padding: 0.5rem 1.2rem;
-            font-size: 0.85rem; color: var(--gris);
-            font-family: 'Space Mono', monospace;
-        }
-        .relation-pill span { color: var(--accent); }
-
-        /* ── CHALLENGE CARDS ── */
+        /* Challenge Cards */
         .challenge-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem; margin-top: 2rem;
         }
-
         .challenge-card {
             background: rgba(239,68,68,0.05);
             border: 1px solid rgba(239,68,68,0.3);
@@ -266,135 +197,90 @@
             box-shadow: 0 10px 30px rgba(239,68,68,0.2);
         }
         .challenge-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-        .challenge-card h3 { font-size: 1.2rem; margin-bottom: 0.8rem; color: var(--blanc); }
-        .challenge-card p  { color: var(--gris); line-height: 1.6; font-size: 0.95rem; }
+        .challenge-card h3 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--blanc); }
+        .challenge-card p { color: var(--gris); line-height: 1.6; }
 
-        /* ── SOLUTION STEPS ── */
+        /* Solution Steps */
         .solution-steps { margin-top: 2rem; }
-
         .step { display: flex; gap: 2rem; margin-bottom: 3rem; align-items: flex-start; }
-
         .step-number {
             min-width: 60px; height: 60px;
-            background: linear-gradient(135deg, var(--accent), var(--violet));
-            border-radius: 50%; display: flex;
-            align-items: center; justify-content: center;
-            font-weight: 800; font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--vert), var(--accent));
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: 800; font-size: 1.5rem;
             font-family: 'Space Mono', monospace;
         }
-
         .step-content { flex: 1; }
-        .step-content h3 { font-size: 1.4rem; margin-bottom: 1rem; color: var(--accent); }
-        .step-content p  { color: var(--gris); line-height: 1.8; }
-
+        .step-content h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--vert); }
+        .step-content p { color: var(--gris); line-height: 1.8; }
         .step-details {
-            background: rgba(0,217,255,0.04);
-            border-left: 3px solid var(--accent);
+            background: rgba(16,185,129,0.05);
+            border-left: 3px solid var(--vert);
             padding: 1rem; margin-top: 1rem; border-radius: 5px;
         }
-        .step-details strong { color: var(--accent); display: block; margin-bottom: 0.5rem; }
         .step-details ul { list-style: none; margin-top: 0.5rem; }
-        .step-details li { padding: 0.3rem 0; color: var(--gris); font-size: 0.95rem; }
-        .step-details li::before { content: "→ "; color: var(--accent); font-weight: bold; }
+        .step-details li { padding: 0.3rem 0; color: var(--gris); }
+        .step-details li::before { content: "→ "; color: var(--vert); font-weight: bold; }
 
-        /* ── CODE BLOCK ── */
-        .code-showcase {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px; padding: 3rem;
-            margin: 3rem auto; max-width: 1200px;
-            position: relative; z-index: 1;
+        /* ========= CHARTS ZONE ========= */
+        .charts-section {
+            max-width: 1200px; margin: 0 auto 6rem;
+            padding: 0 4rem; position: relative; z-index: 1;
+        }
+        .charts-section-header {
+            display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem;
         }
 
-        .code-header {
-            display: flex; align-items: center;
-            justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+        /* Grid 2 charts + 1 wide */
+        .charts-grid-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem; margin-bottom: 2rem;
         }
-        .code-header h3 {
-            font-size: 1.6rem; font-family: 'Space Mono', monospace; color: var(--accent);
-        }
-        .code-header p { color: var(--gris); font-size: 0.95rem; }
-
-        .code-tabs {
-            display: flex; gap: 0.5rem; flex-wrap: wrap;
-        }
-
-        .code-tab {
-            padding: 0.5rem 1rem;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; cursor: pointer;
-            font-family: 'Space Mono', monospace; font-size: 0.8rem;
-            color: var(--gris); transition: all 0.2s;
-        }
-        .code-tab.active {
-            background: rgba(0,217,255,0.1);
-            border-color: var(--accent); color: var(--accent);
-        }
-
-        .code-panel { display: none; }
-        .code-panel.active { display: block; }
-
-        pre {
-            background: #0d1117;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px; padding: 2rem;
-            overflow-x: auto; font-family: 'Space Mono', monospace;
-            font-size: 0.82rem; line-height: 1.7; color: #e6edf3;
-        }
-
-        .kw  { color: #ff7b72; }   /* keywords */
-        .fn  { color: #d2a8ff; }   /* function names */
-        .str { color: #a5d6ff; }   /* strings */
-        .cm  { color: #8b949e; font-style: italic; }   /* comments */
-        .nb  { color: #79c0ff; }   /* builtins / SQL keywords */
-        .op  { color: #ffa657; }   /* operators */
-
-        /* ── CHARTS ── */
-        .chart-container {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px; padding: 3rem;
-            margin: 3rem auto; max-width: 1200px;
-            position: relative; z-index: 1;
-        }
-
-        .chart-header { text-align: center; margin-bottom: 2rem; }
-        .chart-header h3 {
-            font-size: 1.6rem; margin-bottom: 0.5rem;
-            font-family: 'Space Mono', monospace; color: var(--accent);
-        }
-        .chart-header p { color: var(--gris); }
-
-        .charts-dual {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 3rem; margin: 3rem auto; max-width: 1200px;
-            position: relative; z-index: 1;
-            padding: 0 4rem;
-        }
+        .charts-grid-bottom { margin-bottom: 2rem; }
 
         .chart-card {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 20px; padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: border-color 0.3s ease;
         }
+        .chart-card:hover { border-color: rgba(0,217,255,0.3); }
 
-        .chart-card h3 {
+        .chart-card-header { margin-bottom: 1.5rem; }
+        .chart-card-header h3 {
             font-family: 'Space Mono', monospace;
-            font-size: 1rem; color: var(--accent);
-            margin-bottom: 0.4rem;
+            font-size: 1rem; color: var(--accent); margin-bottom: 0.3rem;
         }
-        .chart-card p { color: var(--gris); font-size: 0.85rem; margin-bottom: 1.5rem; }
+        .chart-card-header p { color: var(--gris); font-size: 0.85rem; }
 
-        .chart-wrapper { position: relative; height: 320px; }
+        .chart-badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: rgba(245,158,11,0.1);
+            border: 1px solid rgba(245,158,11,0.4);
+            border-radius: 20px; padding: 0.25rem 0.7rem;
+            font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--orange);
+            margin-top: 0.5rem;
+        }
 
-        /* ── RESULTS ── */
+        .chart-wrapper-sm { position: relative; height: 260px; }
+        .chart-wrapper-md { position: relative; height: 340px; }
+        .chart-wrapper-lg { position: relative; height: 400px; }
+
+        /* Scatter SVG */
+        .scatter-svg-container {
+            position: relative; height: 400px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .scatter-svg-container svg { width: 100%; height: 100%; }
+
+        /* Results Grid */
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem; margin-top: 2rem;
         }
-
         .result-card {
             background: rgba(16,185,129,0.05);
             border: 1px solid rgba(16,185,129,0.3);
@@ -402,21 +288,19 @@
             transition: all 0.3s ease;
         }
         .result-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--vert);
+            transform: translateY(-5px); border-color: var(--vert);
             box-shadow: 0 10px 30px rgba(16,185,129,0.2);
         }
         .result-icon {
             width: 50px; height: 50px;
             background: linear-gradient(135deg, var(--vert), var(--accent));
-            border-radius: 10px; display: flex;
-            align-items: center; justify-content: center;
-            font-size: 1.4rem; margin-bottom: 1rem;
+            border-radius: 10px; display: flex; align-items: center;
+            justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;
         }
-        .result-card h3 { font-size: 1.2rem; margin-bottom: 0.6rem; color: var(--vert); }
-        .result-card p  { color: var(--gris); line-height: 1.6; font-size: 0.95rem; }
+        .result-card h3 { font-size: 1.3rem; margin-bottom: 0.8rem; color: var(--vert); }
+        .result-card p { color: var(--gris); line-height: 1.6; }
 
-        /* ── INSIGHTS ── */
+        /* Insights */
         .insights-list { list-style: none; margin-top: 2rem; }
         .insight-item {
             background: rgba(99,102,241,0.05);
@@ -424,92 +308,124 @@
             padding: 1.5rem; margin-bottom: 1.5rem;
             border-radius: 10px; transition: all 0.3s ease;
         }
-        .insight-item:hover {
-            background: rgba(99,102,241,0.1);
-            transform: translateX(10px);
-        }
-        .insight-item strong { color: var(--violet); font-size: 1.05rem; display: block; margin-bottom: 0.5rem; }
-        .insight-item p { color: var(--gris); line-height: 1.6; font-size: 0.95rem; }
+        .insight-item:hover { background: rgba(99,102,241,0.1); transform: translateX(10px); }
+        .insight-item strong { color: var(--violet); font-size: 1.1rem; display: block; margin-bottom: 0.5rem; }
+        .insight-item p { color: var(--gris); line-height: 1.6; }
 
-        /* ── TECH ── */
+        /* Tech Grid */
         .tech-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem; margin-top: 2rem;
         }
         .tech-item {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px; padding: 1.5rem;
-            text-align: center; transition: all 0.3s ease;
+            border-radius: 15px; padding: 1.5rem; text-align: center;
+            transition: all 0.3s ease;
         }
         .tech-item:hover {
-            border-color: var(--accent);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,217,255,0.15);
+            border-color: var(--accent); transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,217,255,0.2);
         }
-        .tech-item h4 { color: var(--accent); margin-bottom: 0.5rem; font-size: 1.05rem; }
-        .tech-item p  { color: var(--gris); font-size: 0.88rem; }
+        .tech-item h4 { color: var(--accent); margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .tech-item p { color: var(--gris); font-size: 0.9rem; }
 
-        /* ── CTA ── */
+        /* Download Button */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-top: 1.8rem;
+            padding: 0.75rem 1.6rem;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            border-radius: 50px;
+            color: var(--orange);
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .download-btn::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(245, 158, 11, 0.12);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .download-btn:hover {
+            border-color: var(--orange);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+            transform: translateY(-2px);
+        }
+        .download-btn:hover::before { opacity: 1; }
+        .download-btn span { position: relative; z-index: 1; }
+        .download-icon {
+            width: 18px; height: 18px;
+            position: relative; z-index: 1;
+            flex-shrink: 0;
+        }
+
+        /* CTA */
         .cta-section {
-            background: linear-gradient(135deg, rgba(0,217,255,0.08), rgba(99,102,241,0.08));
-            border: 1px solid rgba(0,217,255,0.25);
+            background: linear-gradient(135deg, rgba(0,217,255,0.1), rgba(99,102,241,0.1));
+            border: 1px solid rgba(0,217,255,0.3);
             border-radius: 20px; padding: 4rem; text-align: center;
             max-width: 1200px; margin: 6rem auto;
             position: relative; z-index: 1;
         }
         .cta-section h2 { margin-bottom: 1rem; }
-        .cta-section p  { color: var(--gris); font-size: 1.2rem; margin-bottom: 2rem; }
-
+        .cta-section p { color: var(--gris); font-size: 1.2rem; margin-bottom: 2rem; }
         .cta-buttons { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
-
         .cta-button {
             display: inline-flex; align-items: center; gap: 0.5rem;
             padding: 1.2rem 3rem;
             background: linear-gradient(135deg, var(--accent), var(--violet));
-            color: var(--noir); text-decoration: none;
-            font-weight: 700; border-radius: 50px;
-            transition: all 0.3s ease; position: relative; overflow: hidden;
+            color: var(--blanc); text-decoration: none; font-weight: 600;
+            border-radius: 50px; transition: all 0.3s ease;
+            position: relative; overflow: hidden;
         }
         .cta-button::before {
             content: ''; position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
-            background: linear-gradient(135deg, var(--violet), var(--accent));
+            background: linear-gradient(135deg, var(--violet), var(--rose));
             opacity: 0; transition: opacity 0.3s ease;
         }
         .cta-button:hover::before { opacity: 1; }
         .cta-button span { position: relative; z-index: 1; }
-
         .cta-secondary {
-            background: transparent;
-            border: 2px solid var(--accent);
-            color: var(--accent);
+            background: transparent; border: 2px solid var(--accent); color: var(--accent);
         }
         .cta-secondary::before { background: var(--accent); }
-        .cta-secondary:hover   { color: var(--noir); }
+        .cta-secondary:hover { color: var(--noir); }
 
         footer {
             padding: 3rem 4rem;
-            background: rgba(255,255,255,0.02);
-            color: var(--blanc); text-align: center;
+            background: rgba(255,255,255,0.02); color: var(--blanc);
+            text-align: center;
             border-top: 1px solid rgba(255,255,255,0.1);
             position: relative; z-index: 1;
         }
         footer p { color: var(--gris); }
 
-        /* ── REVEAL ── */
-        .reveal { opacity: 0; transform: translateY(50px); transition: all 0.8s ease; }
+        .reveal {
+            opacity: 0; transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
         @media (max-width: 968px) {
             nav { padding: 1.5rem 2rem; }
-            .hero, .content-section, .cta-section { padding-left: 2rem; padding-right: 2rem; }
-            .stats-banner, .section-content, .chart-container, .code-showcase { padding: 2rem; }
-            .challenge-grid, .results-grid, .tech-grid { grid-template-columns: 1fr; }
+            .hero, .content-section, .cta-section, .charts-section { padding-left: 2rem; padding-right: 2rem; }
+            .stats-banner, .section-content, .chart-card { padding: 2rem; }
+            .challenge-grid, .results-grid, .tech-grid, .charts-grid-top { grid-template-columns: 1fr; }
             .step { flex-direction: column; }
             .step-number { align-self: flex-start; }
-            .charts-dual { grid-template-columns: 1fr; padding: 0 2rem; }
         }
 
         /* ════════════════════════════════════════════
@@ -646,83 +562,89 @@
     <canvas id="particles-canvas"></canvas>
     <div class="grid-bg"></div>
 
-    <!-- NAV -->
     <nav>
-        <a href="#" class="back-button">
+        <a href="portfolio-data-analyst.html" class="back-button">
             <span>←</span>
             <span>Retour au portfolio</span>
         </a>
-        <div class="nav-title">SAE 1.01 — BUT Science des Données</div>
+        <div class="nav-title">SAE 1.03 · Projet #01</div>
         <button class="theme-toggle" id="theme-toggle" aria-label="Mode jour/nuit">
             <span class="toggle-icon">☀️</span>
             <span class="toggle-label">Mode jour</span>
         </button>
     </nav>
 
-    <!-- HERO -->
+    <!-- Hero -->
     <section class="hero">
         <div class="hero-content">
             <div class="project-meta">
                 <span class="meta-item">
-                    <span class="meta-icon">🎓</span>
-                    <span>IUT Grand Ouest Normandie — Lisieux</span>
+                    <span class="meta-icon">📁</span>
+                    <span>SAE 1.03 — Compétence 2 · Traiter les données</span>
                 </span>
                 <span class="meta-item">
                     <span class="meta-icon">📅</span>
-                    <span>2025 – 2026</span>
+                    <span>2025–2026</span>
                 </span>
                 <span class="meta-item">
-                    <span class="meta-icon">👤</span>
-                    <span>Yanh Bambela Mouanda</span>
+                    <span class="meta-icon">🏫</span>
+                    <span>IUT Grand Ouest Normandie</span>
                 </span>
             </div>
 
-            <h1>Analyse des universités mondiales</h1>
+            <h1>Analyse exploratoire<br>Superstore Orders</h1>
 
             <p class="hero-description">
-                Exploration d'une base de données SQLite couvrant 2 336 universités dans 115 pays (2016–2025), 
-                croisement des performances académiques avec des indicateurs socio-économiques nationaux, 
-                et restitution sous forme de tableau de bord Excel interactif.
+                Analyse du carnet de commandes de l'entreprise américaine <strong style="color:var(--blanc)">Superstore</strong> sur la période 2019–2022 : préparation des données sous R, construction de 14 visualisations univariées et bivariées, calcul d'indicateurs statistiques, et restitution dans un rapport LaTeX à destination des responsables commerciaux.
             </p>
 
             <div class="tags">
-                <span class="tag">Python</span>
-                <span class="tag">SQLite / SQL</span>
-                <span class="tag">openpyxl</span>
-                <span class="tag">Times Higher Education</span>
-                <span class="tag">Data Reporting</span>
-                <span class="tag">SAE 1.01</span>
+                <span class="tag">R</span>
+                <span class="tag">RStudio</span>
+                <span class="tag">LaTeX</span>
+                <span class="tag">Marp</span>
+                <span class="tag">Statistiques descriptives</span>
+                <span class="tag">Visualisation</span>
             </div>
+
+            <a href="rapport_SAE.pdf" download="Rapport_SAE_Superstore.pdf" class="download-btn">
+                <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Télécharger le rapport PDF</span>
+            </a>
         </div>
     </section>
 
-    <!-- KPI BANNER -->
+    <!-- Stats Banner -->
     <section class="stats-banner reveal">
         <div class="stats-grid">
             <div class="stat-item">
-                <div class="stat-value">2 336</div>
-                <div class="stat-label">universités analysées</div>
+                <div class="stat-value">9 994</div>
+                <div class="stat-label">Transactions analysées</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value">115</div>
-                <div class="stat-label">pays représentés</div>
+                <div class="stat-value">2019–22</div>
+                <div class="stat-label">Période couverte</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value">11,22%</div>
-                <div class="stat-label">étudiants internationaux (moy.)</div>
+                <div class="stat-value">14</div>
+                <div class="stat-label">Visualisations produites</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value">≃ 50%</div>
-                <div class="stat-label">parité femmes / hommes</div>
+                <div class="stat-value">r=0.98</div>
+                <div class="stat-label">Corrélation commandes / CA</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value">13</div>
-                <div class="stat-label">fonctions Python</div>
+                <div class="stat-value">49</div>
+                <div class="stat-label">États américains couverts</div>
             </div>
         </div>
     </section>
 
-    <!-- SECTION 01 — CONTEXTE -->
+    <!-- 01 Contexte -->
     <section class="content-section reveal">
         <div class="section-header">
             <div class="section-number">01</div>
@@ -730,114 +652,92 @@
         </div>
         <div class="section-content">
             <p>
-                Dans le cadre de la SAE 1.01 (Science des Données 1), nous avons exploité une base de données 
-                relationnelle SQLite couvrant la période 2016–2025 et regroupant les classements Times Higher 
-                Education (THE) ainsi que des indicateurs socio-économiques nationaux : PIB par habitant, 
-                taux d'alphabétisation, migration nette, parité femmes/hommes, etc.
+                Superstore est une entreprise américaine spécialisée dans la vente par correspondance de <strong style="color:var(--blanc)">meubles</strong>, de <strong style="color:var(--blanc)">fournitures de bureau</strong> et de <strong style="color:var(--blanc)">produits technologiques</strong>. Elle a mis à disposition un fichier <code style="color:var(--accent);background:rgba(0,217,255,0.1);padding:0.1rem 0.4rem;border-radius:4px;">Superstore_Orders_Dataset.csv</code> recensant l'ensemble des commandes réalisées entre 2019 et 2022 — soit près de 10 000 transactions couvrant 49 États américains.
             </p>
-            <div class="highlight-box">
-                <strong>🎯 Objectif</strong>
-                Explorer les liens entre développement socio-économique et performance académique à l'aide 
-                de requêtes SQL paramétrées, de traitements Python et d'un reporting structuré sur Excel — 
-                en s'interdisant toute autre bibliothèque que <code>os</code>, <code>sqlite3</code> et <code>openpyxl</code>.
-            </div>
             <p>
-                La base est organisée autour de quatre tables (régions, pays, universités, classements) 
-                reliées par des relations 1:N en cascade. Chaque membre du groupe — Yanh, Glaineta et Martin — 
-                a pris en charge un sous-ensemble de fonctions couvrant les deux axes « reporting » et « exploration ».
+                Les variables disponibles incluent la date de commande, la date d'expédition, le mode de livraison, le type de client (segment), la géographie, le produit, le prix de vente unitaire, la quantité, la remise accordée et le profit généré.
+            </p>
+
+            <div class="highlight-box">
+                <strong>🎯 Objectif de la SAE</strong>
+                <p>Réaliser une analyse exploratoire complète de ce jeu de données sous R et RStudio — depuis la préparation du fichier jusqu'à la construction de graphiques commentés — pour apporter des réponses claires aux responsables commerciaux sur les performances par segment, catégorie et zone géographique.</p>
+            </div>
+
+            <p>
+                Le livrable final comprend un <strong style="color:var(--blanc)">rapport PDF de 10 pages rédigé sous LaTeX</strong>, un script R documenté, et une présentation orale supportée par des slides Marp.
             </p>
         </div>
     </section>
 
-    <!-- SECTION 02 — SCHEMA RELATIONNEL -->
+    <!-- 02 Problématiques -->
     <section class="content-section reveal">
         <div class="section-header">
             <div class="section-number">02</div>
-            <h2>Schéma relationnel</h2>
+            <h2>Problématiques traitées</h2>
         </div>
         <div class="section-content">
             <p>
-                La base de données repose sur quatre tables interconnectées par des relations Un-à-Plusieurs (1:N), 
-                formant une chaîne cohérente : une région contient plusieurs pays, un pays abrite plusieurs universités, 
-                une université est évaluée sur plusieurs années de classement.
+                L'analyse a été structurée autour de 10 questions métier couvrant deux axes : l'analyse individuelle des indicateurs clés, puis l'étude croisée des performances entre variables.
             </p>
-            <div class="schema-grid">
-                <div class="schema-table">
-                    <div class="schema-table-name">📍 regions</div>
-                    <ul>
-                        <li class="pk">🔑 id_reg</li>
-                        <li>nom_reg</li>
-                    </ul>
+
+            <div class="challenge-grid">
+                <div class="challenge-card">
+                    <div class="challenge-icon">👥</div>
+                    <h3>Qui sont les clients ?</h3>
+                    <p>Répartition des transactions par segment (Consumer, Corporate, Home Office) et analyse du volume de commandes par type de client.</p>
                 </div>
-                <div class="schema-table">
-                    <div class="schema-table-name">🌍 pays</div>
-                    <ul>
-                        <li class="pk">🔑 id_pays</li>
-                        <li>nom_pays</li>
-                        <li class="fk">🔗 #id_reg</li>
-                        <li>population · pib_par_hab</li>
-                        <li>migration_nette · taux_alphabet</li>
-                        <li>part_industrie · part_services</li>
-                    </ul>
+                <div class="challenge-card">
+                    <div class="challenge-icon">📦</div>
+                    <h3>Quels produits performent ?</h3>
+                    <p>Classement des catégories et sous-catégories selon le chiffre d'affaires et les bénéfices — dont le détail des fournitures de bureau.</p>
                 </div>
-                <div class="schema-table">
-                    <div class="schema-table-name">🏛️ universites</div>
-                    <ul>
-                        <li class="pk">🔑 id_univ</li>
-                        <li>nom_univ</li>
-                        <li class="fk">🔗 #id_pays</li>
-                    </ul>
+                <div class="challenge-card">
+                    <div class="challenge-icon">💰</div>
+                    <h3>Distribution des profits</h3>
+                    <p>Caractérisation statistique des profits par transaction : moyenne, médiane, quartiles, valeurs extrêmes et asymétrie de la distribution.</p>
                 </div>
-                <div class="schema-table">
-                    <div class="schema-table-name">📊 classements</div>
-                    <ul>
-                        <li class="pk">🔑 id_class</li>
-                        <li class="fk">🔗 #id_univ</li>
-                        <li>annee · rang · score_the</li>
-                        <li>score_enseig · score_qualite_rech</li>
-                        <li>score_env_rech · score_rel_internat</li>
-                        <li>ratio_fem · ratio_hom</li>
-                        <li>population_etud · pct_etud_internat</li>
-                    </ul>
+                <div class="challenge-card">
+                    <div class="challenge-icon">🗺️</div>
+                    <h3>Géographie des performances</h3>
+                    <p>Répartition des bénéfices selon les États — identification des zones déficitaires (Ohio, Texas, Illinois) et des marchés les plus rentables.</p>
                 </div>
-            </div>
-            <div class="relation-arrows">
-                <span class="relation-pill">regions <span>1:N</span> pays</span>
-                <span class="relation-pill">pays <span>1:N</span> universites</span>
-                <span class="relation-pill">universites <span>1:N</span> classements</span>
+                <div class="challenge-card">
+                    <div class="challenge-icon">🔗</div>
+                    <h3>Associations entre variables</h3>
+                    <p>Mesure des liaisons entre catégorie produit / type de client, État / profit, et sous-catégorie / bénéfice via corrélations et V de Cramér.</p>
+                </div>
+                <div class="challenge-card">
+                    <div class="challenge-icon">📈</div>
+                    <h3>Ventes vs Profit</h3>
+                    <p>Représentation et quantification de la relation entre chiffre d'affaires d'une transaction et son profit — nuage de points et droite de régression.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- SECTION 03 — METHODOLOGIE -->
+    <!-- 03 Démarche -->
     <section class="content-section reveal">
         <div class="section-header">
             <div class="section-number">03</div>
-            <h2>Méthodologie & implémentation</h2>
+            <h2>Démarche analytique</h2>
         </div>
         <div class="section-content">
             <p>
-                L'approche suit un pipeline en quatre étapes : connexion SQLite → construction de requêtes SQL 
-                paramétrées → structuration Python des résultats → export Excel avec graphiques via openpyxl.
+                Le projet a suivi trois étapes structurées, du paramétrage de l'environnement de travail jusqu'à la restitution finale.
             </p>
-            <div class="solution-steps">
 
+            <div class="solution-steps">
                 <div class="step">
                     <div class="step-number">1</div>
                     <div class="step-content">
-                        <h3>Gestion de la connexion BDD</h3>
-                        <p>
-                            Deux fonctions partagées gèrent le cycle de vie de la connexion unique : 
-                            <code>ouvrir_connexion_bdd()</code> configure <code>row_factory = sqlite3.Row</code> 
-                            pour des résultats sous forme de dictionnaires, et <code>fermer_connexion_bdd()</code> 
-                            assure une fermeture propre.
-                        </p>
+                        <h3>Environnement & import des données</h3>
+                        <p>Mise en place de l'arborescence projet sous RStudio, création du fichier script avec en-tête (thématique, auteurs, source), import du CSV via les fonctions de base R.</p>
                         <div class="step-details">
-                            <strong>Bonnes pratiques appliquées :</strong>
+                            <strong>Actions réalisées :</strong>
                             <ul>
-                                <li>Instance de connexion unique réutilisée dans tout le script</li>
-                                <li>Vérification de l'existence du fichier .db avant connexion</li>
-                                <li>Messages explicites en cas d'erreur ou de succès</li>
+                                <li>Création des dossiers <code style="color:var(--vert)">/data</code> et <code style="color:var(--vert)">/scripts</code></li>
+                                <li>Import via <code style="color:var(--vert)">read.csv()</code> avec gestion de l'encodage</li>
+                                <li>Inspection avec <code style="color:var(--vert)">str()</code>, <code style="color:var(--vert)">summary()</code>, <code style="color:var(--vert)">head()</code></li>
                             </ul>
                         </div>
                     </div>
@@ -846,21 +746,15 @@
                 <div class="step">
                     <div class="step-number">2</div>
                     <div class="step-content">
-                        <h3>Requêtes SQL paramétrées & dynamiques</h3>
-                        <p>
-                            Toutes les requêtes utilisent des marqueurs <code>?</code> pour éviter les injections SQL. 
-                            La fonction <code>rechercher_universites()</code> illustre la construction dynamique : 
-                            les critères optionnels (pays, année, seuils de score) sont ajoutés conditionnellement 
-                            via des listes de conditions concaténées avec <code>" AND ".join(conditions)</code>.
-                        </p>
+                        <h3>Préparation & typage des données</h3>
+                        <p>Cohérence des types de variables : conversion des dates en <code style="color:var(--vert)">Date</code>, des catégories en <code style="color:var(--vert)">factor</code>, des numériques en <code style="color:var(--vert)">numeric</code>. Création d'une variable <em>Signe_Benefice</em> (Positif / Négatif) pour faciliter certaines visualisations.</p>
                         <div class="step-details">
-                            <strong>Techniques SQL mobilisées :</strong>
+                            <strong>Variables traitées :</strong>
                             <ul>
-                                <li>JOIN multi-tables (jusqu'à 4 tables) avec clés primaires/étrangères</li>
-                                <li>Agrégation AVG, COUNT, ROUND avec GROUP BY</li>
-                                <li>CASE WHEN … END pour catégoriser PIB, mixité, migration</li>
-                                <li>ORDER BY + LIMIT pour les classements Top/Bottom N</li>
-                                <li>HAVING pour filtrer les pays avec ≥ 20 universités</li>
+                                <li>Order.Date, Ship.Date → format Date</li>
+                                <li>Segment, Category, Sub.Category, State → factor</li>
+                                <li>Sales, Profit, Discount, Quantity → numeric</li>
+                                <li>Ajout colonne Signe_Benefice via <code style="color:var(--vert)">ifelse()</code></li>
                             </ul>
                         </div>
                     </div>
@@ -869,332 +763,350 @@
                 <div class="step">
                     <div class="step-number">3</div>
                     <div class="step-content">
-                        <h3>Structuration Python des résultats</h3>
-                        <p>
-                            Selon la fonction, les résultats sont renvoyés sous forme de liste de tuples 
-                            <code>[(valeur, …), …]</code>, de dictionnaire plat <code>{"clé": valeur}</code> 
-                            ou de dictionnaires imbriqués <code>{"catégorie": {"moy_ens": …, "moy_rech": …}}</code>.
-                        </p>
+                        <h3>Analyse exploratoire & visualisations</h3>
+                        <p>Construction de 14 graphiques avec les fonctions graphiques de base R (<code style="color:var(--vert)">barplot</code>, <code style="color:var(--vert)">pie</code>, <code style="color:var(--vert)">boxplot</code>, <code style="color:var(--vert)">plot</code>, <code style="color:var(--vert)">hist</code>) accompagnés d'indicateurs statistiques : coefficient de corrélation linéaire, rapport de corrélation (η²), V de Cramér.</p>
                         <div class="step-details">
-                            <strong>Objets Python utilisés :</strong>
+                            <strong>Indicateurs calculés :</strong>
                             <ul>
-                                <li>fetchone() → dict() pour les KPIs agrégés (ligne unique)</li>
-                                <li>fetchall() + [tuple(ligne) for ligne in …] pour listes de tuples</li>
-                                <li>Boucle for + dictionnaires imbriqués pour stats par catégorie</li>
-                                <li>Pondération score × nb/(nb+20) pour top10 multi-années</li>
+                                <li>Corrélation Profit / Sales : <strong style="color:var(--orange)">r = 0,479</strong></li>
+                                <li>Corrélation Commandes / CA : <strong style="color:var(--orange)">r = 0,983</strong></li>
+                                <li>V de Cramér Catégorie × Segment : <strong style="color:var(--orange)">0,66 %</strong> → liaison négligeable</li>
+                                <li>Rapport de corrélation Sous-catégorie → Profit : <strong style="color:var(--orange)">8,15 %</strong></li>
                             </ul>
                         </div>
                     </div>
                 </div>
-
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h3>Reporting Excel avec openpyxl</h3>
-                        <p>
-                            Chaque fonction possède une feuille dédiée dans <code>resultats_analyse.xlsx</code>. 
-                            Les données sont insérées ligne par ligne avec <code>append()</code>, puis des graphiques 
-                            (barres, camembert, courbes) sont générés automatiquement par les trois fonctions 
-                            de visualisation fournies.
-                        </p>
-                        <div class="step-details">
-                            <strong>Feuilles générées :</strong>
-                            <ul>
-                                <li>KPIs – Vue Globale · Top5 Pays–Enseignement(2025) · Top5 Pays–Recherche(2025)</li>
-                                <li>Top10 Pays–Ens(2020–2025) · Univ par Région · Top 20 Univ (Index)</li>
-                                <li>Evolution-Univ · Internat vs Recherche · PIB Par Hab vs Perf</li>
-                                <li>Top & Alphabétisation · Mixité vs Perf · Migration vs Perf · Recherche Univ</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </section>
 
-    <!-- CODE SHOWCASE -->
-    <section class="code-showcase reveal">
-        <div class="code-header">
-            <div>
-                <h3>// Extraits de code clés</h3>
-                <p>Les fonctions les plus représentatives du projet</p>
-            </div>
-            <div class="code-tabs">
-                <button class="code-tab active" onclick="showCode('rechercher')">rechercher_universites</button>
-                <button class="code-tab" onclick="showCode('pib')">stats_pib_vs_perf</button>
-                <button class="code-tab" onclick="showCode('top10')">top10_pays_multi_annees</button>
-            </div>
-        </div>
-
-        <!-- rechercher_universites -->
-        <div id="code-rechercher" class="code-panel active">
-<pre><span class="kw">def</span> <span class="fn">rechercher_universites</span>(conn, pays=<span class="kw">None</span>, annee=<span class="kw">None</span>,
-                          min_enseig=<span class="kw">None</span>, min_rech=<span class="kw">None</span>, limite=<span class="op">50</span>):
-    <span class="str">"""Filtre les universités selon des critères optionnels, triées par rang."""</span>
-    <span class="cm"># Validation des types d'entrée</span>
-    <span class="kw">if</span> pays <span class="kw">is not</span> <span class="kw">None</span> <span class="kw">and not</span> <span class="fn">isinstance</span>(pays, <span class="fn">str</span>):
-        <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="str">"'pays' doit être une chaîne de caractères"</span>)
-    <span class="kw">if</span> annee <span class="kw">is not</span> <span class="kw">None</span> <span class="kw">and not</span> <span class="fn">isinstance</span>(annee, (<span class="fn">int</span>, <span class="fn">float</span>)):
-        <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="str">"'annee' doit être un entier"</span>)
-
-    <span class="cm"># Requête SQL de base</span>
-    req = <span class="str">"""
-    SELECT c.rang, u.nom_univ, p.nom_pays,
-           c.score_enseig, c.score_qualite_rech, c.score_the
-    FROM classements c
-    JOIN universites u ON c.id_univ = u.id_univ
-    JOIN pays p ON u.id_pays = p.id_pays
-    WHERE p.pib_par_hab &gt;= 0
-    """</span>
-
-    <span class="cm"># Ajout dynamique des critères optionnels</span>
-    conditions = []
-    parametres = []
-
-    <span class="kw">if</span> pays <span class="kw">is not</span> <span class="kw">None</span>:
-        conditions.<span class="fn">append</span>(<span class="str">"p.nom_pays = ?"</span>)
-        parametres.<span class="fn">append</span>(pays)
-    <span class="kw">if</span> annee <span class="kw">is not</span> <span class="kw">None</span>:
-        conditions.<span class="fn">append</span>(<span class="str">"c.annee = ?"</span>)
-        parametres.<span class="fn">append</span>(annee)
-    <span class="kw">if</span> min_enseig <span class="kw">is not</span> <span class="kw">None</span>:
-        conditions.<span class="fn">append</span>(<span class="str">"c.score_enseig &gt;= ?"</span>)
-        parametres.<span class="fn">append</span>(min_enseig)
-    <span class="kw">if</span> min_rech <span class="kw">is not</span> <span class="kw">None</span>:
-        conditions.<span class="fn">append</span>(<span class="str">"c.score_qualite_rech &gt;= ?"</span>)
-        parametres.<span class="fn">append</span>(min_rech)
-
-    <span class="kw">if</span> conditions:
-        req += <span class="str">" AND "</span> + <span class="str">" AND "</span>.<span class="fn">join</span>(conditions)  <span class="cm"># pas de WHERE dupliqué !</span>
-
-    req += <span class="str">" ORDER BY c.rang LIMIT ?"</span>
-    parametres.<span class="fn">append</span>(limite)
-
-    curseur = conn.<span class="fn">cursor</span>()
-    curseur.<span class="fn">execute</span>(req, parametres)
-    <span class="kw">return</span> [<span class="fn">tuple</span>(ligne) <span class="kw">for</span> ligne <span class="kw">in</span> curseur.<span class="fn">fetchall</span>()]</pre>
-        </div>
-
-        <!-- stats_pib_vs_perf -->
-        <div id="code-pib" class="code-panel">
-<pre><span class="kw">def</span> <span class="fn">stats_pib_vs_perf</span>(connexion, annee=<span class="op">2025</span>):
-    <span class="str">"""Catégorise les universités selon le PIB/hab du pays et calcule
-    la moyenne de score_enseig, score_qualite_rech, score_the."""</span>
-    curseur = connexion.<span class="fn">cursor</span>()
-    req = <span class="str">"""
-    SELECT
-        ROUND(AVG(CASE WHEN p.pib_par_hab &lt;= 1135
-                       THEN c.score_enseig END), 4) AS moy_ens_faible,
-        ROUND(AVG(CASE WHEN p.pib_par_hab BETWEEN 1136 AND 4495
-                       THEN c.score_enseig END), 4) AS moy_ens_inter,
-        ROUND(AVG(CASE WHEN p.pib_par_hab &gt;= 4496
-                       THEN c.score_enseig END), 4) AS moy_ens_eleve,
-
-        ROUND(AVG(CASE WHEN p.pib_par_hab &lt;= 1135
-                       THEN c.score_qualite_rech END), 4) AS moy_rech_faible,
-        ROUND(AVG(CASE WHEN p.pib_par_hab BETWEEN 1136 AND 4495
-                       THEN c.score_qualite_rech END), 4) AS moy_rech_inter,
-        ROUND(AVG(CASE WHEN p.pib_par_hab &gt;= 4496
-                       THEN c.score_qualite_rech END), 4) AS moy_rech_eleve,
-
-        ROUND(AVG(CASE WHEN p.pib_par_hab &lt;= 1135
-                       THEN c.score_the END), 4) AS moy_the_faible,
-        ROUND(AVG(CASE WHEN p.pib_par_hab BETWEEN 1136 AND 4495
-                       THEN c.score_the END), 4) AS moy_the_inter,
-        ROUND(AVG(CASE WHEN p.pib_par_hab &gt;= 4496
-                       THEN c.score_the END), 4) AS moy_the_eleve
-    FROM classements AS c
-    JOIN universites AS d ON c.id_univ = d.id_univ
-    JOIN pays AS p ON d.id_pays = p.id_pays
-    WHERE c.annee = ?
-    """</span>
-    curseur.<span class="fn">execute</span>(req, (annee,))
-    ligne = curseur.<span class="fn">fetchone</span>()  <span class="cm"># fetchone() car une seule ligne de résultats</span>
-
-    <span class="kw">return</span> {
-        <span class="str">"Faible"</span>:       {<span class="str">"moy_ens"</span>: ligne[<span class="op">0</span>], <span class="str">"moy_rech"</span>: ligne[<span class="op">3</span>], <span class="str">"moy_the"</span>: ligne[<span class="op">6</span>]},
-        <span class="str">"Intermédiaire"</span>: {<span class="str">"moy_ens"</span>: ligne[<span class="op">1</span>], <span class="str">"moy_rech"</span>: ligne[<span class="op">4</span>], <span class="str">"moy_the"</span>: ligne[<span class="op">7</span>]},
-        <span class="str">"Elevé"</span>:        {<span class="str">"moy_ens"</span>: ligne[<span class="op">2</span>], <span class="str">"moy_rech"</span>: ligne[<span class="op">5</span>], <span class="str">"moy_the"</span>: ligne[<span class="op">8</span>]},
-    }</pre>
-        </div>
-
-        <!-- top10_pays_multi_annees -->
-        <div id="code-top10" class="code-panel">
-<pre><span class="kw">def</span> <span class="fn">top10_pays_multi_annees</span>(connexion, annee_deb=<span class="op">2020</span>, annee_fin=<span class="op">2025</span>,
-                            critere=<span class="str">"score_enseig"</span>):
-    <span class="str">"""Top 10 des pays avec ≥ 20 universités, score pondéré sur la période."""</span>
-    pascur = connexion.<span class="fn">cursor</span>()
-
-    <span class="cm"># Moyenne + comptage par pays, filtrée sur la période</span>
-    req = <span class="nb">f</span><span class="str">"""
-    SELECT p.nom_pays, AVG(c.{critere}) AS moy, COUNT(DISTINCT u.id_univ) AS nb
-    FROM classements c
-    JOIN universites u ON c.id_univ = u.id_univ
-    JOIN pays p ON u.id_pays = p.id_pays
-    WHERE c.annee BETWEEN ? AND ?
-    GROUP BY p.nom_pays
-    HAVING nb &gt;= 20
-    """</span>
-
-    res = []
-    <span class="cm"># Pondération : score × nb / (nb + 20)  → évite qu'un pays à 1 univ top parassite</span>
-    <span class="kw">for</span> r <span class="kw">in</span> pascur.<span class="fn">execute</span>(req, (annee_deb, annee_fin)):
-        score = r[<span class="str">"moy"</span>] * r[<span class="str">"nb"</span>] / (r[<span class="str">"nb"</span>] + <span class="op">20</span>)
-        res.<span class="fn">append</span>((r[<span class="str">"nom_pays"</span>], <span class="fn">round</span>(score, <span class="op">3</span>), r[<span class="str">"nb"</span>]))
-
-    <span class="kw">return</span> <span class="fn">sorted</span>(res, key=<span class="kw">lambda</span> x: x[<span class="op">1</span>], reverse=<span class="kw">True</span>)[:<span class="op">10</span>]</pre>
-        </div>
-    </section>
-
-    <!-- CHARTS ROW 1 -->
-    <div class="charts-dual reveal">
-        <div class="chart-card">
-            <h3>Top 10 pays — Score moyen d'enseignement</h3>
-            <p>Période 2020–2025, pondéré par le nombre d'universités</p>
-            <div class="chart-wrapper">
-                <canvas id="chartTop10"></canvas>
-            </div>
-        </div>
-        <div class="chart-card">
-            <h3>PIB/hab vs performances universitaires</h3>
-            <p>Enseignement · Recherche · Score THE — année 2025</p>
-            <div class="chart-wrapper">
-                <canvas id="chartPib"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- CHART : Evolution -->
-    <section class="chart-container reveal">
-        <div class="chart-header">
-            <h3>Évolution Panthéon-Sorbonne University – Paris 1</h3>
-            <p>Score enseignement · qualité recherche · score THE — 2016 à 2025</p>
-        </div>
-        <div class="chart-wrapper" style="height:380px;">
-            <canvas id="chartEvolution"></canvas>
-        </div>
-    </section>
-
-    <!-- CHARTS ROW 2 -->
-    <div class="charts-dual reveal">
-        <div class="chart-card">
-            <h3>Répartition des universités par taux d'alphabétisation</h3>
-            <p>68 % des universités classées se trouvent dans des pays à taux &gt; 90 %</p>
-            <div class="chart-wrapper">
-                <canvas id="chartAlpha"></canvas>
-            </div>
-        </div>
-        <div class="chart-card">
-            <h3>Internationalisation vs Recherche</h3>
-            <p>Score moyen de recherche et score THE selon le % d'étudiants internationaux</p>
-            <div class="chart-wrapper">
-                <canvas id="chartInternat"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECTION 04 — RESULTATS -->
-    <section class="content-section reveal">
-        <div class="section-header">
+    <!-- 04 Visualisations clés -->
+    <section class="charts-section reveal">
+        <div class="charts-section-header">
             <div class="section-number">04</div>
-            <h2>Résultats & enseignements</h2>
+            <h2>Visualisations clés</h2>
         </div>
-        <div class="section-content">
-            <div class="results-grid">
-                <div class="result-card">
-                    <div class="result-icon">🏆</div>
-                    <h3>Leaders académiques stables</h3>
-                    <p>Les États-Unis, le Royaume-Uni et Singapour dominent tous les critères. Un écart marqué sépare les 3 premiers pays du reste du classement.</p>
+
+        <!-- Row 1: 2 bar charts -->
+        <div class="charts-grid-top">
+
+            <!-- Chart 1: Segments -->
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Répartition par segment client</h3>
+                    <p>Nombre de transactions par type de client · 2019–2022</p>
                 </div>
-                <div class="result-card">
-                    <div class="result-icon">📈</div>
-                    <h3>Convergence des indicateurs</h3>
-                    <p>Pour Panthéon-Sorbonne (Paris 1), enseignement, recherche et score THE convergent vers l'intervalle [32–38], avec une nette amélioration en recherche depuis 2020.</p>
+                <div class="chart-wrapper-sm">
+                    <canvas id="chartSegments"></canvas>
                 </div>
-                <div class="result-card">
-                    <div class="result-icon">🌍</div>
-                    <h3>Alphabétisation ↔ présence universitaire</h3>
-                    <p>68 % des universités du classement appartiennent à des pays avec un taux d'alphabétisation > 90 %, soulignant le lien étroit entre niveau éducatif national et rayonnement universitaire.</p>
+            </div>
+
+            <!-- Chart 2: CA par catégorie -->
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Chiffre d'affaires par catégorie</h3>
+                    <p>Classement des 3 familles de produits selon les ventes totales ($)</p>
                 </div>
-                <div class="result-card">
-                    <div class="result-icon">🌐</div>
-                    <h3>Internationalisation & excellence</h3>
-                    <p>Les universités accueillant plus de 30 % d'étudiants internationaux affichent un score moyen de recherche de 73,95, contre 44,68 pour celles sous les 10 %.</p>
+                <div class="chart-wrapper-sm">
+                    <canvas id="chartCA"></canvas>
                 </div>
-                <div class="result-card">
-                    <div class="result-icon">💰</div>
-                    <h3>PIB/hab & performances</h3>
-                    <p>Les pays à PIB élevé (≥ 4 496 $/hab) affichent des scores d'enseignement et de recherche nettement supérieurs, bien que des exceptions notables existent.</p>
+            </div>
+        </div>
+
+        <!-- Row 2: Profits Office Supplies + Boxplot profits -->
+        <div class="charts-grid-top">
+
+            <!-- Chart 3: Profits sous-catégories fournitures -->
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Profits — Fournitures de bureau</h3>
+                    <p>Classement des sous-catégories Office Supplies par bénéfice total ($)</p>
                 </div>
-                <div class="result-card">
-                    <div class="result-icon">⚖️</div>
-                    <h3>Parité et performance</h3>
-                    <p>Les universités mixtes (40–60 % de femmes) présentent les meilleures performances moyennes en enseignement et en recherche — la parité est corrélée à l'excellence.</p>
+                <div class="chart-wrapper-sm">
+                    <canvas id="chartOffice"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 4: Profit par sous-catégorie boxplot -->
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Profit médian par sous-catégorie (Top 10)</h3>
+                    <p>Distribution des profits — médiane et dispersion inter-quartile</p>
+                    <div class="chart-badge">η² = 8,15 % · liaison faible</div>
+                </div>
+                <div class="chart-wrapper-sm">
+                    <canvas id="chartBoxSub"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Scatter Plot full width -->
+        <div class="charts-grid-bottom">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Profit d'une transaction en fonction du chiffre d'affaires</h3>
+                    <p>Nuage de points — droite de régression (tiretés) · association linéaire positive modérée</p>
+                    <div class="chart-badge">r = 0,479 · corrélation modérée positive</div>
+                </div>
+                <div class="scatter-svg-container">
+                    <svg id="scatterMain" viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="scatterBg" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#0d1117"/>
+                                <stop offset="100%" stop-color="#0a1628"/>
+                            </linearGradient>
+                            <filter id="dotGlow">
+                                <feGaussianBlur stdDeviation="2" result="blur"/>
+                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                            </filter>
+                            <filter id="lineGlow">
+                                <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                            </filter>
+                            <clipPath id="plotArea">
+                                <rect x="80" y="20" width="790" height="320"/>
+                            </clipPath>
+                        </defs>
+
+                        <!-- Background -->
+                        <rect width="900" height="400" fill="url(#scatterBg)" rx="12"/>
+
+                        <!-- Grid -->
+                        <g stroke="rgba(255,255,255,0.06)" stroke-width="0.8">
+                            <line x1="80" y1="20"  x2="80"  y2="340"/>
+                            <line x1="238" y1="20" x2="238" y2="340"/>
+                            <line x1="396" y1="20" x2="396" y2="340"/>
+                            <line x1="554" y1="20" x2="554" y2="340"/>
+                            <line x1="712" y1="20" x2="712" y2="340"/>
+                            <line x1="870" y1="20" x2="870" y2="340"/>
+                            <line x1="80" y1="340" x2="875" y2="340"/>
+                            <line x1="80" y1="260" x2="875" y2="260"/>
+                            <line x1="80" y1="180" x2="875" y2="180"/>
+                            <line x1="80" y1="100" x2="875" y2="100"/>
+                            <line x1="80" y1="20"  x2="875" y2="20"/>
+                        </g>
+
+                        <!-- Zero profit axis (y = 180) -->
+                        <line x1="80" y1="210" x2="875" y2="210" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+
+                        <!-- Regression line from (80,220) to (875,115) -->
+                        <line x1="80" y1="222" x2="875" y2="120" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="10,5" filter="url(#lineGlow)" opacity="0.95"/>
+
+                        <!-- ===== SCATTER POINTS ===== -->
+                        <g clip-path="url(#plotArea)">
+                        <!-- Dense cluster near origin (low sales, profit ~0) -->
+                        <circle cx="95"  cy="212" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="100" cy="206" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="103" cy="218" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="107" cy="203" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="110" cy="222" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="113" cy="210" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="116" cy="200" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="119" cy="215" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="122" cy="207" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="125" cy="195" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="128" cy="225" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="131" cy="212" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="134" cy="198" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="137" cy="222" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="140" cy="190" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="143" cy="215" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="146" cy="228" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="149" cy="202" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="152" cy="209" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="155" cy="218" r="3" fill="#00d9ff" opacity="0.7"/>
+                        <circle cx="95"  cy="232" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="100" cy="240" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="106" cy="248" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="112" cy="238" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="118" cy="255" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="124" cy="244" r="3" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="130" cy="260" r="3" fill="#6366f1" opacity="0.60"/>
+                        <circle cx="88"  cy="228" r="3" fill="#6366f1" opacity="0.65"/>
+                        <!-- Mid range sales -->
+                        <circle cx="165" cy="195" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="172" cy="183" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="180" cy="200" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="188" cy="172" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="196" cy="188" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="204" cy="176" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="213" cy="165" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="220" cy="190" r="3.2" fill="#00d9ff" opacity="0.75"/>
+                        <circle cx="168" cy="235" r="3.2" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="178" cy="248" r="3.2" fill="#6366f1" opacity="0.65"/>
+                        <circle cx="192" cy="255" r="3.2" fill="#6366f1" opacity="0.60"/>
+                        <circle cx="208" cy="240" r="3.2" fill="#6366f1" opacity="0.60"/>
+                        <!-- Higher sales -->
+                        <circle cx="250" cy="175" r="3.5" fill="#00d9ff" opacity="0.8"/>
+                        <circle cx="270" cy="160" r="3.5" fill="#00d9ff" opacity="0.8"/>
+                        <circle cx="290" cy="170" r="3.5" fill="#00d9ff" opacity="0.8"/>
+                        <circle cx="310" cy="155" r="3.5" fill="#00d9ff" opacity="0.8"/>
+                        <circle cx="332" cy="145" r="3.5" fill="#00d9ff" opacity="0.8"/>
+                        <circle cx="260" cy="250" r="3.5" fill="#6366f1" opacity="0.6"/>
+                        <circle cx="285" cy="265" r="3.5" fill="#6366f1" opacity="0.55"/>
+                        <!-- Extreme values — outliers -->
+                        <circle cx="430" cy="95"  r="4"   fill="#00d9ff" opacity="0.9" filter="url(#dotGlow)"/>
+                        <circle cx="510" cy="78"  r="4"   fill="#00d9ff" opacity="0.9" filter="url(#dotGlow)"/>
+                        <circle cx="370" cy="112" r="3.8" fill="#00d9ff" opacity="0.85"/>
+                        <circle cx="590" cy="62"  r="4.5" fill="#00d9ff" opacity="0.9" filter="url(#dotGlow)"/>
+                        <circle cx="680" cy="52"  r="4.5" fill="#00d9ff" opacity="0.9" filter="url(#dotGlow)"/>
+                        <!-- Big negative outlier bottom right -->
+                        <circle cx="820" cy="330" r="5"   fill="#ec4899" opacity="0.95" filter="url(#dotGlow)"/>
+                        <!-- Some mid negatives -->
+                        <circle cx="350" cy="280" r="3.5" fill="#6366f1" opacity="0.6"/>
+                        <circle cx="230" cy="290" r="3.5" fill="#6366f1" opacity="0.6"/>
+                        <circle cx="160" cy="300" r="3.5" fill="#6366f1" opacity="0.55"/>
+                        <!-- Big positive outlier -->
+                        <circle cx="750" cy="38"  r="5"   fill="#10b981" opacity="0.9" filter="url(#dotGlow)"/>
+                        </g>
+
+                        <!-- Axes -->
+                        <line x1="80"  y1="20"  x2="80"  y2="345" stroke="rgba(255,255,255,0.35)" stroke-width="1.2"/>
+                        <line x1="75"  y1="340" x2="880" y2="340" stroke="rgba(255,255,255,0.35)" stroke-width="1.2"/>
+
+                        <!-- Tick labels X -->
+                        <text x="80"  y="358" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">0</text>
+                        <text x="238" y="358" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">5 000</text>
+                        <text x="396" y="358" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">10 000</text>
+                        <text x="554" y="358" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">15 000</text>
+                        <text x="712" y="358" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">20 000</text>
+
+                        <!-- Tick labels Y -->
+                        <text x="68" y="344" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">−6 000</text>
+                        <text x="68" y="264" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">−2 000</text>
+                        <text x="68" y="214" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">0</text>
+                        <text x="68" y="184" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">2 000</text>
+                        <text x="68" y="104" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">6 000</text>
+                        <text x="68" y="24"  text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11" font-family="'Space Mono',monospace">8 000</text>
+
+                        <!-- Axis titles -->
+                        <text x="480" y="383" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="13" font-family="'Outfit',sans-serif">Sales — Ventes ($)</text>
+                        <text x="18" y="180" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="13" font-family="'Outfit',sans-serif" transform="rotate(-90,18,180)">Profit ($)</text>
+
+                        <!-- Correlation badge -->
+                        <rect x="90" y="28" width="82" height="22" rx="5" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.5)" stroke-width="1"/>
+                        <text x="131" y="43" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="'Space Mono',monospace" font-weight="bold">r = 0.479</text>
+
+                        <!-- Legend -->
+                        <circle cx="640" cy="375" r="4" fill="#00d9ff" opacity="0.8"/>
+                        <text x="648" y="379" fill="rgba(255,255,255,0.5)" font-size="10" font-family="'Outfit',sans-serif">Profit positif</text>
+                        <circle cx="718" cy="375" r="4" fill="#6366f1" opacity="0.8"/>
+                        <text x="726" y="379" fill="rgba(255,255,255,0.5)" font-size="10" font-family="'Outfit',sans-serif">Profit négatif</text>
+                        <circle cx="800" cy="375" r="4" fill="#ec4899" opacity="0.9"/>
+                        <text x="808" y="379" fill="rgba(255,255,255,0.5)" font-size="10" font-family="'Outfit',sans-serif">Outlier</text>
+                    </svg>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- SECTION 05 — DEFIS & SOLUTIONS -->
+    <!-- 05 Résultats -->
     <section class="content-section reveal">
         <div class="section-header">
             <div class="section-number">05</div>
-            <h2>Défis rencontrés & solutions</h2>
+            <h2>Principaux résultats</h2>
         </div>
         <div class="section-content">
+            <p>L'analyse exploratoire a permis de mettre en lumière plusieurs tendances commerciales significatives sur la période 2019–2022.</p>
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-icon">👤</div>
+                    <h3>Consumer dominant</h3>
+                    <p>Le segment Consumer représente <strong style="color:var(--blanc)">51,94 %</strong> des transactions, devant Corporate (30,22 %) et Home Office (17,84 %).</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon">💻</div>
+                    <h3>Technology en tête</h3>
+                    <p>La catégorie Technology génère le CA le plus élevé (<strong style="color:var(--blanc)">836 154 $</strong>), suivie de Furniture (742 k$) et Office Supplies (719 k$).</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon">📄</div>
+                    <h3>Paper & Binders rentables</h3>
+                    <p>Dans les fournitures de bureau, Paper (34 k$) et Binders (30 k$) sont les sous-catégories les plus bénéficiaires. Supplies est en pertes (−1 190 $).</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon">📊</div>
+                    <h3>Profit asymétrique</h3>
+                    <p>Profit moyen : <strong style="color:var(--blanc)">28,66 $</strong> · Médiane : 8,67 $ · Q3 : 29,36 $. Distribution très asymétrique avec des extrêmes de −6 600 $ à +8 400 $.</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon">🗺️</div>
+                    <h3>Géographie contrastée</h3>
+                    <p>California et New York affichent les meilleurs profits. Ohio, Texas et Illinois enregistrent des pertes. Le Michigan est l'État le plus rentable par transaction (moy. 96 $).</p>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon">📈</div>
+                    <h3>Volume pilote le CA</h3>
+                    <p>Corrélation très forte entre nombre de commandes et chiffre d'affaires par État (<strong style="color:var(--blanc)">r = 0,983</strong>) : le volume est le premier moteur de croissance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 06 Insights -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <div class="section-number">06</div>
+            <h2>Insights clés</h2>
+        </div>
+        <div class="section-content">
+            <p>Plusieurs observations contre-intuitives ont émergé de l'analyse croisée des variables.</p>
             <ul class="insights-list">
                 <li class="insight-item">
-                    <strong>🔗 Jointures multi-tables et doublons de lignes</strong>
-                    <p>Les jointures simultanées entre les 4 tables pouvaient multiplier les lignes et fausser les agrégats. Solution : calcul des KPIs via des sous-requêtes séparées par table, garantissant des valeurs exactes.</p>
+                    <strong>💡 Chiffre d'affaires ≠ Rentabilité</strong>
+                    <p>La corrélation entre ventes et profit d'une transaction n'est que modérée (r = 0,479). Une transaction à fort CA peut être déficitaire si la remise est élevée — notamment dans le Furniture où certaines commandes à 20 000 $+ affichent un profit négatif.</p>
                 </li>
                 <li class="insight-item">
-                    <strong>⚡ Requête SQL dynamique avec critères optionnels</strong>
-                    <p>Construire une requête dont le nombre de clauses WHERE varie selon les paramètres non-None. Solution : listes <code>conditions</code> et <code>parametres</code> remplies conditionnellement, puis concaténées avec <code>" AND ".join(conditions)</code>.</p>
+                    <strong>💡 Les remises érodent les marges</strong>
+                    <p>Une grande partie des pertes observées correspond à des transactions avec une remise (Discount) importante. Les produits technologiques et les meubles sont les plus exposés à cet effet de ciseau.</p>
                 </li>
                 <li class="insight-item">
-                    <strong>📊 CASE WHEN vs traitement Python</strong>
-                    <p>La première version de <code>stats_pib_vs_perf</code> utilisait 9 listes Python (68 lignes). L'utilisation de <code>CASE WHEN … END</code> en SQL a réduit le code à 35 lignes, plus lisibles et plus performantes.</p>
+                    <strong>💡 Aucune association segment × catégorie</strong>
+                    <p>Le V de Cramér de 0,66 % indique que la structure des achats est quasi identique pour Consumer, Corporate et Home Office — les trois segments achètent dans les mêmes proportions. La segmentation ne justifie pas une stratégie produit différenciée.</p>
                 </li>
                 <li class="insight-item">
-                    <strong>📐 Pondération pour un classement équitable</strong>
-                    <p>Un pays avec une seule université très performante pouvait dominer artificiellement le Top 10. La formule <code>score × nb/(nb+20)</code> et le filtre <code>HAVING nb ≥ 20</code> ont résolu ce biais.</p>
+                    <strong>💡 Ohio & Texas : marchés à risque</strong>
+                    <p>Parmi les 10 États les plus actifs, l'Ohio (−36 $/transaction en moyenne), le Texas et l'Illinois sont systématiquement déficitaires. Des causes opérationnelles (coûts logistiques, politique de remise locale) sont à investiguer pour rétablir la rentabilité.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>💡 Office Supplies : fragmenté mais régulier</strong>
+                    <p>La catégorie Office Supplies présente la plus grande diversité de sous-catégories (9 familles) avec un flux constant de petits achats. Binders et Paper dominent près de la moitié du volume, assurant une base stable de revenus récurrents.</p>
                 </li>
             </ul>
         </div>
     </section>
 
-    <!-- SECTION 06 — STACK -->
+    <!-- 07 Stack technique -->
     <section class="content-section reveal">
         <div class="section-header">
-            <div class="section-number">06</div>
-            <h2>Stack technique</h2>
+            <div class="section-number">07</div>
+            <h2>Outils & livrables</h2>
         </div>
         <div class="section-content">
             <div class="tech-grid">
                 <div class="tech-item">
-                    <h4>Python 3</h4>
-                    <p>Logique métier, structuration et orchestration</p>
+                    <h4>R / RStudio</h4>
+                    <p>Langage de base R — import, typage, graphiques natifs (barplot, boxplot, plot, pie)</p>
                 </div>
                 <div class="tech-item">
-                    <h4>SQLite 3</h4>
-                    <p>SGBD relationnel léger, requêtes paramétrées</p>
+                    <h4>Statistiques</h4>
+                    <p>Corrélation de Pearson, rapport de corrélation η², V de Cramér, quartiles</p>
                 </div>
                 <div class="tech-item">
-                    <h4>SQL</h4>
-                    <p>JOIN, AVG, GROUP BY, CASE WHEN, LIMIT</p>
+                    <h4>LaTeX</h4>
+                    <p>Rapport PDF 10 pages — figures référencées, mise en page scientifique</p>
                 </div>
                 <div class="tech-item">
-                    <h4>openpyxl</h4>
-                    <p>Export Excel, feuilles, graphiques auto</p>
+                    <h4>Marp</h4>
+                    <p>Présentation orale en Markdown — slides exportées en PDF</p>
                 </div>
                 <div class="tech-item">
-                    <h4>Données THE</h4>
-                    <p>Times Higher Education World Rankings</p>
+                    <h4>Git</h4>
+                    <p>Versionnage du script et du rapport tout au long du projet</p>
                 </div>
                 <div class="tech-item">
-                    <h4>Reporting BI</h4>
-                    <p>Dashboard décisionnel multi-KPIs</p>
+                    <h4>Superstore CSV</h4>
+                    <p>Dataset réel · 9 994 lignes · 21 variables · commandes 2019–2022</p>
                 </div>
             </div>
         </div>
@@ -1202,195 +1114,209 @@
 
     <!-- CTA -->
     <section class="cta-section reveal">
-        <h2>Un projet de data science complet</h2>
-        <p>De la modélisation relationnelle au reporting Excel, en passant par l'analyse SQL/Python</p>
+        <h2>Voir d'autres projets</h2>
+        <p>Retour au portfolio ou exploration des projets suivants</p>
         <div class="cta-buttons">
-            <a href="#" class="cta-button">
-                <span>Voir le rapport complet</span>
-                <span>→</span>
+            <a href="portfolio-data-analyst.html" class="cta-button">
+                <span>← Retour au portfolio</span>
             </a>
-            <a href="#" class="cta-button cta-secondary">
-                <span>Retour au portfolio</span>
+            <a href="rapport_SAE.pdf" download="Rapport_SAE_Superstore.pdf" class="cta-button cta-secondary">
+                <svg style="width:16px;height:16px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Télécharger le rapport</span>
+            </a>
+            <a href="proget2.html" class="cta-button cta-secondary">
+                <span>Projet suivant →</span>
             </a>
         </div>
     </section>
 
     <footer>
-        <p>BUT Science des Données · IUT Grand Ouest Normandie · Yanh Bambela Mouanda · 2025–2026</p>
+        <p>&copy; 2025–2026 · IUT Grand Ouest Normandie · BUT Science des Données</p>
     </footer>
 
     <script>
-    /* ── Particles ── */
-    const canvas = document.getElementById('particles-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const particles = [];
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 2 + 1;
-            this.speedX = Math.random() * 0.5 - 0.25;
-            this.speedY = Math.random() * 0.5 - 0.25;
+        // ===== PARTICLES =====
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const particles = [];
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = document.body.classList.contains('day-mode') ? 'rgba(0,120,180,0.35)' : 'rgba(0, 217, 255, 0.5)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
         }
-        update() {
-            this.x += this.speedX; this.y += this.speedY;
-            if (this.x > canvas.width)  this.x = 0;
-            if (this.x < 0)  this.x = canvas.width;
-            if (this.y > canvas.height) this.y = 0;
-            if (this.y < 0)  this.y = canvas.height;
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            for (let i = 0; i < particles.length; i++)
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+                    const d = Math.sqrt(dx*dx + dy*dy);
+                    if (d < 150) { ctx.strokeStyle = document.body.classList.contains('day-mode') ? `rgba(0,120,180,${0.2*(1-d/150)})` : `rgba(0,217,255,${0.2*(1-d/150)})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); }
+                }
+            requestAnimationFrame(animate);
         }
-        draw() {
-            ctx.fillStyle = 'rgba(0, 217, 255, 0.4)';
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+        animate();
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+        // ===== SCROLL REVEAL =====
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() {
+            reveals.forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 100)
+                    el.classList.add('active');
+            });
         }
-    }
-    for (let i = 0; i < 60; i++) particles.push(new Particle());
-    function connectParticles() {
-        for (let i = 0; i < particles.length; i++) {
-            for (let j = i+1; j < particles.length; j++) {
-                const dx = particles[i].x - particles[j].x;
-                const dy = particles[i].y - particles[j].y;
-                const d  = Math.sqrt(dx*dx + dy*dy);
-                if (d < 150) {
-                    ctx.strokeStyle = `rgba(0,217,255,${0.15*(1-d/150)})`;
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.stroke();
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        // ===== CHARTS =====
+        const DEFAULTS = {
+            plugins: { legend: { display: false }, tooltip: {
+                backgroundColor: 'rgba(10,10,10,0.9)', titleColor: '#00d9ff',
+                bodyColor: '#fafafa', borderColor: '#00d9ff', borderWidth: 1, padding: 10
+            }},
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#64748b', font: { size: 11 } } },
+                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b', font: { size: 11 } } }
+            }
+        };
+
+        // Chart 1 — Segments
+        new Chart(document.getElementById('chartSegments'), {
+            type: 'bar',
+            data: {
+                labels: ['Consumer', 'Corporate', 'Home Office'],
+                datasets: [{
+                    data: [5191, 3020, 1783],
+                    backgroundColor: ['rgba(0,217,255,0.7)', 'rgba(99,102,241,0.7)', 'rgba(245,158,11,0.7)'],
+                    borderColor:      ['#00d9ff', '#6366f1', '#f59e0b'],
+                    borderWidth: 2, borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { ...DEFAULTS.plugins.tooltip,
+                        callbacks: { label: c => c.parsed.y.toLocaleString('fr') + ' transactions' }
+                    }
+                },
+                scales: {
+                    y: { ...DEFAULTS.scales.y, beginAtZero: true,
+                         ticks: { ...DEFAULTS.scales.y.ticks, callback: v => v.toLocaleString('fr') }
+                    },
+                    x: DEFAULTS.scales.x
                 }
             }
-        }
-    }
-    (function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => { p.update(); p.draw(); });
-        connectParticles();
-        requestAnimationFrame(animate);
-    })();
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    });
-
-    /* ── Reveal on scroll ── */
-    const reveals = document.querySelectorAll('.reveal');
-    function revealOnScroll() {
-        reveals.forEach(el => {
-            if (el.getBoundingClientRect().top < window.innerHeight - 100)
-                el.classList.add('active');
         });
-    }
-    window.addEventListener('scroll', revealOnScroll);
-    revealOnScroll();
 
-    /* ── Code tabs ── */
-    function showCode(id) {
-        document.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('code-' + id).classList.add('active');
-        event.target.classList.add('active');
-    }
-
-    /* ── Chart defaults ── */
-    const chartDefaults = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { labels: { color: '#fafafa', font: { size: 12, family: 'Outfit' }, usePointStyle: true, padding: 16 } },
-            tooltip: { backgroundColor: 'rgba(10,10,10,0.9)', titleColor: '#00d9ff', bodyColor: '#fafafa', borderColor: '#00d9ff', borderWidth: 1, padding: 10 }
-        },
-        scales: {
-            y: { grid: { color: 'rgba(255,255,255,0.07)' }, ticks: { color: '#64748b', font: { size: 11 } } },
-            x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b', font: { size: 11 } } }
-        }
-    };
-
-    /* ── Chart 1 : Top 10 pays enseignement ── */
-    new Chart(document.getElementById('chartTop10').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: ['USA', 'Germany', 'France', 'China', 'UK', 'India', 'Japan', 'Korea S.', 'Iran', 'Russia'],
-            datasets: [{
-                label: 'Score pondéré enseignement',
-                data: [38.33, 30.46, 25.74, 25.49, 25.23, 25.14, 22.81, 22.73, 22.30, 21.63],
-                backgroundColor: [
-                    'rgba(0,217,255,0.7)', 'rgba(0,217,255,0.6)', 'rgba(0,217,255,0.55)',
-                    'rgba(0,217,255,0.5)', 'rgba(0,217,255,0.45)', 'rgba(0,217,255,0.4)',
-                    'rgba(99,102,241,0.55)', 'rgba(99,102,241,0.5)', 'rgba(99,102,241,0.45)', 'rgba(99,102,241,0.4)'
-                ],
-                borderColor: 'rgba(0,217,255,0.9)',
-                borderWidth: 1,
-                borderRadius: 6
-            }]
-        },
-        options: { ...chartDefaults }
-    });
-
-    /* ── Chart 2 : PIB vs perf ── */
-    new Chart(document.getElementById('chartPib').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: ['Faible (≤ 1 135 $)', 'Intermédiaire', 'Élevé (≥ 4 496 $)'],
-            datasets: [
-                { label: 'Enseig.', data: [18.96, 22.46, 29.93], backgroundColor: 'rgba(0,217,255,0.6)', borderColor: '#00d9ff', borderWidth: 1, borderRadius: 5 },
-                { label: 'Recherche', data: [40.42, 49.13, 52.56], backgroundColor: 'rgba(99,102,241,0.6)', borderColor: '#6366f1', borderWidth: 1, borderRadius: 5 },
-                { label: 'Score THE', data: [25.31, 29.18, 37.83], backgroundColor: 'rgba(16,185,129,0.6)', borderColor: '#10b981', borderWidth: 1, borderRadius: 5 }
-            ]
-        },
-        options: { ...chartDefaults }
-    });
-
-    /* ── Chart 3 : Evolution Panthéon-Sorbonne ── */
-    new Chart(document.getElementById('chartEvolution').getContext('2d'), {
-        type: 'line',
-        data: {
-            labels: ['2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'],
-            datasets: [
-                { label: 'Enseignement', data: [28.1, 29.4, 30.2, 31.5, 33.8, 34.2, 35.1, 36.0, 37.2, 45.4], borderColor: '#00d9ff', backgroundColor: 'rgba(0,217,255,0.08)', tension: 0.4, fill: true, pointRadius: 4 },
-                { label: 'Recherche',    data: [10.2, 10.8, 11.0, 11.3, 11.2, 11.4, 11.5, 11.3, 11.3, 11.2], borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.08)', tension: 0.4, fill: true, pointRadius: 4 },
-                { label: 'Score THE',   data: [21.5, 22.4, 23.1, 24.8, 26.2, 26.9, 27.8, 28.5, 29.3, 32.0], borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)', tension: 0.4, fill: true, pointRadius: 4 }
-            ]
-        },
-        options: { ...chartDefaults }
-    });
-
-    /* ── Chart 4 : Alphabétisation (pie) ── */
-    new Chart(document.getElementById('chartAlpha').getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: ['> 90 % (1 414)', '[80–90 %] (235)', '< 80 % (443)'],
-            datasets: [{
-                data: [1414, 235, 443],
-                backgroundColor: ['rgba(0,217,255,0.7)', 'rgba(99,102,241,0.65)', 'rgba(236,72,153,0.55)'],
-                borderColor: ['#00d9ff', '#6366f1', '#ec4899'],
-                borderWidth: 2,
-                hoverOffset: 8
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            cutout: '55%',
-            plugins: {
-                legend: { position: 'bottom', labels: { color: '#fafafa', font: { size: 12 }, padding: 16 } },
-                tooltip: { backgroundColor: 'rgba(10,10,10,0.9)', titleColor: '#00d9ff', bodyColor: '#fafafa', borderColor: '#00d9ff', borderWidth: 1 }
+        // Chart 2 — CA par catégorie
+        new Chart(document.getElementById('chartCA'), {
+            type: 'bar',
+            data: {
+                labels: ['Technology', 'Furniture', 'Office Supplies'],
+                datasets: [{
+                    data: [836154, 741999, 719047],
+                    backgroundColor: ['rgba(16,185,129,0.75)', 'rgba(99,102,241,0.7)', 'rgba(0,217,255,0.65)'],
+                    borderColor:      ['#10b981', '#6366f1', '#00d9ff'],
+                    borderWidth: 2, borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { ...DEFAULTS.plugins.tooltip,
+                        callbacks: { label: c => Math.round(c.parsed.y).toLocaleString('fr') + ' $' }
+                    }
+                },
+                scales: {
+                    y: { ...DEFAULTS.scales.y, beginAtZero: true,
+                         ticks: { ...DEFAULTS.scales.y.ticks, callback: v => (v/1000)+'k $' }
+                    },
+                    x: DEFAULTS.scales.x
+                }
             }
-        }
-    });
+        });
 
-    /* ── Chart 5 : Internationalisation vs Recherche ── */
-    new Chart(document.getElementById('chartInternat').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: ['0–10 %', '10–20 %', '20–30 %', '30 %+'],
-            datasets: [
-                { label: 'Score recherche',  data: [44.68, 56.76, 67.37, 73.95], backgroundColor: 'rgba(0,217,255,0.65)', borderColor: '#00d9ff', borderWidth: 1, borderRadius: 5 },
-                { label: 'Score THE moyen',  data: [29.86, 41.59, 50.21, 53.91], backgroundColor: 'rgba(16,185,129,0.55)', borderColor: '#10b981', borderWidth: 1, borderRadius: 5 }
-            ]
-        },
-        options: { ...chartDefaults }
-    });
+        // Chart 3 — Office Supplies profits
+        new Chart(document.getElementById('chartOffice'), {
+            type: 'bar',
+            data: {
+                labels: ['Paper','Binders','Storage','Appliances','Envelopes','Art','Labels','Fasteners','Supplies'],
+                datasets: [{
+                    data: [34054, 30222, 21278, 18138, 6964, 6528, 5546, 950, -1190],
+                    backgroundColor: d => d.raw < 0 ? 'rgba(239,68,68,0.7)' : 'rgba(16,185,129,0.7)',
+                    borderColor: d => d.raw < 0 ? '#ef4444' : '#10b981',
+                    borderWidth: 2, borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { ...DEFAULTS.plugins.tooltip,
+                        callbacks: { label: c => Math.round(c.parsed.x).toLocaleString('fr') + ' $' }
+                    }
+                },
+                scales: {
+                    x: { ...DEFAULTS.scales.y,
+                         ticks: { ...DEFAULTS.scales.y.ticks, callback: v => (v/1000).toFixed(0)+'k' }
+                    },
+                    y: { ...DEFAULTS.scales.x, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                }
+            }
+        });
+
+        // Chart 4 — Profit médian par sous-catégorie
+        new Chart(document.getElementById('chartBoxSub'), {
+            type: 'bar',
+            data: {
+                labels: ['Copiers','Accessories','Phones','Paper','Chairs','Appliances','Storage','Binders','Labels','Art'],
+                datasets: [{
+                    label: 'Profit médian ($)',
+                    data: [180, 54, 38, 25, 43, 19, 24, -8, 15, 13],
+                    backgroundColor: d => d.raw < 0 ? 'rgba(239,68,68,0.65)' : 'rgba(0,217,255,0.65)',
+                    borderColor: d => d.raw < 0 ? '#ef4444' : '#00d9ff',
+                    borderWidth: 2, borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { ...DEFAULTS.plugins.tooltip,
+                        callbacks: { label: c => c.parsed.x.toFixed(2) + ' $ (médiane)' }
+                    }
+                },
+                scales: {
+                    x: { ...DEFAULTS.scales.y, ticks: { ...DEFAULTS.scales.y.ticks, callback: v => v+'$' } },
+                    y: { ...DEFAULTS.scales.x, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                }
+            }
+        });
 
         // ===== THEME TOGGLE =====
         (function() {
