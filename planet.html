@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planète Data — Yanh Bambela</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #00d9ff;
+      --violet: #6366f1;
+      --rose: #ec4899;
+      --vert: #10b981;
+      --orange: #f59e0b;
+      --gris: #64748b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #04050f; }
+    body { font-family: 'Outfit', sans-serif; color: #fafafa; cursor: grab; }
+    body.dragging { cursor: grabbing; }
+
+    canvas { display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 1.2rem 3rem;
+      display: flex; justify-content: space-between; align-items: center;
+      z-index: 100;
+      background: rgba(4,5,15,0.65);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .logo {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700; font-size: 1.15rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      background: linear-gradient(135deg, #00d9ff 0%, #6366f1 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; text-decoration: none;
+    }
+    .back-link {
+      display: flex; align-items: center; gap: 0.45rem;
+      color: var(--gris); text-decoration: none;
+      font-size: 0.85rem; letter-spacing: 0.5px;
+      transition: color 0.25s;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    .overlay {
+      position: fixed; bottom: 2.5rem; left: 50%;
+      transform: translateX(-50%);
+      text-align: center; pointer-events: none; z-index: 10;
+    }
+    .planet-name {
+      font-size: clamp(1.4rem, 3.5vw, 2.6rem);
+      font-weight: 800; letter-spacing: -1px;
+      background: linear-gradient(135deg, #00d9ff, #6366f1, #ec4899);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .planet-hint {
+      margin-top: 0.4rem;
+      font-size: 0.7rem; color: rgba(255,255,255,0.18);
+      font-family: 'Space Mono', monospace; letter-spacing: 2.5px;
+    }
+
+    .tooltip {
+      position: fixed; z-index: 200;
+      padding: 0.4rem 0.9rem;
+      background: rgba(4,5,15,0.92);
+      border: 1px solid rgba(0,217,255,0.55);
+      border-radius: 8px;
+      font-size: 0.8rem; font-weight: 600;
+      color: #00d9ff; pointer-events: none;
+      opacity: 0; transition: opacity 0.15s;
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+    .tooltip.show { opacity: 1; }
+
+    .legend {
+      position: fixed; right: 2rem; top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      display: flex; flex-direction: column; gap: 0.85rem;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 0.55rem;
+      font-size: 0.78rem; color: rgba(255,255,255,0.38);
+      transition: color 0.2s; cursor: default;
+    }
+    .leg-item:hover { color: rgba(255,255,255,0.88); }
+    .leg-dot {
+      width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 1rem 1.4rem; }
+      .legend { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">YB</a>
+  <a class="back-link" href="index.html">← Portfolio</a>
+</nav>
+
+<canvas id="c"></canvas>
+
+<div class="overlay">
+  <div class="planet-name">🪐 Planète Data</div>
+  <div class="planet-hint">GLISSER POUR TOURNER · SURVOLER LES SATELLITES</div>
+</div>
+
+<div class="tooltip" id="tip"></div>
+<div class="legend" id="legend"></div>
+
+<script>
+/* ── Setup ─────────────────────────────────────────────── */
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const tip    = document.getElementById('tip');
+const legEl  = document.getElementById('legend');
+
+let W, H, CX, CY, R;
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  CX = W / 2;
+  CY = H / 2;
+  R  = Math.min(W, H) * 0.255;
+}
+resize();
+window.addEventListener('resize', () => { resize(); buildStars(); });
+
+/* ── Stars ──────────────────────────────────────────────── */
+let STARS = [];
+function buildStars() {
+  STARS = Array.from({ length: 700 }, () => ({
+    x:     Math.random() * W,
+    y:     Math.random() * H,
+    r:     Math.random() * 1.2 + 0.25,
+    base:  Math.random() * 0.75 + 0.15,
+    phase: Math.random() * Math.PI * 2,
+    freq:  Math.random() * 0.7 + 0.25,
+  }));
+}
+buildStars();
+
+/* ── Skills / satellites ────────────────────────────────── */
+const SKILLS = [
+  { name: 'Python',           color: '#f59e0b', a: 1.90, b: 0.52, spd: 0.0075, phase: 0.0  },
+  { name: 'SQL',              color: '#00d9ff', a: 2.25, b: 0.68, spd: 0.0048, phase: 2.1  },
+  { name: 'R',                color: '#6366f1', a: 1.60, b: 0.44, spd: 0.0110, phase: 4.1  },
+  { name: 'Power BI',         color: '#ec4899', a: 2.60, b: 0.80, spd: 0.0032, phase: 0.85 },
+  { name: 'Machine Learning', color: '#10b981', a: 2.00, b: 0.61, spd: 0.0062, phase: 3.4  },
+  { name: 'LaTeX / HTML',     color: '#a78bfa', a: 2.85, b: 0.88, spd: 0.0024, phase: 1.6  },
+];
+
+/* Build legend */
+SKILLS.forEach(sk => {
+  const el = document.createElement('div');
+  el.className = 'leg-item';
+  el.innerHTML = `<span class="leg-dot" style="background:${sk.color}"></span>${sk.name}`;
+  legEl.appendChild(el);
+});
+
+/* ── Drag / rotate ──────────────────────────────────────── */
+let rotX      = 0;
+let isDrag    = false;
+let lastMX    = 0;
+let velX      = 0;
+
+function startDrag(x) { isDrag = true; lastMX = x; velX = 0; document.body.classList.add('dragging'); }
+function endDrag()    { isDrag = false; document.body.classList.remove('dragging'); }
+function moveDrag(x)  { if (!isDrag) return; const dx = x - lastMX; velX = dx * 0.006; rotX += velX; lastMX = x; }
+
+canvas.addEventListener('mousedown',  e => startDrag(e.clientX));
+canvas.addEventListener('mouseup',    endDrag);
+canvas.addEventListener('mouseleave', endDrag);
+canvas.addEventListener('mousemove',  e => { moveDrag(e.clientX); hoverCheck(e.clientX, e.clientY); });
+canvas.addEventListener('touchstart', e => startDrag(e.touches[0].clientX), { passive: true });
+canvas.addEventListener('touchend',   endDrag);
+canvas.addEventListener('touchmove',  e => { moveDrag(e.touches[0].clientX); e.preventDefault(); }, { passive: false });
+
+/* ── Satellite position ─────────────────────────────────── */
+function satPos(sk, t) {
+  const ang = sk.phase + t * sk.spd;
+  return {
+    x:       CX + sk.a * R * Math.cos(ang),
+    y:       CY + sk.b * R * Math.sin(ang),
+    inFront: Math.sin(ang) > 0,
+    ang,
+  };
+}
+
+/* ── Tooltip hover ──────────────────────────────────────── */
+let curT = 0;
+function hoverCheck(mx, my) {
+  for (const sk of SKILLS) {
+    const p = satPos(sk, curT);
+    if (!p.inFront) continue;
+    const dx = mx - p.x, dy = my - p.y;
+    if (dx * dx + dy * dy < 400) {
+      tip.textContent  = sk.name;
+      tip.style.left   = (p.x + 16) + 'px';
+      tip.style.top    = (p.y -  8) + 'px';
+      tip.classList.add('show');
+      return;
+    }
+  }
+  tip.classList.remove('show');
+}
+
+/* ── Draw: stars ────────────────────────────────────────── */
+function drawStars(t) {
+  for (const s of STARS) {
+    const op = s.base * (0.55 + 0.45 * Math.sin(t * s.freq + s.phase));
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${op.toFixed(2)})`;
+    ctx.fill();
+  }
+}
+
+/* ── Draw: rings ────────────────────────────────────────── */
+const TILT  = 0.23;
+const IRIN  = 1.40;
+const IROUT = 2.18;
+const BANDS = 80;
+
+function drawRings(behind) {
+  const inner = IRIN  * R;
+  const outer = IROUT * R;
+
+  ctx.save();
+  ctx.translate(CX, CY);
+  ctx.save();
+  ctx.beginPath();
+  if (behind) {
+    ctx.rect(-(outer + 5), -(outer * TILT + 5), (outer + 5) * 2, outer * TILT + 5);
+  } else {
+    ctx.rect(-(outer + 5), 0, (outer + 5) * 2, outer * TILT + 6);
+  }
+  ctx.clip();
+
+  for (let i = 0; i < BANDS; i++) {
+    const tn  = i / BANDS;
+    const r   = inner + (outer - inner) * tn;
+    const env = Math.sin(tn * Math.PI);
+    const base = behind ? 0.07 : 0.27;
+    const op   = base * (0.35 + 0.65 * env);
+    const hue  = 210 + tn * 85;
+    const sat  = 65  + tn * 25;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r, r * TILT, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = `hsla(${hue},${sat}%,74%,${op.toFixed(3)})`;
+    ctx.lineWidth   = (outer - inner) / BANDS * 1.15;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+  ctx.restore();
+}
+
+/* ── Draw: planet ───────────────────────────────────────── */
+function drawPlanet(t) {
+  const autoRot = t * 0.00022;
+
+  /* Atmosphere glow */
+  const aR = R * 1.18;
+  const ag = ctx.createRadialGradient(CX, CY, R * 0.88, CX, CY, aR);
+  ag.addColorStop(0,    'rgba(80,92,255,0.22)');
+  ag.addColorStop(0.55, 'rgba(0,200,255,0.06)');
+  ag.addColorStop(1,    'rgba(0,0,0,0)');
+  ctx.beginPath();
+  ctx.arc(CX, CY, aR, 0, Math.PI * 2);
+  ctx.fillStyle = ag;
+  ctx.fill();
+
+  /* Clip to sphere */
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(CX, CY, R, 0, Math.PI * 2);
+  ctx.clip();
+
+  /* Base gradient */
+  const bg = ctx.createRadialGradient(CX - R * .28, CY - R * .28, R * .04, CX, CY, R);
+  bg.addColorStop(0,   '#1d2e68');
+  bg.addColorStop(0.3, '#0e1945');
+  bg.addColorStop(0.7, '#060a20');
+  bg.addColorStop(1,   '#020408');
+  ctx.fillStyle = bg;
+  ctx.fillRect(CX - R, CY - R, R * 2, R * 2);
+
+  /* Latitude lines */
+  for (let deg = -80; deg <= 80; deg += 15) {
+    const rad = deg * Math.PI / 180;
+    const ry  = Math.sin(rad) * R;
+    const rx  = Math.cos(rad) * R;
+    if (rx < 1) continue;
+    const op = (0.04 + 0.07 * Math.cos(rad) * Math.cos(rad)).toFixed(3);
+    ctx.beginPath();
+    ctx.ellipse(CX, CY + ry, rx, rx * 0.07, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(0,220,255,${op})`;
+    ctx.lineWidth   = 0.65;
+    ctx.stroke();
+  }
+
+  /* Longitude / meridian lines (rotate with drag + auto) */
+  for (let i = 0; i < 12; i++) {
+    const ang  = (i / 12) * Math.PI + rotX + autoRot;
+    const cosA = Math.cos(ang);
+    ctx.beginPath();
+    ctx.ellipse(CX, CY, Math.abs(cosA) * R, R, 0, 0, Math.PI * 2);
+    const op = (cosA > 0 ? 0.09 : 0.03).toFixed(3);
+    ctx.strokeStyle = `rgba(110,110,255,${op})`;
+    ctx.lineWidth   = 0.65;
+    ctx.stroke();
+  }
+
+  /* Surface data-points */
+  const PTS = [
+    [25,1.1],[-30,2.6],[45,0.6],[10,4.1],[-15,1.9],
+    [55,3.3],[-40,5.1],[28,2.2],[-60,0.4],[15,3.8],
+    [-10,5.5],[40,1.5],[70,2.9],[-55,4.4],[5,0.8],
+  ];
+  for (const [latD, lon] of PTS) {
+    const latR  = latD * Math.PI / 180;
+    const lonR  = lon + rotX + autoRot;
+    const cosL  = Math.cos(lonR);
+    if (cosL < 0.05) continue;
+    const px = CX + Math.cos(latR) * Math.sin(lonR) * R;
+    const py = CY - Math.sin(latR) * R;
+    ctx.beginPath();
+    ctx.arc(px, py, cosL * 2.6, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,217,255,${(cosL * 0.65).toFixed(2)})`;
+    ctx.fill();
+  }
+
+  /* Polar cap (north) */
+  const pc = ctx.createRadialGradient(CX, CY - R, 0, CX, CY - R, R * 0.42);
+  pc.addColorStop(0, 'rgba(160,210,255,0.18)');
+  pc.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath();
+  ctx.arc(CX, CY - R, R * 0.42, 0, Math.PI * 2);
+  ctx.fillStyle = pc;
+  ctx.fill();
+
+  /* Lighting */
+  const li = ctx.createRadialGradient(CX - R*.38, CY - R*.38, 0, CX + R*.06, CY + R*.06, R * 1.08);
+  li.addColorStop(0,   'rgba(170,215,255,0.10)');
+  li.addColorStop(0.4, 'rgba(0,0,0,0)');
+  li.addColorStop(1,   'rgba(0,0,0,0.63)');
+  ctx.fillStyle = li;
+  ctx.fillRect(CX - R, CY - R, R * 2, R * 2);
+
+  ctx.restore();
+
+  /* Rim glow */
+  ctx.beginPath();
+  ctx.arc(CX, CY, R, 0, Math.PI * 2);
+  const rim = ctx.createLinearGradient(CX - R, CY - R, CX + R, CY + R);
+  rim.addColorStop(0,    'rgba(99,102,241,0.9)');
+  rim.addColorStop(0.45, 'rgba(0,217,255,0.3)');
+  rim.addColorStop(1,    'rgba(236,72,153,0.9)');
+  ctx.strokeStyle = rim;
+  ctx.lineWidth   = 2.8;
+  ctx.stroke();
+}
+
+/* ── Draw: orbit paths ──────────────────────────────────── */
+function drawOrbits() {
+  for (const sk of SKILLS) {
+    ctx.beginPath();
+    ctx.ellipse(CX, CY, sk.a * R, sk.b * R, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.022)';
+    ctx.lineWidth   = 1;
+    ctx.stroke();
+  }
+}
+
+/* ── Draw: satellites ───────────────────────────────────── */
+function drawSatellites(t, front) {
+  for (const sk of SKILLS) {
+    const p = satPos(sk, t);
+    if (p.inFront !== front) continue;
+
+    const alpha = front ? 1.0 : 0.26;
+    const sz    = front ? 7   : 4.5;
+
+    /* Glow halo (front only) */
+    if (front) {
+      const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 24);
+      glow.addColorStop(0, sk.color + 'aa');
+      glow.addColorStop(1, sk.color + '00');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 24, 0, Math.PI * 2);
+      ctx.fillStyle = glow;
+      ctx.fill();
+    }
+
+    /* Dot */
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, sz, 0, Math.PI * 2);
+    ctx.fillStyle   = sk.color;
+    ctx.globalAlpha = alpha;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    /* Label (front only) */
+    if (front) {
+      ctx.font      = '600 11px "Outfit", sans-serif';
+      ctx.fillStyle = sk.color;
+      ctx.fillText(sk.name, p.x + 12, p.y + 4);
+    }
+  }
+}
+
+/* ── Animation loop ─────────────────────────────────────── */
+function frame(ts) {
+  const t = ts * 0.001;
+  curT = t;
+
+  /* Inertia + gentle auto-spin */
+  if (!isDrag) {
+    rotX += velX;
+    velX *= 0.94;
+    if (Math.abs(velX) < 0.0003) rotX += 0.00035;
+  }
+
+  /* Clear */
+  ctx.fillStyle = '#04050f';
+  ctx.fillRect(0, 0, W, H);
+
+  /* Layer order: stars → orbits → back-rings → back-sats → planet → front-rings → front-sats */
+  drawStars(t);
+  drawOrbits();
+  drawRings(true);
+  drawSatellites(t, false);
+  drawPlanet(t);
+  drawRings(false);
+  drawSatellites(t, true);
+
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
