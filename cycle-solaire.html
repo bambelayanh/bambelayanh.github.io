@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le cycle solaire — Modélisation statistique & Deep Learning · Portfolio Data Analyst</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #211d17;
+            --ink-soft: #4a4338;
+            --cream: #f7f2e6;
+            --cream-deep: #ede2d0;
+            --paper: #fbf8f1;
+            --gold: #a15c2e;
+            --gold-deep: #6b3d1c;
+            --line: rgba(33, 29, 23, 0.14);
+            --line-soft: rgba(33, 29, 23, 0.08);
+            --code-bg: #251d17;
+            --code-text: #ebe3d6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .serif { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); }
+
+        /* NAV */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 1.4rem 4rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: rgba(247, 242, 230, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line);
+        }
+        .back-button { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--gold-deep); font-weight: 500; font-size: 0.92rem; }
+        .back-button:hover { opacity: 0.7; }
+        .nav-title { font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); }
+
+        /* HERO */
+        .hero {
+            min-height: 80vh; display: flex; align-items: flex-end; position: relative;
+            padding: 10rem 4rem 5rem;
+            background-image: linear-gradient(180deg, rgba(33,29,23,0.55) 0%, rgba(33,29,23,0.74) 65%, rgba(20,16,12,0.9) 100%), url('assets/hero-bg-soleil.jpg');
+            background-size: cover; background-position: center;
+            color: var(--paper);
+        }
+        .hero-content { max-width: 920px; width: 100%; }
+        .project-meta { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.8rem; font-size: 0.85rem; color: rgba(251,248,241,0.75); }
+        .project-meta span:not(:last-child)::after { content: '·'; margin-left: 0.6rem; color: rgba(251,248,241,0.4); }
+        h1 { font-size: clamp(2.1rem, 4.8vw, 3.4rem); font-weight: 500; line-height: 1.18; margin-bottom: 1.4rem; letter-spacing: -0.5px; color: var(--paper); }
+        .hero-description { font-size: 1.1rem; color: rgba(251,248,241,0.85); line-height: 1.8; max-width: 760px; margin-bottom: 2rem; font-weight: 300; }
+        .tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .tag { padding: 0.4rem 1rem; border: 1px solid rgba(251,248,241,0.35); border-radius: 3px; font-size: 0.78rem; letter-spacing: 0.3px; color: rgba(251,248,241,0.85); }
+
+        /* STATS */
+        .stats-banner { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 3rem 4rem; }
+        .stats-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2.5rem; }
+        .stat-item { text-align: left; border-left: 1px solid var(--line); padding-left: 1.2rem; }
+        .stat-value { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 500; color: var(--gold-deep); margin-bottom: 0.3rem; line-height: 1.1; }
+        .stat-label { color: var(--ink-soft); font-size: 0.84rem; }
+
+        /* SECTIONS */
+        .content-section { max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem; }
+        .content-section.textured { position: relative; max-width: none; overflow: hidden; }
+        .content-section.textured::before {
+            content: ''; position: absolute; inset: -60px;
+            background-image: url('assets/texture-bg-soleil.jpg');
+            background-size: cover; background-position: center;
+            filter: blur(22px) grayscale(20%); opacity: 0.15; z-index: 0; pointer-events: none;
+        }
+        .content-section.textured > .section-header, .content-section.textured > .section-content {
+            position: relative; z-index: 1; max-width: 1000px; margin-left: auto; margin-right: auto;
+        }
+        .section-header { display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2.2rem; }
+        .section-number { font-family: 'Fraunces', serif; font-size: 1.1rem; color: var(--gold); font-weight: 400; }
+        h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 500; }
+        .section-content p { font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 1.4rem; max-width: 780px; }
+        .section-content p:last-child { margin-bottom: 0; }
+        .section-content code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--gold-deep); background: var(--cream-deep); padding: 0.1rem 0.4rem; border-radius: 3px; }
+        .highlight-box { border-left: 2px solid var(--gold); padding: 0.3rem 0 0.3rem 1.5rem; margin: 2rem 0; }
+        .highlight-box strong { display: block; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: var(--ink); }
+        .highlight-box.warn { border-left-color: #9c4a2e; }
+        .highlight-box.warn strong { color: #9c4a2e; }
+
+        /* MODEL FORMULA BOX */
+        .formula-box {
+            background: var(--paper); border: 1px solid var(--line);
+            padding: 2rem 2.2rem; margin: 2rem 0; text-align: center;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--ink);
+            overflow-x: auto;
+        }
+        .formula-box .label { display: block; font-family: 'Inter', sans-serif; font-size: 0.72rem; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.8rem; }
+
+        /* STEPS */
+        .solution-steps { margin-top: 2rem; }
+        .step { display: flex; gap: 2rem; margin-bottom: 3rem; align-items: flex-start; padding-bottom: 3rem; border-bottom: 1px solid var(--line-soft); }
+        .step:last-child { border-bottom: none; }
+        .step-number { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 400; color: var(--gold); min-width: 3rem; }
+        .step-content { flex: 1; }
+        .step-content h3 { font-size: 1.15rem; margin-bottom: 0.7rem; font-weight: 500; color: var(--ink); }
+        .step-content p { color: var(--ink-soft); line-height: 1.8; }
+        .step-content table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
+        .step-content table th, .step-content table td { text-align: left; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--line-soft); color: var(--ink-soft); }
+        .step-content table th { font-weight: 500; color: var(--ink); font-family: 'Fraunces', serif; }
+
+        /* EXTENSION GRID */
+        .extension-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 2rem; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+        .extension-card { padding: 1.8rem 1.6rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+        .extension-card .phase-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 0.6rem; display: block; }
+        .extension-card h3 { font-size: 1.05rem; margin-bottom: 0.7rem; font-weight: 500; color: var(--ink); }
+        .extension-card p { color: var(--ink-soft); font-size: 0.93rem; line-height: 1.7; }
+
+        /* CODE SHOWCASE */
+        .code-showcase { max-width: 1000px; margin: 0 auto; padding: 0 4rem 5.5rem; }
+        .code-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
+        .code-header p { color: var(--ink-soft); font-size: 0.92rem; max-width: 600px; }
+        .code-tabs { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+        .code-tab { background: none; border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--ink-soft); padding: 0.3rem 0; border-bottom: 2px solid transparent; }
+        .code-tab.active { color: var(--gold-deep); border-bottom-color: var(--gold); }
+        .code-panel { display: none; }
+        .code-panel.active { display: block; }
+        pre { background: var(--code-bg); border-radius: 6px; padding: 2rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.75; color: var(--code-text); }
+        .kw { color: #d99a5b; } .fn { color: #cbab6e; } .str { color: #b0a37e; } .cm { color: #8a8378; font-style: italic; } .nb { color: #c98a6a; } .op { color: #d97a4d; }
+
+        /* FIGURES */
+        .charts-section { max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem; }
+        .charts-grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-bottom: 3rem; }
+        .figure-frame { width: 100%; aspect-ratio: 4/3; border: 1px solid var(--line); background: var(--paper); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .figure-frame.wide { aspect-ratio: 16/7; }
+        .figure-frame img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 0.5rem; box-sizing: border-box; }
+        .cadran-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .figure-placeholder-text { font-family: 'Fraunces', serif; font-style: italic; color: rgba(33,29,23,0.3); font-size: 0.95rem; text-align: center; padding: 1rem; }
+        .figure-caption { margin-top: 1rem; }
+        .figure-caption h3 { font-size: 0.98rem; font-weight: 500; margin-bottom: 0.3rem; color: var(--ink); }
+        .figure-caption p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        /* 3D EMBED */
+        .embed-3d-wrap { border: 1px solid var(--line); background: var(--paper); }
+        .embed-3d-wrap iframe { width: 100%; height: 480px; border: none; display: block; }
+        .embed-3d-note { padding: 1rem 1.4rem; font-size: 0.82rem; color: var(--ink-soft); border-top: 1px dashed var(--line); font-family: 'JetBrains Mono', monospace; }
+
+        /* RESULTS TABLE */
+        .results-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 2rem; }
+        .results-table-card { border: 1px solid var(--line); padding: 1.8rem; }
+        .results-table-card h3 { font-size: 1rem; font-weight: 500; margin-bottom: 1.2rem; color: var(--ink); }
+        .results-table-card table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        .results-table-card th, .results-table-card td { text-align: left; padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--line-soft); }
+        .results-table-card th { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--ink-soft); font-weight: 500; }
+        .results-table-card td { color: var(--ink-soft); }
+        .results-table-card td.model-name { color: var(--ink); font-weight: 500; }
+        .results-table-card tr.best td { color: var(--gold-deep); font-weight: 600; }
+        .results-note { margin-top: 1.5rem; color: var(--ink-soft); font-size: 0.92rem; max-width: 780px; }
+
+        /* RECRUITER SECTION */
+        .why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.2rem; margin-top: 2rem; }
+        .why-card { padding-top: 1.4rem; border-top: 1px solid var(--line); }
+        .why-card h3 { font-size: 1.05rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .why-card p { color: var(--ink-soft); line-height: 1.7; font-size: 0.95rem; }
+
+        /* MODEL KEYSTONE (cadrage final) */
+        .keystone-section { max-width: 1000px; margin: 0 auto; padding: 2rem 4rem 3rem; }
+        .keystone-card {
+            border: 1px solid var(--gold); background: var(--paper);
+            padding: 3.5rem 3rem; text-align: center; position: relative;
+        }
+        .keystone-card::before {
+            content: 'Modèle retenu'; position: absolute; top: -0.7rem; left: 50%; transform: translateX(-50%);
+            background: var(--cream); padding: 0 1rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--gold-deep);
+        }
+        .keystone-card h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+        .keystone-formula { font-family: 'JetBrains Mono', monospace; font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 1.6rem; }
+        .keystone-stats { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; margin-top: 1.8rem; }
+        .keystone-stat { text-align: center; }
+        .keystone-stat .val { font-family: 'Fraunces', serif; font-size: 1.6rem; color: var(--gold-deep); }
+        .keystone-stat .lab { font-size: 0.78rem; color: var(--ink-soft); margin-top: 0.2rem; }
+        .keystone-card p.desc { color: var(--ink-soft); max-width: 640px; margin: 1.6rem auto 0; font-size: 0.95rem; line-height: 1.75; }
+
+        /* CADRANS PHOTOS */
+        .cadrans-section { max-width: 1000px; margin: 0 auto; padding: 0 4rem 5.5rem; }
+        .cadrans-label { text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 2rem; }
+        .cadrans-grid { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+        .cadran { text-align: center; }
+        .cadran-frame {
+            width: 180px; height: 180px; border-radius: 50%;
+            border: 3px solid var(--gold); background: var(--ink);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; margin: 0 auto 1rem;
+            box-shadow: 0 0 0 6px var(--cream), 0 0 0 7px var(--line);
+        }
+        .cadran-frame span { font-family: 'Fraunces', serif; font-style: italic; color: rgba(251,248,241,0.35); font-size: 0.82rem; padding: 1rem; }
+        .cadran-caption { font-size: 0.82rem; color: var(--ink-soft); max-width: 180px; }
+
+        /* CTA */
+        .cta-section { border-top: 1px solid var(--line); padding: 5rem 4rem; text-align: center; }
+        .cta-section h2 { margin-bottom: 0.8rem; }
+        .cta-section p { color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 2.2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.9rem 2.2rem; background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 500; border-radius: 2px; font-size: 0.92rem; border: 1px solid var(--ink); }
+        .cta-button:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+        .cta-secondary { background: transparent; color: var(--ink); }
+        .cta-secondary:hover { background: var(--ink); color: var(--paper); }
+
+        footer { padding: 3rem 4rem; text-align: center; border-top: 1px solid var(--line); }
+        footer p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 968px) {
+            nav { padding: 1.2rem 1.6rem; }
+            .hero, .content-section, .cta-section, .charts-section, .code-showcase, .keystone-section, .cadrans-section { padding-left: 1.6rem; padding-right: 1.6rem; }
+            .charts-grid-top, .results-tables, .why-grid { grid-template-columns: 1fr; }
+            .extension-grid { grid-template-columns: 1fr; }
+            .extension-card { border-right: none; }
+            .step { flex-direction: column; gap: 0.8rem; }
+            .stats-banner { padding: 2.5rem 1.6rem; }
+            .keystone-stats { gap: 1.6rem; }
+            .cadrans-grid { gap: 1.6rem; }
+            .cadran-frame { width: 140px; height: 140px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="portfolio-data-analyst.html" class="back-button"><span>←</span><span>Retour au portfolio</span></a>
+        <div class="nav-title">Projet 2 · Cycle solaire</div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span>BUT Science des Données — parcours EMS</span>
+                <span>IUT Grand Ouest Normandie</span>
+                <span>2025–2026</span>
+            </div>
+            <h1>Le cycle solaire : de la régression harmonique au deep learning</h1>
+            <p class="hero-description">
+                277 ans de données mensuelles (SILSO, 1749–2026) : construction d'un modèle statistique harmonique rigoureusement diagnostiqué et confronté aux prévisions NOAA, puis extension par décomposition en valeurs singulières, visualisation 3D de la rotation différentielle du Soleil, et prévision par réseau LSTM — pour tester si l'apprentissage profond peut surpasser la connaissance structurelle du phénomène.
+            </p>
+            <div class="tags">
+                <span class="tag">R</span>
+                <span class="tag">Python</span>
+                <span class="tag">PyTorch</span>
+                <span class="tag">Séries temporelles</span>
+                <span class="tag">SVD</span>
+                <span class="tag">Visualisation 3D</span>
+                <span class="tag">Backtesting</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item"><div class="stat-value">277 ans</div><div class="stat-label">1749–2026 · SILSO v2.0</div></div>
+            <div class="stat-item"><div class="stat-value">3 331</div><div class="stat-label">observations mensuelles</div></div>
+            <div class="stat-item"><div class="stat-value">10,82 ans</div><div class="stat-label">cycle de Schwabe retrouvé</div></div>
+            <div class="stat-item"><div class="stat-value">7 cycles</div><div class="stat-label">testés en backtesting</div></div>
+            <div class="stat-item"><div class="stat-value">95 %</div><div class="stat-label">variance expliquée (20 modes SVD)</div></div>
+        </div>
+    </section>
+
+    <!-- 01 Problématique -->
+    <section class="content-section textured reveal">
+        <div class="section-header"><span class="section-number">01</span><h2>Problématique</h2></div>
+        <div class="section-content">
+            <p>Le nombre de taches solaires est l'indicateur historique de l'activité magnétique du Soleil, suivi quasi continûment depuis le XVIII<sup>e</sup> siècle. Il présente une périodicité connue d'environ 11 ans (cycle de Schwabe), mais une intensité qui varie fortement et reste partiellement mal comprise d'un cycle à l'autre.</p>
+            <div class="highlight-box">
+                <strong>Question centrale</strong>
+                <p>Peut-on caractériser rigoureusement la structure temporelle du cycle solaire, construire un modèle honnête de sa dynamique, puis évaluer sa capacité prédictive face à des références externes (NOAA) et à un protocole de validation rétrospective — plutôt que de se contenter d'un ajustement qui paraît convaincant en apparence ?</p>
+            </div>
+            <p>Le projet pousse ensuite cette question plus loin : <strong style="color:var(--ink);">une approche fondée sur les données seules (deep learning) peut-elle surpasser une approche fondée sur la connaissance structurelle du phénomène physique</strong> — et si oui, à quel horizon de prévision ?</p>
+        </div>
+    </section>
+
+    <!-- 02 Démarche & modèle -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">02</span><h2>Démarche & modèle conçu</h2></div>
+        <div class="section-content">
+            <p>Le cœur du projet est un modèle de régression harmonique construit progressivement par ajout de composantes, chacune validée par test F avant d'être retenue.</p>
+
+            <div class="solution-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Analyse spectrale</h3>
+                        <p>Le périodogramme de la série centrée identifie une fréquence dominante correspondant à une période de <strong>10,82 ans</strong> — cohérente avec la valeur canonique du cycle de Schwabe — et un pic secondaire à 93,75 ans, candidat prudent pour une composante longue de type Gleissberg.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Choix du schéma multiplicatif</h3>
+                        <p>L'amplitude de chaque cycle croît avec son niveau (Â = 3,18 + 1,77 N, R² = 0,973), orientant vers un schéma multiplicatif, confirmé par transformation logarithmique — avec la réserve qu'une partie de cette corrélation est mécanique plutôt que purement structurelle.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Construction progressive du modèle harmonique</h3>
+                        <p>Trois modèles emboîtés sont ajustés par moindres carrés sur la série log-transformée, chaque ajout étant validé par test F (p &lt; 10⁻⁷) :</p>
+                        <div class="formula-box">
+                            <span class="label">mod3 — modèle retenu</span>
+                            y_t = β₀ + β₁t_c + a₁cos(ω₁t_c) + b₁sin(ω₁t_c) + a₂cos(2ω₁t_c) + b₂sin(2ω₁t_c) + c₁cos(ω₂t_c) + c₂sin(ω₂t_c)
+                        </div>
+                        <table>
+                            <tr><th>Modèle</th><th>R²</th><th>AIC</th></tr>
+                            <tr><td>mod1 (Schwabe seul)</td><td>0,168</td><td>10 336,2</td></tr>
+                            <tr><td>mod2 (+ 2ᵉ harmonique)</td><td>0,176</td><td>10 306,7</td></tr>
+                            <tr><td>mod3 (+ composante longue)</td><td><strong style="color:var(--gold-deep);">0,253</strong></td><td><strong style="color:var(--gold-deep);">9 986,0</strong></td></tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Diagnostic honnête des résidus</h3>
+                        <p>Les résidus ne sont ni gaussiens (Shapiro-Wilk, p &lt; 2,2×10⁻¹⁶) ni indépendants (Ljung-Box, p ≈ 0) à aucun horizon testé. Plutôt que de masquer cette limite, elle est documentée explicitement : mod3 décrit une composante périodique dominante, ce n'est pas un modèle de série temporelle complet.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Confrontation externe & backtesting</h3>
+                        <p>Le modèle aveugle (ajusté uniquement sur les données antérieures à 2019) surpasse le consensus du panel international NOAA/NASA/ISES 2019 sur le cycle 25 (−10,9 % d'écart contre −28,5 % pour NOAA). Mais un protocole de backtesting sur 7 cycles historiques révèle que ce résultat isolé était optimiste : l'erreur moyenne sur le temps long est de −20 %, du même ordre de grandeur que l'expertise humaine.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 Extension -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">03</span><h2>Extension : algèbre linéaire, 3D & deep learning</h2></div>
+        <div class="section-content">
+            <p>Trois phases complémentaires prolongent le modèle statistique initial, chacune mobilisant un outil différent sur les mêmes données solaires.</p>
+        </div>
+        <div class="extension-grid">
+            <div class="extension-card">
+                <span class="phase-tag">Phase B</span>
+                <h3>Décomposition en valeurs singulières</h3>
+                <p>La SVD appliquée au diagramme papillon (2 037 rotations × 50 bandes de latitude) montre qu'un seul mode capture 32 % de l'énergie du signal, et qu'une vingtaine de modes suffisent à dépasser 95 % — révélant une structure dominée par un nombre restreint de composantes cohérentes.</p>
+            </div>
+            <div class="extension-card">
+                <span class="phase-tag">Phase C</span>
+                <h3>Visualisation 3D & rotation différentielle</h3>
+                <p>Reconstruction de la position réelle des taches solaires sur une sphère 3D interactive (Plotly), et validation empirique de la loi de Snodgrass & Ulrich sur la rotation différentielle du Soleil à partir d'un groupe de taches suivi sur plusieurs jours.</p>
+            </div>
+            <div class="extension-card">
+                <span class="phase-tag">Phase D</span>
+                <h3>Prévision par réseau LSTM</h3>
+                <p>Un LSTM (PyTorch) est confronté au modèle harmonique et à une persistance naïve, à deux horizons (1 mois / 11 ans). Résultat nuancé : le classement des modèles s'inverse totalement selon l'horizon de prévision considéré.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 Extraits de code -->
+    <section class="code-showcase reveal">
+        <div class="section-header"><span class="section-number">04</span><h2>Extraits de code clés</h2></div>
+        <div class="code-header">
+            <p>L'architecture LSTM (PyTorch) et sa baseline de comparaison — le modèle harmonique aveugle, ré-estimé en Python pour un protocole d'évaluation strictement identique entre les deux approches.</p>
+            <div class="code-tabs">
+                <button class="code-tab active" onclick="showCode('lstm')">LSTMForecaster</button>
+                <button class="code-tab" onclick="showCode('harm')">baseline harmonique aveugle</button>
+            </div>
+        </div>
+
+        <div id="code-lstm" class="code-panel active">
+<pre><span class="kw">class</span> <span class="fn">LSTMForecaster</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, input_size=<span class="op">1</span>, hidden_size=<span class="op">32</span>, num_layers=<span class="op">1</span>, output_size=<span class="op">1</span>):
+        super().<span class="fn">__init__</span>()
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=<span class="kw">True</span>)
+        self.fc = nn.Linear(hidden_size, output_size)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(self, x):
+        <span class="cm"># x : (batch, seq_len, input_size)</span>
+        out, (h_n, c_n) = self.lstm(x)
+        last_output = out[:, -<span class="op">1</span>, :]   <span class="cm"># on ne garde que le dernier pas de temps</span>
+        <span class="kw">return</span> self.fc(last_output)
+
+
+<span class="kw">def</span> <span class="fn">train_model</span>(model, train_loader, n_epochs=<span class="op">100</span>, lr=<span class="op">1e-3</span>):
+    <span class="str">"""Boucle d'entraînement générique (court terme et long terme)."""</span>
+    model = model.<span class="fn">to</span>(device)
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.<span class="fn">Adam</span>(model.<span class="fn">parameters</span>(), lr=lr)
+    losses = []
+
+    <span class="kw">for</span> epoch <span class="kw">in</span> <span class="fn">range</span>(n_epochs):
+        model.<span class="fn">train</span>()
+        epoch_loss = <span class="op">0.0</span>
+        <span class="kw">for</span> X_batch, y_batch <span class="kw">in</span> train_loader:
+            X_batch, y_batch = X_batch.<span class="fn">to</span>(device), y_batch.<span class="fn">to</span>(device)
+            optimizer.<span class="fn">zero_grad</span>()
+            predictions = <span class="fn">model</span>(X_batch)
+            loss = <span class="fn">criterion</span>(predictions, y_batch)
+            loss.<span class="fn">backward</span>()
+            optimizer.<span class="fn">step</span>()
+            epoch_loss += loss.<span class="fn">item</span>() * X_batch.<span class="fn">size</span>(<span class="op">0</span>)
+
+        epoch_loss /= <span class="fn">len</span>(train_loader.dataset)
+        losses.<span class="fn">append</span>(epoch_loss)
+
+    <span class="kw">return</span> model, losses</pre>
+        </div>
+
+        <div id="code-harm" class="code-panel">
+<pre><span class="cm"># Paramètres exacts issus du script R de la Phase A — mêmes périodes,</span>
+<span class="cm"># même centrage, pour une comparaison strictement équitable avec le LSTM</span>
+P1 = <span class="op">10.81730769</span>   <span class="cm"># période dominante (Schwabe)</span>
+P2 = <span class="op">93.75</span>         <span class="cm"># composante longue (candidat Gleissberg)</span>
+w1 = <span class="op">2</span> * np.pi / P1
+w2 = <span class="op">2</span> * np.pi / P2
+
+<span class="kw">def</span> <span class="fn">build_harmonic_regressors</span>(t_c):
+    <span class="str">"""Construit les 6 régresseurs harmoniques (mod3)."""</span>
+    <span class="kw">return</span> pd.<span class="fn">DataFrame</span>({
+        <span class="str">"t_c"</span>: t_c,
+        <span class="str">"cos_w1"</span>: np.<span class="fn">cos</span>(w1 * t_c),  <span class="str">"sin_w1"</span>: np.<span class="fn">sin</span>(w1 * t_c),
+        <span class="str">"cos_2w1"</span>: np.<span class="fn">cos</span>(<span class="op">2</span> * w1 * t_c), <span class="str">"sin_2w1"</span>: np.<span class="fn">sin</span>(<span class="op">2</span> * w1 * t_c),
+        <span class="str">"cos_w2"</span>: np.<span class="fn">cos</span>(w2 * t_c),  <span class="str">"sin_w2"</span>: np.<span class="fn">sin</span>(w2 * t_c),
+    })
+
+X_train_harm = sm.<span class="fn">add_constant</span>(<span class="fn">build_harmonic_regressors</span>(data_avant24[<span class="str">"t_c"</span>]))
+mod3_aveugle_24 = sm.<span class="fn">OLS</span>(y_train_harm, X_train_harm).<span class="fn">fit</span>()
+
+<span class="cm"># Correction du biais de re-transformation log -> brut (estimateur de smearing de Duan)</span>
+facteur_smearing_24 = np.<span class="fn">mean</span>(np.<span class="fn">exp</span>(mod3_aveugle_24.resid))
+predictions_harmonique = facteur_smearing_24 * np.<span class="fn">exp</span>(pred_log_24) - <span class="op">1</span></pre>
+        </div>
+    </section>
+
+    <!-- 05 Visualisations -->
+    <section class="charts-section reveal">
+        <div class="section-header"><span class="section-number">05</span><h2>Visualisations clés</h2></div>
+        <p style="color:var(--ink-soft); max-width:780px; margin-bottom:2.5rem; font-size:1.02rem;">Sélection des graphiques les plus parlants parmi les deux rapports.</p>
+
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-periodogramme.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : périodogramme R<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-periodogramme.png</em></span></div>
+                <div class="figure-caption"><h3>Périodogramme de la série</h3><p>Pic dominant à 10,82 ans, pic secondaire à 93,75 ans</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-mod3-ajustement.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : ajustement mod3<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-mod3-ajustement.png</em></span></div>
+                <div class="figure-caption"><h3>Modèle harmonique mod3</h3><p>Série brute, série lissée et ajustement — version avant correction du biais de re-transformation</p></div>
+            </div>
+        </div>
+
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-cycle24-vs-25.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : cycle 24 vs 25<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-cycle24-vs-25.png</em></span></div>
+                <div class="figure-caption"><h3>Cycle 24 vs Cycle 25</h3><p>Alignés par phase depuis leur minimum — le cycle 25 est significativement plus intense</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-lstm-1mois.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : LSTM prévision à 1 mois<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-lstm-1mois.png</em></span></div>
+                <div class="figure-caption"><h3>LSTM — prévision à 1 mois</h3><p>Cycle 24, prévision glissante mois par mois : le LSTM colle de très près à la réalité</p></div>
+            </div>
+        </div>
+
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-prevision-mod3-ic.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : prévision mod3 avec IC 95 %<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-prevision-mod3-ic.png</em></span></div>
+                <div class="figure-caption"><h3>Prévision mod3 à horizon 11 ans</h3><p>Intervalle de confiance à 95 % sur la tendance, corrigée du biais de re-transformation</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-comparaison-longterme.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : comparaison long terme 4 courbes<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-comparaison-longterme.png</em></span></div>
+                <div class="figure-caption"><h3>Comparaison long terme — 4 approches</h3><p>Réel · Persistance · Harmonique · LSTM récursif — cycle 24, 132 mois</p></div>
+            </div>
+        </div>
+
+        <!-- Embed 3D interactif -->
+        <div class="figure" style="margin-top:1rem;">
+            <div class="embed-3d-wrap">
+                <iframe src="assets/animation_3d_evolution_solaire.html" loading="lazy" title="Visualisation 3D interactive — rotation différentielle du Soleil"></iframe>
+                <div class="embed-3d-note">// visualisation interactive réelle — rotation, zoom à la souris (Plotly)</div>
+            </div>
+            <div class="figure-caption"><h3>Rotation différentielle du Soleil — visualisation 3D interactive</h3><p>Positions réelles des taches solaires sur la sphère, animées selon la loi de Snodgrass & Ulrich</p></div>
+        </div>
+    </section>
+
+    <!-- 06 Tableau comparatif -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">06</span><h2>Tableau comparatif des modèles</h2></div>
+        <div class="section-content">
+            <p>Les quatre approches sont évaluées sur exactement les mêmes fenêtres temporelles, pour une comparaison rigoureuse.</p>
+        </div>
+        <div class="results-tables">
+            <div class="results-table-card">
+                <h3>Prévision à 1 mois</h3>
+                <table>
+                    <tr><th>Modèle</th><th>RMSE</th><th>MAE</th></tr>
+                    <tr><td class="model-name">Persistance naïve</td><td>16,97</td><td>11,70</td></tr>
+                    <tr><td class="model-name">Harmonique (aveugle)</td><td>41,42</td><td>36,49</td></tr>
+                    <tr class="best"><td class="model-name">LSTM</td><td>15,55</td><td>10,67</td></tr>
+                </table>
+            </div>
+            <div class="results-table-card">
+                <h3>Prévision à 11 ans (132 mois)</h3>
+                <table>
+                    <tr><th>Modèle</th><th>RMSE</th><th>MAE</th></tr>
+                    <tr><td class="model-name">Persistance naïve</td><td>52,24</td><td>39,29</td></tr>
+                    <tr class="best"><td class="model-name">Harmonique (aveugle)</td><td>41,17</td><td>35,86</td></tr>
+                    <tr><td class="model-name">LSTM récursif</td><td>47,80</td><td>41,74</td></tr>
+                    <tr><td class="model-name">LSTM direct</td><td>66,80</td><td>48,45</td></tr>
+                </table>
+            </div>
+        </div>
+        <p class="results-note">Le classement s'inverse entièrement selon l'horizon : le LSTM domine à court terme en exploitant l'information récente, mais le modèle harmonique — qui encode une connaissance structurelle du phénomène — l'emporte nettement à long terme. Aucune approche ne domine universellement.</p>
+    </section>
+
+    <!-- 07 Ce que ce projet démontre -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">07</span><h2>Ce que ce projet démontre</h2></div>
+        <div class="why-grid">
+            <div class="why-card">
+                <h3>Rigueur méthodologique</h3>
+                <p>Diagnostic systématique des résidus, correction du biais de re-transformation (smearing de Duan), séparation stricte train/test sans fuite d'information, protocole de backtesting multi-cycles plutôt qu'une confrontation isolée.</p>
+            </div>
+            <div class="why-card">
+                <h3>Honnêteté scientifique</h3>
+                <p>Une extension prometteuse (mod4, amplitude modulée) est explorée, testée, puis explicitement écartée après contrôle indépendant — documentée plutôt que silencieusement abandonnée.</p>
+            </div>
+            <div class="why-card">
+                <h3>Palette technique large</h3>
+                <p>Un même jeu de données traité par quatre approches différentes : régression harmonique classique, algèbre linéaire (SVD), visualisation 3D interactive, deep learning (LSTM/PyTorch).</p>
+            </div>
+            <div class="why-card">
+                <h3>Esprit critique sur les résultats</h3>
+                <p>Un résultat favorable isolé (mod3 bat le panel NOAA sur un cycle) est immédiatement nuancé par un backtesting plus large qui révèle une performance moyenne comparable — pas de sur-vente d'un résultat chanceux.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bandeau citation -->
+    <section class="quote-banner reveal">
+        <blockquote>
+            « Aucun modèle ne domine partout — le choix dépend de l'horizon »
+            <cite>Comparaison Persistance · Harmonique · LSTM — prévision à 1 mois vs 11 ans</cite>
+        </blockquote>
+    </section>
+
+    <!-- Cadrage final : modèle retenu -->
+    <section class="keystone-section reveal">
+        <div class="keystone-card">
+            <h3>mod3 — Régression harmonique à trois composantes</h3>
+            <div class="keystone-formula">Schwabe (10,82 ans) + 2ᵉ harmonique (asymétrie) + composante longue candidate (93,75 ans)</div>
+            <div class="keystone-stats">
+                <div class="keystone-stat"><div class="val">0,253</div><div class="lab">R² final</div></div>
+                <div class="keystone-stat"><div class="val">9 986</div><div class="lab">AIC</div></div>
+                <div class="keystone-stat"><div class="val">−10,9 %</div><div class="lab">écart vs pic réel (cycle 25)</div></div>
+                <div class="keystone-stat"><div class="val">−20 %</div><div class="lab">erreur moyenne (7 cycles)</div></div>
+            </div>
+            <p class="desc">Retenu non pas parce qu'il est parfait — ses résidus restent non gaussiens et autocorrélés — mais parce qu'il représente le meilleur compromis entre simplicité, interprétabilité physique et performance à long terme parmi toutes les approches testées.</p>
+        </div>
+    </section>
+
+    <!-- Cadrans photos réelles -->
+    <section class="cadrans-section reveal">
+        <div class="cadrans-label">Observations réelles</div>
+        <div class="cadrans-grid">
+            <div class="cadran">
+                <div class="cadran-frame"><img src="assets/photo-taches-groupe.jpg" alt="Groupe de taches solaires" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';align-items:center;justify-content:center;"><span style="display:none;">photo-taches-groupe.jpg</span></div>
+                <div class="cadran-caption">Groupe de taches solaires</div>
+            </div>
+            <div class="cadran">
+                <div class="cadran-frame"><img src="assets/photo-surface-granulaire.jpg" alt="Surface granulaire du Soleil" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';align-items:center;justify-content:center;"><span style="display:none;">photo-surface-granulaire.jpg</span></div>
+                <div class="cadran-caption">Surface granulaire du Soleil</div>
+            </div>
+            <div class="cadran">
+                <div class="cadran-frame"><img src="assets/photo-cycle-disque.jpg" alt="Cycle solaire observé au disque" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';align-items:center;justify-content:center;"><span style="display:none;">photo-cycle-disque.jpg</span></div>
+                <div class="cadran-caption">Cycle solaire observé au disque</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>Un projet complet, du modèle statistique au deep learning</h2>
+        <p>Deux rapports détaillés — modélisation statistique et extension algèbre linéaire / 3D / deep learning</p>
+        <div class="cta-buttons">
+            <a href="#" class="cta-button"><span>Voir le rapport statistique →</span></a>
+            <a href="#" class="cta-button cta-secondary"><span>Voir le rapport Phases B-D</span></a>
+            <a href="portfolio-data-analyst.html" class="cta-button cta-secondary"><span>Retour au portfolio</span></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025–2026 · IUT Grand Ouest Normandie · BUT Science des Données, parcours EMS</p>
+    </footer>
+
+    <style>
+        .quote-banner {
+            position: relative; min-height: 46vh;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 4rem;
+            background-image: linear-gradient(rgba(20,16,12,0.6), rgba(20,16,12,0.78)), url('assets/quote-bg-soleil.jpg');
+            background-size: cover; background-position: center;
+            color: var(--paper);
+        }
+        .quote-banner blockquote { font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(1.4rem, 3vw, 2.3rem); line-height: 1.35; max-width: 780px; letter-spacing: -0.3px; }
+        .quote-banner cite { display: block; margin-top: 1.4rem; font-style: normal; font-size: 0.82rem; letter-spacing: 0.5px; color: rgba(251,248,241,0.7); }
+    </style>
+
+    <script>
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() { reveals.forEach(el => { if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active'); }); }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        function showCode(id) {
+            document.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('code-' + id).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
