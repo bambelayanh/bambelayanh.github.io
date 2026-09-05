@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superstore Orders — Analyse Exploratoire · Portfolio Data Analyst</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #211d17;
+            --ink-soft: #4a4338;
+            --cream: #f7f2e6;
+            --cream-deep: #efe4cf;
+            --paper: #fbf8f1;
+            --gold: #8a6a3f;
+            --gold-deep: #5c452a;
+            --line: rgba(33, 29, 23, 0.14);
+            --line-soft: rgba(33, 29, 23, 0.08);
+            --negative: #96432f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .serif {
+            font-family: 'Fraunces', serif;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 1.4rem 4rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: rgba(247, 242, 230, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .back-button {
+            display: flex; align-items: center; gap: 0.5rem;
+            text-decoration: none; color: var(--gold-deep);
+            font-weight: 500; font-size: 0.92rem;
+            transition: opacity 0.3s ease;
+        }
+        .back-button:hover { opacity: 0.7; }
+
+        .nav-title {
+            font-size: 0.8rem; letter-spacing: 1.5px;
+            text-transform: uppercase; color: var(--ink-soft);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 78vh;
+            display: flex; align-items: flex-end;
+            position: relative;
+            padding: 10rem 4rem 5rem;
+            background-image:
+                linear-gradient(180deg, rgba(33,29,23,0.55) 0%, rgba(33,29,23,0.72) 65%, rgba(33,29,23,0.88) 100%),
+                url('assets/hero-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--paper);
+        }
+        .hero-content { max-width: 900px; width: 100%; }
+
+        .project-meta {
+            display: flex; gap: 0.6rem; flex-wrap: wrap;
+            margin-bottom: 1.8rem;
+            font-size: 0.85rem;
+            color: rgba(251, 248, 241, 0.75);
+        }
+        .project-meta span:not(:last-child)::after { content: '·'; margin-left: 0.6rem; color: rgba(251,248,241,0.4); }
+
+        h1 {
+            font-size: clamp(2.4rem, 5.5vw, 4rem);
+            font-weight: 500;
+            line-height: 1.1;
+            margin-bottom: 1.4rem;
+            letter-spacing: -0.5px;
+            color: var(--paper);
+        }
+
+        .hero-description {
+            font-size: 1.15rem; color: rgba(251, 248, 241, 0.82);
+            line-height: 1.8; max-width: 720px; margin-bottom: 2rem;
+            font-weight: 300;
+        }
+        .hero-description strong { color: var(--paper); font-weight: 500; }
+
+        .tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .tag {
+            padding: 0.4rem 1rem;
+            border: 1px solid rgba(251, 248, 241, 0.35);
+            border-radius: 3px;
+            font-size: 0.78rem; letter-spacing: 0.3px;
+            color: rgba(251, 248, 241, 0.85);
+        }
+
+        .download-btn {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            margin-top: 1.8rem;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(251, 248, 241, 0.5);
+            border-radius: 3px;
+            color: var(--paper);
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover { background: rgba(251, 248, 241, 0.1); border-color: var(--paper); }
+        .download-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+        /* ===== STATS BANNER ===== */
+        .stats-banner {
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            padding: 3rem 4rem;
+            margin: 0 auto;
+        }
+        .stats-grid {
+            max-width: 1200px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 2.5rem;
+        }
+        .stat-item { text-align: left; border-left: 1px solid var(--line); padding-left: 1.2rem; }
+        .stat-value {
+            font-family: 'Fraunces', serif;
+            font-size: 2.2rem; font-weight: 500;
+            color: var(--gold-deep);
+            margin-bottom: 0.3rem;
+            line-height: 1;
+        }
+        .stat-label { color: var(--ink-soft); font-size: 0.85rem; }
+
+        /* ===== CONTENT SECTIONS ===== */
+        .content-section {
+            max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem;
+        }
+        .content-section.textured {
+            position: relative;
+            max-width: none;
+            overflow: hidden;
+        }
+        .content-section.textured::before {
+            content: '';
+            position: absolute;
+            inset: -60px;
+            background-image: url('assets/texture-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(22px) grayscale(20%);
+            opacity: 0.18;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .content-section.textured > .section-header,
+        .content-section.textured > .section-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .section-header {
+            display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2.2rem;
+        }
+        .section-number {
+            font-family: 'Fraunces', serif;
+            font-size: 1.1rem; color: var(--gold);
+            font-weight: 400;
+        }
+        h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 500; }
+
+        .section-content p {
+            font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 1.4rem;
+            max-width: 780px;
+        }
+        .section-content p:last-child { margin-bottom: 0; }
+        .section-content code {
+            font-family: 'Fraunces', serif; font-style: italic;
+            color: var(--gold-deep); background: var(--cream-deep);
+            padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.95em;
+        }
+
+        .highlight-box {
+            border-left: 2px solid var(--gold);
+            padding: 0.3rem 0 0.3rem 1.5rem; margin: 2rem 0;
+        }
+        .highlight-box strong {
+            display: block; margin-bottom: 0.5rem;
+            font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500;
+            color: var(--ink);
+        }
+        .highlight-box p { margin-bottom: 0 !important; }
+
+        /* ===== PROBLEMATIQUES — cards sans icônes ===== */
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--line);
+            border-left: 1px solid var(--line);
+        }
+        .challenge-card {
+            padding: 2rem 1.8rem;
+            border-right: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+        .challenge-card h3 {
+            font-size: 1.05rem; margin-bottom: 0.7rem; font-weight: 500;
+            color: var(--ink);
+        }
+        .challenge-card p { color: var(--ink-soft); line-height: 1.7; font-size: 0.95rem; }
+
+        /* ===== DEMARCHE — étapes ===== */
+        .solution-steps { margin-top: 2rem; }
+        .step {
+            display: flex; gap: 2rem; margin-bottom: 3rem; align-items: flex-start;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid var(--line-soft);
+        }
+        .step:last-child { border-bottom: none; }
+        .step-number {
+            font-family: 'Fraunces', serif;
+            font-size: 2rem; font-weight: 400; color: var(--gold);
+            min-width: 3rem;
+        }
+        .step-content { flex: 1; }
+        .step-content h3 { font-size: 1.25rem; margin-bottom: 0.8rem; font-weight: 500; color: var(--ink); }
+        .step-content p { color: var(--ink-soft); line-height: 1.8; }
+        .step-details {
+            border-left: 2px solid var(--line);
+            padding: 0.2rem 0 0.2rem 1.3rem; margin-top: 1.2rem;
+        }
+        .step-details strong { font-size: 0.85rem; letter-spacing: 0.3px; color: var(--ink-soft); text-transform: uppercase; }
+        .step-details ul { list-style: none; margin-top: 0.6rem; }
+        .step-details li {
+            padding: 0.35rem 0; color: var(--ink-soft); font-size: 0.95rem;
+            border-bottom: 1px dotted var(--line-soft);
+        }
+        .step-details li:last-child { border-bottom: none; }
+
+        /* ===== VISUALISATIONS — placeholders pour captures d'écran ===== */
+        .charts-section {
+            max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem;
+        }
+        .charts-grid-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem; margin-bottom: 3rem;
+        }
+        .charts-grid-bottom { margin-bottom: 1rem; }
+
+        .figure { }
+        .figure-frame {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            border: 1px solid var(--line);
+            background: var(--paper);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .figure-frame.wide { aspect-ratio: 16 / 8; }
+        .figure-frame img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+        .figure-placeholder-text {
+            font-family: 'Fraunces', serif; font-style: italic;
+            color: rgba(33,29,23,0.3); font-size: 0.95rem; text-align: center; padding: 1rem;
+        }
+        .figure-caption {
+            margin-top: 1rem;
+        }
+        .figure-caption h3 {
+            font-size: 0.98rem; font-weight: 500; margin-bottom: 0.3rem; color: var(--ink);
+        }
+        .figure-caption p { color: var(--ink-soft); font-size: 0.88rem; }
+        .figure-note {
+            display: inline-block; margin-top: 0.5rem;
+            font-size: 0.78rem; color: var(--gold-deep);
+            border-bottom: 1px dotted var(--gold);
+        }
+
+        /* ===== RESULTATS ===== */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.2rem; margin-top: 2rem;
+        }
+        .result-card {
+            padding-top: 1.4rem;
+            border-top: 1px solid var(--line);
+        }
+        .result-card h3 { font-size: 1.05rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .result-card p { color: var(--ink-soft); line-height: 1.7; font-size: 0.95rem; }
+        .result-card p strong { color: var(--gold-deep); }
+
+        /* ===== INSIGHTS ===== */
+        .insights-list { list-style: none; margin-top: 2rem; }
+        .insight-item {
+            padding: 1.6rem 0; border-bottom: 1px solid var(--line-soft);
+        }
+        .insight-item:last-child { border-bottom: none; }
+        .insight-item strong {
+            font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500;
+            color: var(--ink); display: block; margin-bottom: 0.5rem;
+        }
+        .insight-item p { color: var(--ink-soft); line-height: 1.75; }
+
+        /* ===== TECH GRID ===== */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px; margin-top: 2rem;
+            background: var(--line);
+            border: 1px solid var(--line);
+        }
+        .tech-item { background: var(--paper); padding: 1.6rem; }
+        .tech-item h4 { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); margin-bottom: 0.5rem; font-size: 1.05rem; }
+        .tech-item p { color: var(--ink-soft); font-size: 0.88rem; line-height: 1.6; }
+
+        /* ===== CTA ===== */
+        .cta-section {
+            border-top: 1px solid var(--line);
+            padding: 5rem 4rem; text-align: center;
+        }
+        .cta-section h2 { margin-bottom: 0.8rem; }
+        .cta-section p { color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 2.2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.9rem 2.2rem;
+            background: var(--ink);
+            color: var(--paper); text-decoration: none; font-weight: 500;
+            border-radius: 2px; transition: all 0.3s ease;
+            font-size: 0.92rem;
+            border: 1px solid var(--ink);
+        }
+        .cta-button:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+        .cta-secondary {
+            background: transparent; color: var(--ink);
+        }
+        .cta-secondary:hover { background: var(--ink); color: var(--paper); }
+
+        /* ===== QUOTE BANNER (Option A) ===== */
+        .quote-banner {
+            position: relative;
+            min-height: 42vh;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center;
+            padding: 4rem;
+            background-image:
+                linear-gradient(rgba(33,29,23,0.62), rgba(33,29,23,0.78)),
+                url('assets/quote-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--paper);
+        }
+        .quote-banner blockquote {
+            font-family: 'Fraunces', serif;
+            font-weight: 500;
+            font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+            line-height: 1.35;
+            max-width: 780px;
+            letter-spacing: -0.3px;
+        }
+        .quote-banner cite {
+            display: block; margin-top: 1.4rem;
+            font-style: normal;
+            font-size: 0.82rem; letter-spacing: 0.5px;
+            color: rgba(251, 248, 241, 0.7);
+        }
+
+        footer {
+            padding: 3rem 4rem;
+            text-align: center;
+            border-top: 1px solid var(--line);
+        }
+        footer p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        .reveal {
+            opacity: 0; transform: translateY(30px);
+            transition: all 0.7s ease;
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 968px) {
+            nav { padding: 1.2rem 1.6rem; }
+            .hero, .content-section, .cta-section, .charts-section { padding-left: 1.6rem; padding-right: 1.6rem; }
+            .challenge-grid, .results-grid, .charts-grid-top { grid-template-columns: 1fr; }
+            .tech-grid { grid-template-columns: repeat(2, 1fr); }
+            .challenge-card { border-right: none; }
+            .step { flex-direction: column; gap: 0.8rem; }
+            .stats-banner { padding: 2.5rem 1.6rem; }
+        }
+
+        @media (max-width: 600px) {
+            .tech-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="portfolio-data-analyst.html" class="back-button">
+            <span>←</span>
+            <span>Retour au portfolio</span>
+        </a>
+        <div class="nav-title">SAE 1.03 · Projet 01</div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span>SAE 1.03 — Compétence 2 · Traiter les données</span>
+                <span>2025–2026</span>
+                <span>IUT Grand Ouest Normandie</span>
+            </div>
+
+            <h1>Analyse exploratoire<br>Superstore Orders</h1>
+
+            <p class="hero-description">
+                Analyse du carnet de commandes de l'entreprise américaine <strong>Superstore</strong> sur la période 2019–2022 : préparation des données sous R, construction de 14 visualisations univariées et bivariées, calcul d'indicateurs statistiques, et restitution dans un rapport LaTeX à destination des responsables commerciaux.
+            </p>
+
+            <div class="tags">
+                <span class="tag">R</span>
+                <span class="tag">RStudio</span>
+                <span class="tag">LaTeX</span>
+                <span class="tag">Marp</span>
+                <span class="tag">Statistiques descriptives</span>
+                <span class="tag">Visualisation</span>
+            </div>
+
+            <a href="rapport_SAE.pdf" download="Rapport_SAE_Superstore.pdf" class="download-btn">
+                <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Télécharger le rapport PDF</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Stats Banner -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">9 994</div>
+                <div class="stat-label">Transactions analysées</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">2019–22</div>
+                <div class="stat-label">Période couverte</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">14</div>
+                <div class="stat-label">Visualisations produites</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">r = 0,98</div>
+                <div class="stat-label">Corrélation commandes / CA</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">49</div>
+                <div class="stat-label">États américains couverts</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 01 Contexte -->
+    <section class="content-section textured reveal">
+        <div class="section-header">
+            <span class="section-number">01</span>
+            <h2>Contexte du projet</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                Superstore est une entreprise américaine spécialisée dans la vente par correspondance de meubles, de fournitures de bureau et de produits technologiques. Elle a mis à disposition un fichier <code>Superstore_Orders_Dataset.csv</code> recensant l'ensemble des commandes réalisées entre 2019 et 2022 — soit près de 10 000 transactions couvrant 49 États américains.
+            </p>
+            <p>
+                Les variables disponibles incluent la date de commande, la date d'expédition, le mode de livraison, le type de client (segment), la géographie, le produit, le prix de vente unitaire, la quantité, la remise accordée et le profit généré.
+            </p>
+
+            <div class="highlight-box">
+                <strong>Objectif de la SAE</strong>
+                <p>Réaliser une analyse exploratoire complète de ce jeu de données sous R et RStudio — depuis la préparation du fichier jusqu'à la construction de graphiques commentés — pour apporter des réponses claires aux responsables commerciaux sur les performances par segment, catégorie et zone géographique.</p>
+            </div>
+
+            <p>
+                Le livrable final comprend un rapport PDF de 10 pages rédigé sous LaTeX, un script R documenté, et une présentation orale supportée par des slides Marp.
+            </p>
+        </div>
+    </section>
+
+    <!-- 02 Problématiques -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <span class="section-number">02</span>
+            <h2>Problématiques traitées</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                L'analyse a été structurée autour de dix questions métier couvrant deux axes : l'analyse individuelle des indicateurs clés, puis l'étude croisée des performances entre variables.
+            </p>
+        </div>
+
+        <div class="challenge-grid">
+            <div class="challenge-card">
+                <h3>Qui sont les clients ?</h3>
+                <p>Répartition des transactions par segment (Consumer, Corporate, Home Office) et analyse du volume de commandes par type de client.</p>
+            </div>
+            <div class="challenge-card">
+                <h3>Quels produits performent ?</h3>
+                <p>Classement des catégories et sous-catégories selon le chiffre d'affaires et les bénéfices — dont le détail des fournitures de bureau.</p>
+            </div>
+            <div class="challenge-card">
+                <h3>Distribution des profits</h3>
+                <p>Caractérisation statistique des profits par transaction : moyenne, médiane, quartiles, valeurs extrêmes et asymétrie de la distribution.</p>
+            </div>
+            <div class="challenge-card">
+                <h3>Géographie des performances</h3>
+                <p>Répartition des bénéfices selon les États — identification des zones déficitaires (Ohio, Texas, Illinois) et des marchés les plus rentables.</p>
+            </div>
+            <div class="challenge-card">
+                <h3>Associations entre variables</h3>
+                <p>Mesure des liaisons entre catégorie produit / type de client, État / profit, et sous-catégorie / bénéfice via corrélations et V de Cramér.</p>
+            </div>
+            <div class="challenge-card">
+                <h3>Ventes vs Profit</h3>
+                <p>Représentation et quantification de la relation entre chiffre d'affaires d'une transaction et son profit — nuage de points et droite de régression.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 Démarche -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <span class="section-number">03</span>
+            <h2>Démarche analytique</h2>
+        </div>
+        <div class="section-content">
+            <p>
+                Le projet a suivi trois étapes structurées, du paramétrage de l'environnement de travail jusqu'à la restitution finale.
+            </p>
+
+            <div class="solution-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Environnement & import des données</h3>
+                        <p>Mise en place de l'arborescence projet sous RStudio, création du fichier script avec en-tête (thématique, auteurs, source), import du CSV via les fonctions de base R.</p>
+                        <div class="step-details">
+                            <strong>Actions réalisées</strong>
+                            <ul>
+                                <li>Création des dossiers <code style="font-family:'Fraunces',serif;font-style:italic;">/data</code> et <code style="font-family:'Fraunces',serif;font-style:italic;">/scripts</code></li>
+                                <li>Import via <code style="font-family:'Fraunces',serif;font-style:italic;">read.csv()</code> avec gestion de l'encodage</li>
+                                <li>Inspection avec <code style="font-family:'Fraunces',serif;font-style:italic;">str()</code>, <code style="font-family:'Fraunces',serif;font-style:italic;">summary()</code>, <code style="font-family:'Fraunces',serif;font-style:italic;">head()</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Préparation & typage des données</h3>
+                        <p>Cohérence des types de variables : conversion des dates en <em>Date</em>, des catégories en <em>factor</em>, des numériques en <em>numeric</em>. Création d'une variable <em>Signe_Benefice</em> (Positif / Négatif) pour faciliter certaines visualisations.</p>
+                        <div class="step-details">
+                            <strong>Variables traitées</strong>
+                            <ul>
+                                <li>Order.Date, Ship.Date → format Date</li>
+                                <li>Segment, Category, Sub.Category, State → factor</li>
+                                <li>Sales, Profit, Discount, Quantity → numeric</li>
+                                <li>Ajout colonne Signe_Benefice via <code style="font-family:'Fraunces',serif;font-style:italic;">ifelse()</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Analyse exploratoire & visualisations</h3>
+                        <p>Construction de 14 graphiques avec les fonctions graphiques de base R (barplot, pie, boxplot, plot, hist) accompagnés d'indicateurs statistiques : coefficient de corrélation linéaire, rapport de corrélation (η²), V de Cramér.</p>
+                        <div class="step-details">
+                            <strong>Indicateurs calculés</strong>
+                            <ul>
+                                <li>Corrélation Profit / Sales : r = 0,479</li>
+                                <li>Corrélation Commandes / CA : r = 0,983</li>
+                                <li>V de Cramér Catégorie × Segment : 0,66 % → liaison négligeable</li>
+                                <li>Rapport de corrélation Sous-catégorie → Profit : 8,15 %</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bandeau citation (Option A) — entre Démarche et Visualisations -->
+    <section class="quote-banner reveal">
+        <blockquote>
+            « Le volume est le premier moteur de croissance »
+            <cite>r = 0,983 — corrélation entre nombre de commandes et chiffre d'affaires par État</cite>
+        </blockquote>
+    </section>
+
+    <!-- 04 Visualisations clés — placeholders pour captures d'écran réelles -->
+    <section class="charts-section reveal">
+        <div class="section-header">
+            <span class="section-number">04</span>
+            <h2>Visualisations clés</h2>
+        </div>
+        <p style="color:var(--ink-soft); max-width:780px; margin-bottom:2.5rem; font-size:1.02rem;">
+            Graphiques produits sous R (base graphics) — captures d'écran issues du script et du rapport LaTeX.
+        </p>
+
+        <!-- Row 1 -->
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame">
+                    <!-- Remplacer par : <img src="assets/fig-segments.png" alt="Répartition par segment client"> -->
+                    <span class="figure-placeholder-text">Capture d'écran à insérer<br>ici : plot R exporté</span>
+                </div>
+                <div class="figure-caption">
+                    <h3>Répartition par segment client</h3>
+                    <p>Nombre de transactions par type de client · 2019–2022</p>
+                </div>
+            </div>
+
+            <div class="figure">
+                <div class="figure-frame">
+                    <span class="figure-placeholder-text">Capture d'écran à insérer<br>ici : plot R exporté</span>
+                </div>
+                <div class="figure-caption">
+                    <h3>Chiffre d'affaires par catégorie</h3>
+                    <p>Classement des trois familles de produits selon les ventes totales</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame">
+                    <span class="figure-placeholder-text">Capture d'écran à insérer<br>ici : plot R exporté</span>
+                </div>
+                <div class="figure-caption">
+                    <h3>Profits — Fournitures de bureau</h3>
+                    <p>Classement des sous-catégories Office Supplies par bénéfice total</p>
+                </div>
+            </div>
+
+            <div class="figure">
+                <div class="figure-frame">
+                    <span class="figure-placeholder-text">Capture d'écran à insérer<br>ici : plot R exporté</span>
+                </div>
+                <div class="figure-caption">
+                    <h3>Profit médian par sous-catégorie (Top 10)</h3>
+                    <p>Distribution des profits — médiane et dispersion inter-quartile</p>
+                    <span class="figure-note">η² = 8,15 % · liaison faible</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3 — scatter plein largeur -->
+        <div class="charts-grid-bottom">
+            <div class="figure">
+                <div class="figure-frame wide">
+                    <span class="figure-placeholder-text">Capture d'écran à insérer<br>ici : nuage de points R avec droite de régression</span>
+                </div>
+                <div class="figure-caption">
+                    <h3>Profit d'une transaction en fonction du chiffre d'affaires</h3>
+                    <p>Nuage de points — droite de régression · association linéaire positive modérée</p>
+                    <span class="figure-note">r = 0,479 · corrélation modérée positive</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 05 Résultats -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <span class="section-number">05</span>
+            <h2>Principaux résultats</h2>
+        </div>
+        <div class="section-content">
+            <p>L'analyse exploratoire a permis de mettre en lumière plusieurs tendances commerciales significatives sur la période 2019–2022.</p>
+        </div>
+        <div class="results-grid">
+            <div class="result-card">
+                <h3>Consumer dominant</h3>
+                <p>Le segment Consumer représente <strong>51,94 %</strong> des transactions, devant Corporate (30,22 %) et Home Office (17,84 %).</p>
+            </div>
+            <div class="result-card">
+                <h3>Technology en tête</h3>
+                <p>La catégorie Technology génère le CA le plus élevé (<strong>836 154 $</strong>), suivie de Furniture (742 k$) et Office Supplies (719 k$).</p>
+            </div>
+            <div class="result-card">
+                <h3>Paper & Binders rentables</h3>
+                <p>Dans les fournitures de bureau, Paper (34 k$) et Binders (30 k$) sont les sous-catégories les plus bénéficiaires. Supplies est en pertes (−1 190 $).</p>
+            </div>
+            <div class="result-card">
+                <h3>Profit asymétrique</h3>
+                <p>Profit moyen : <strong>28,66 $</strong> · Médiane : 8,67 $ · Q3 : 29,36 $. Distribution très asymétrique avec des extrêmes de −6 600 $ à +8 400 $.</p>
+            </div>
+            <div class="result-card">
+                <h3>Géographie contrastée</h3>
+                <p>California et New York affichent les meilleurs profits. Ohio, Texas et Illinois enregistrent des pertes. Le Michigan est l'État le plus rentable par transaction (moy. 96 $).</p>
+            </div>
+            <div class="result-card">
+                <h3>Volume pilote le CA</h3>
+                <p>Corrélation très forte entre nombre de commandes et chiffre d'affaires par État (<strong>r = 0,983</strong>) : le volume est le premier moteur de croissance.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 06 Insights -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <span class="section-number">06</span>
+            <h2>Insights clés</h2>
+        </div>
+        <div class="section-content">
+            <p>Plusieurs observations contre-intuitives ont émergé de l'analyse croisée des variables.</p>
+            <ul class="insights-list">
+                <li class="insight-item">
+                    <strong>Chiffre d'affaires ≠ rentabilité</strong>
+                    <p>La corrélation entre ventes et profit d'une transaction n'est que modérée (r = 0,479). Une transaction à fort CA peut être déficitaire si la remise est élevée — notamment dans le Furniture où certaines commandes à 20 000 $+ affichent un profit négatif.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Les remises érodent les marges</strong>
+                    <p>Une grande partie des pertes observées correspond à des transactions avec une remise (Discount) importante. Les produits technologiques et les meubles sont les plus exposés à cet effet de ciseau.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Aucune association segment × catégorie</strong>
+                    <p>Le V de Cramér de 0,66 % indique que la structure des achats est quasi identique pour Consumer, Corporate et Home Office — les trois segments achètent dans les mêmes proportions. La segmentation ne justifie pas une stratégie produit différenciée.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Ohio & Texas : marchés à risque</strong>
+                    <p>Parmi les dix États les plus actifs, l'Ohio (−36 $/transaction en moyenne), le Texas et l'Illinois sont systématiquement déficitaires. Des causes opérationnelles (coûts logistiques, politique de remise locale) sont à investiguer pour rétablir la rentabilité.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Office Supplies : fragmenté mais régulier</strong>
+                    <p>La catégorie Office Supplies présente la plus grande diversité de sous-catégories (neuf familles) avec un flux constant de petits achats. Binders et Paper dominent près de la moitié du volume, assurant une base stable de revenus récurrents.</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 07 Stack technique -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <span class="section-number">07</span>
+            <h2>Outils & livrables</h2>
+        </div>
+        <div class="section-content">
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>R / RStudio</h4>
+                    <p>Langage de base R — import, typage, graphiques natifs (barplot, boxplot, plot, pie)</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Statistiques</h4>
+                    <p>Corrélation de Pearson, rapport de corrélation η², V de Cramér, quartiles</p>
+                </div>
+                <div class="tech-item">
+                    <h4>LaTeX</h4>
+                    <p>Rapport PDF 10 pages — figures référencées, mise en page scientifique</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Marp</h4>
+                    <p>Présentation orale en Markdown — slides exportées en PDF</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Git</h4>
+                    <p>Versionnage du script et du rapport tout au long du projet</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Superstore CSV</h4>
+                    <p>Dataset réel · 9 994 lignes · 21 variables · commandes 2019–2022</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>Voir d'autres projets</h2>
+        <p>Retour au portfolio ou exploration des projets suivants</p>
+        <div class="cta-buttons">
+            <a href="portfolio-data-analyst.html" class="cta-button">
+                <span>← Retour au portfolio</span>
+            </a>
+            <a href="rapport_SAE.pdf" download="Rapport_SAE_Superstore.pdf" class="cta-button cta-secondary">
+                <span>Télécharger le rapport</span>
+            </a>
+            <a href="proget2.html" class="cta-button cta-secondary">
+                <span>Projet suivant →</span>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025–2026 · IUT Grand Ouest Normandie · BUT Science des Données</p>
+    </footer>
+
+    <script>
+        // Apparition douce des sections au scroll
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() {
+            reveals.forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 100)
+                    el.classList.add('active');
+            });
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    </script>
+</body>
+</html>
