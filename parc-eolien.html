@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le parc éolien français, radiographié par la donnée · Portfolio Data Analyst</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #211d17;
+            --ink-soft: #4a4338;
+            --cream: #f7f2e6;
+            --cream-deep: #eae3d2;
+            --paper: #fbf8f1;
+            --gold: #3f6f72;
+            --gold-deep: #294c4e;
+            --line: rgba(33, 29, 23, 0.14);
+            --line-soft: rgba(33, 29, 23, 0.08);
+            --code-bg: #1c2626;
+            --code-text: #e3ecec;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--ink); line-height: 1.65; overflow-x: hidden; }
+        h1, h2, h3, .serif { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); }
+
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; padding: 1.4rem 4rem;
+            display: flex; justify-content: space-between; align-items: center; z-index: 1000;
+            background: rgba(247, 242, 230, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+        }
+        .back-button { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--gold-deep); font-weight: 500; font-size: 0.92rem; }
+        .back-button:hover { opacity: 0.7; }
+        .nav-title { font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); }
+
+        .hero {
+            min-height: 80vh; display: flex; align-items: flex-end; position: relative; padding: 10rem 4rem 5rem;
+            background-image: linear-gradient(180deg, rgba(20,28,28,0.5) 0%, rgba(20,28,28,0.72) 65%, rgba(14,20,20,0.9) 100%), url('assets/hero-bg-eolien.jpg');
+            background-size: cover; background-position: center; color: var(--paper);
+        }
+        .hero-content { max-width: 920px; width: 100%; }
+        .project-meta { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.8rem; font-size: 0.85rem; color: rgba(251,248,241,0.75); }
+        .project-meta span:not(:last-child)::after { content: '·'; margin-left: 0.6rem; color: rgba(251,248,241,0.4); }
+        h1 { font-size: clamp(2.1rem, 4.6vw, 3.3rem); font-weight: 500; line-height: 1.2; margin-bottom: 1.4rem; letter-spacing: -0.5px; color: var(--paper); }
+        .hero-description { font-size: 1.08rem; color: rgba(251,248,241,0.85); line-height: 1.8; max-width: 740px; margin-bottom: 2rem; font-weight: 300; }
+        .tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .tag { padding: 0.4rem 1rem; border: 1px solid rgba(251,248,241,0.35); border-radius: 3px; font-size: 0.78rem; letter-spacing: 0.3px; color: rgba(251,248,241,0.85); }
+
+        .stats-banner { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 3rem 4rem; }
+        .stats-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2.5rem; }
+        .stat-item { text-align: left; border-left: 1px solid var(--line); padding-left: 1.2rem; }
+        .stat-value { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 500; color: var(--gold-deep); margin-bottom: 0.3rem; line-height: 1.1; }
+        .stat-label { color: var(--ink-soft); font-size: 0.84rem; }
+
+        .content-section { max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem; }
+        .content-section.textured { position: relative; max-width: none; overflow: hidden; }
+        .content-section.textured::before {
+            content: ''; position: absolute; inset: -60px; background-image: url('assets/texture-bg-eolien.jpg');
+            background-size: cover; background-position: center; filter: blur(22px) grayscale(20%); opacity: 0.16; z-index: 0; pointer-events: none;
+        }
+        .content-section.textured > .section-header, .content-section.textured > .section-content {
+            position: relative; z-index: 1; max-width: 1000px; margin-left: auto; margin-right: auto;
+        }
+        .section-header { display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2.2rem; }
+        .section-number { font-family: 'Fraunces', serif; font-size: 1.1rem; color: var(--gold); font-weight: 400; }
+        h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 500; }
+        .section-content p { font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 1.4rem; max-width: 780px; }
+        .section-content p:last-child { margin-bottom: 0; }
+        .section-content code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--gold-deep); background: var(--cream-deep); padding: 0.1rem 0.4rem; border-radius: 3px; }
+        .highlight-box { border-left: 2px solid var(--gold); padding: 0.3rem 0 0.3rem 1.5rem; margin: 2rem 0; }
+        .highlight-box strong { display: block; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: var(--ink); }
+
+        .solution-steps { margin-top: 2rem; }
+        .step { display: flex; gap: 2rem; margin-bottom: 3rem; align-items: flex-start; padding-bottom: 3rem; border-bottom: 1px solid var(--line-soft); }
+        .step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .step-number { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 400; color: var(--gold); min-width: 3rem; }
+        .step-content { flex: 1; }
+        .step-content h3 { font-size: 1.1rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .step-content p { color: var(--ink-soft); line-height: 1.8; margin-bottom: 0; }
+
+        .team-note { margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--line); font-size: 0.92rem; color: var(--ink-soft); }
+        .team-note strong { color: var(--ink); font-weight: 500; }
+
+        /* Code showcase */
+        .code-showcase { max-width: 1000px; margin: 0 auto; padding: 0 4rem 5.5rem; }
+        .code-header { margin-bottom: 1.8rem; border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
+        .code-header p { color: var(--ink-soft); font-size: 0.95rem; max-width: 700px; }
+        pre { background: var(--code-bg); border-radius: 6px; padding: 1.6rem 2rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.7; color: #dce8e6; margin-bottom: 2rem; }
+        .kw { color: #7fb3a3; } .fn { color: #a8c99f; } .str { color: #d9c48f; } .cm { color: #7d8a86; font-style: italic; }
+        .pipeline { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
+        .pipeline-step { padding: 0.4rem 0.9rem; border: 1px solid var(--line); font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; color: var(--ink-soft); border-radius: 3px; }
+        .pipeline-step.current { border-color: var(--gold); color: var(--gold-deep); font-weight: 600; background: var(--cream-deep); }
+        .pipeline-arrow { color: var(--line); font-size: 0.9rem; }
+        .pipeline-caption { margin-top: 1.5rem; font-size: 0.88rem; color: var(--ink-soft); }
+
+        /* Data dictionary */
+        .dict-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 2rem; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+        .dict-card { padding: 1.6rem 1.6rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+        .dict-card h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 0.8rem; }
+        .dict-card ul { list-style: none; }
+        .dict-card li { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--ink-soft); padding: 0.3rem 0; border-bottom: 1px dotted var(--line-soft); }
+        .dict-card li:last-child { border-bottom: none; }
+
+        /* Figures */
+        .charts-section { max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem; }
+        .charts-grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-bottom: 3rem; }
+        .charts-grid-three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .figure-frame { width: 100%; aspect-ratio: 4/3; border: 1px solid var(--line); background: var(--paper); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .figure-frame img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 0.5rem; box-sizing: border-box; }
+        .figure-frame.wide-ui { aspect-ratio: 16/9; }
+        .figure-placeholder-text { font-family: 'Fraunces', serif; font-style: italic; color: rgba(33,29,23,0.3); font-size: 0.9rem; text-align: center; padding: 1rem; }
+        .figure-caption { margin-top: 1rem; }
+        .figure-caption h3 { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.3rem; color: var(--ink); }
+        .figure-caption p { color: var(--ink-soft); font-size: 0.85rem; }
+
+        /* Results */
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.2rem; margin-top: 2rem; }
+        .result-card { padding-top: 1.4rem; border-top: 1px solid var(--line); }
+        .result-card h3 { font-size: 1.02rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .result-card p { color: var(--ink-soft); line-height: 1.7; font-size: 0.94rem; }
+
+        /* Why grid */
+        .why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.2rem; margin-top: 2rem; }
+        .why-card { padding-top: 1.4rem; border-top: 1px solid var(--line); }
+        .why-card h3 { font-size: 1.02rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .why-card p { color: var(--ink-soft); line-height: 1.7; font-size: 0.94rem; }
+
+        .quote-banner {
+            position: relative; min-height: 46vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 4rem;
+            background-image: linear-gradient(rgba(16,24,24,0.6), rgba(16,24,24,0.78)), url('assets/quote-bg-eolien.jpg');
+            background-size: cover; background-position: center; color: var(--paper);
+        }
+        .quote-banner blockquote { font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(1.4rem, 3vw, 2.3rem); line-height: 1.35; max-width: 780px; letter-spacing: -0.3px; }
+        .quote-banner cite { display: block; margin-top: 1.4rem; font-style: normal; font-size: 0.82rem; letter-spacing: 0.5px; color: rgba(251,248,241,0.7); }
+
+        .cta-section { border-top: 1px solid var(--line); padding: 5rem 4rem; text-align: center; }
+        .cta-section h2 { margin-bottom: 0.8rem; }
+        .cta-section p { color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 2.2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.9rem 2.2rem; background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 500; border-radius: 2px; font-size: 0.92rem; border: 1px solid var(--ink); }
+        .cta-button:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+        .cta-secondary { background: transparent; color: var(--ink); }
+        .cta-secondary:hover { background: var(--ink); color: var(--paper); }
+
+        footer { padding: 3rem 4rem; text-align: center; border-top: 1px solid var(--line); }
+        footer p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 968px) {
+            nav { padding: 1.2rem 1.6rem; }
+            .hero, .content-section, .cta-section, .charts-section, .code-showcase { padding-left: 1.6rem; padding-right: 1.6rem; }
+            .charts-grid-top, .charts-grid-three, .why-grid { grid-template-columns: 1fr; }
+            .dict-grid { grid-template-columns: repeat(2, 1fr); }
+            .dict-card { border-right: none; }
+            .step { flex-direction: column; gap: 0.8rem; }
+            .stats-banner { padding: 2.5rem 1.6rem; }
+        }
+        @media (max-width: 600px) { .dict-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="back-button"><span>←</span><span>Retour au portfolio</span></a>
+        <div class="nav-title">SAE 2.05 · Power BI</div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span>BUT Science des Données</span>
+                <span>IUT Grand Ouest Normandie</span>
+                <span>2025–2026</span>
+                <span>Projet de groupe (5)</span>
+            </div>
+            <h1>Le parc éolien français, radiographié par la donnée</h1>
+            <p class="hero-description">
+                Plus de 13 000 éoliennes terrestres françaises analysées sous Power BI : nettoyage des données via Power Query (détection et traitement des valeurs aberrantes), construction d'un dashboard interactif, puis restitution sous forme d'infographie de synthèse — sur le modèle des publications de l'INSEE.
+            </p>
+            <div class="tags">
+                <span class="tag">Power BI</span>
+                <span class="tag">Power Query</span>
+                <span class="tag">DAX</span>
+                <span class="tag">Nettoyage de données</span>
+                <span class="tag">Cartographie</span>
+                <span class="tag">Travail d'équipe</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item"><div class="stat-value">13 100</div><div class="stat-label">éoliennes recensées</div></div>
+            <div class="stat-item"><div class="stat-value">2,84 MW</div><div class="stat-label">puissance moyenne</div></div>
+            <div class="stat-item"><div class="stat-value">146,80 m</div><div class="stat-label">hauteur totale moyenne</div></div>
+            <div class="stat-item"><div class="stat-value">10</div><div class="stat-label">constructeurs comparés</div></div>
+            <div class="stat-item"><div class="stat-value">4,61 MW</div><div class="stat-label">meilleur constructeur (Eno Energy)</div></div>
+        </div>
+    </section>
+
+    <!-- 01 Contexte & démarche -->
+    <section class="content-section textured reveal">
+        <div class="section-header"><span class="section-number">01</span><h2>Contexte & démarche</h2></div>
+        <div class="section-content">
+            <p>Ce projet, mené dans le cadre du module « Reporting & datavisualisation », répond à un double objectif : construire un <strong style="color:var(--ink);">dashboard Power BI dynamique</strong> à partir des données de l'éolien terrestre français, puis en tirer une <strong style="color:var(--ink);">infographie statique de synthèse</strong> (SAE 2.05), sur le modèle des publications de l'INSEE — qui accompagne chaque étude statistique détaillée d'une infographie mettant en avant les faits essentiels.</p>
+            <div class="highlight-box">
+                <strong>Axe d'analyse retenu</strong>
+                <p>Caractériser le parc éolien terrestre français sous l'angle de la puissance installée : sa distribution, son évolution récente, sa répartition géographique et ses déterminants techniques (hauteur, diamètre du rotor, constructeur).</p>
+            </div>
+
+            <div class="solution-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Comprendre la structure des données</h3>
+                        <p>Exploration du fichier source <code>Eolien terrestre.xlsx</code> (identifiants, localisation, caractéristiques techniques, balisage, fabrication) pour identifier les types de colonnes et les problèmes potentiels avant toute transformation.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Préparer les données (Power Query)</h3>
+                        <p>Nettoyage et enrichissement : suppression de colonnes inutiles, typage des champs, suppression des doublons, et surtout détection et filtrage des valeurs aberrantes (détail à la section suivante).</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Analyser les données</h3>
+                        <p>Statistiques descriptives, visualisations de comparaison, de corrélation et de tendance temporelle pour répondre à l'axe d'analyse retenu.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Communiquer — dashboard interactif</h3>
+                        <p>Restitution des résultats dans un tableau de bord Power BI (2 pages), avec une charte graphique cohérente (arrondis, contrastes, hiérarchie visuelle) conforme aux exigences du module.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Communiquer — infographie de synthèse</h3>
+                        <p>Traduction du dashboard dynamique en un poster statique concis (SAE 2.05), destiné à un lecteur pressé — chaque visuel est accompagné d'une interprétation écrite en une ou deux phrases.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-note">
+                <strong>Ma contribution :</strong> implication sur l'ensemble du pipeline — du nettoyage des données sous Power Query jusqu'à la rédaction de l'infographie finale.<br><br>
+                Projet réalisé en groupe de 5 : <strong>Yanh Bambela</strong>, Fatimatou Diagne, Marc-aurel Kamdem Deudjui, Nadira Maulidia, Glaineta Mbang Ndong.
+            </div>
+        </div>
+    </section>
+
+    <!-- 02 Nettoyage des données -->
+    <section class="code-showcase reveal">
+        <div class="section-header"><span class="section-number">02</span><h2>Nettoyage des données — Power Query</h2></div>
+        <div class="code-header">
+            <p>Le jeu de données brut contenait des valeurs de hauteur totale physiquement incohérentes pour des éoliennes terrestres (bien au-delà de ce que permet la technologie actuelle). Ces enregistrements ont été identifiés puis filtrés via le langage M de Power Query.</p>
+        </div>
+<pre><span class="cm">// Filtrage des valeurs aberrantes de hauteur totale (> 240 m jugées incohérentes)</span>
+= <span class="fn">Table.SelectRows</span>(<span class="str">#"Lignes filtrées2"</span>, <span class="kw">each</span> [hauteur_totale] <= <span class="fn">240</span>)</pre>
+        <div class="section-content" style="padding:0;">
+            <p style="max-width:none;">Cette ligne s'inscrit dans une chaîne de transformations successives, chacune tracée et modifiable dans l'éditeur Power Query :</p>
+        </div>
+        <div class="pipeline">
+            <span class="pipeline-step">Source</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Navigation</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">En-têtes promus</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Type modifié</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Colonnes supprimées</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Lignes filtrées</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Doublons supprimés</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Lignes filtrées 1-2</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step current">Lignes filtrées 3</span>
+        </div>
+        <p class="pipeline-caption">Chaque étape est nommée explicitement et reste modifiable a posteriori — une pratique qui rend le nettoyage traçable et auditable, plutôt qu'une correction manuelle et invisible des données.</p>
+    </section>
+
+    <!-- 03 Modèle de données -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">03</span><h2>Modèle de données</h2></div>
+        <div class="section-content">
+            <p>Le modèle relie trois tables : <code>Eolienne</code> (une ligne par machine), <code>commune</code> (référentiel géographique) et <code>_Mesures</code> (indicateurs calculés).</p>
+        </div>
+
+        <div class="figure" style="margin-bottom: 2.5rem;">
+            <div class="figure-frame wide-ui">
+                <img src="assets/fig-powerquery-modele.png" alt="Éditeur Power Query — les trois tables du modèle" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-powerquery-modele.png</span>
+            </div>
+            <div class="figure-caption">
+                <h3>Éditeur Power Query — le modèle en pratique</h3>
+                <p>Les trois requêtes du modèle (<code>Eolienne</code>, <code>commune</code>, <code>_Mesures</code>) visibles dans le panneau de gauche, avec l'étape de filtrage des valeurs aberrantes sélectionnée à droite.</p>
+            </div>
+        </div>
+
+        <div class="section-content">
+            <p>Aperçu du dictionnaire de données de la table principale :</p>
+        </div>
+        <div class="dict-grid">
+            <div class="dict-card">
+                <h4>Identification</h4>
+                <ul><li>id_eolienne</li><li>nom_eolienne</li><li>id_parc</li><li>nom_usuel</li></ul>
+            </div>
+            <div class="dict-card">
+                <h4>Localisation</h4>
+                <ul><li>code_insee</li><li>nom_commune</li><li>code_dept</li><li>code_reg</li></ul>
+            </div>
+            <div class="dict-card">
+                <h4>Caractéristiques techniques</h4>
+                <ul><li>puissance_mw</li><li>hauteur_totale</li><li>hauteur_mat_nacelle</li><li>diametre_rotor</li><li>cote_ngf</li></ul>
+            </div>
+            <div class="dict-card">
+                <h4>Balisage aérien</h4>
+                <ul><li>periode_allumage</li><li>type_feu</li></ul>
+            </div>
+            <div class="dict-card">
+                <h4>Fabrication</h4>
+                <ul><li>constructeur</li><li>reference_modele</li></ul>
+            </div>
+            <div class="dict-card">
+                <h4>Suivi temporel</h4>
+                <ul><li>date_maj</li><li>Année · Trimestre · Mois · Jour</li></ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 Visualisations -->
+    <section class="charts-section reveal">
+        <div class="section-header"><span class="section-number">04</span><h2>Visualisations clés</h2></div>
+        <p style="color:var(--ink-soft); max-width:780px; margin-bottom:2.5rem; font-size:1.02rem;">Les six visuels retenus pour l'infographie de synthèse.</p>
+
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-distribution-puissance.png" alt="Distribution des puissances" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-distribution-puissance.png</span></div>
+                <div class="figure-caption"><h3>Distribution des puissances</h3><p>Répartition des éoliennes par tranche de puissance (MW)</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-evolution-puissance.png" alt="Évolution de la puissance moyenne" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-evolution-puissance.png</span></div>
+                <div class="figure-caption"><h3>Évolution de la puissance moyenne</h3><p>Tendance annuelle 2022–2026</p></div>
+            </div>
+        </div>
+
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-carte-ird.png" alt="Corrélation géographique IRD" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-carte-ird.png</span></div>
+                <div class="figure-caption"><h3>Corrélation géographique (IRD)</h3><p>Carte de France par indice de répartition</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-top10-constructeurs.png" alt="Top 10 des constructeurs" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-top10-constructeurs.png</span></div>
+                <div class="figure-caption"><h3>Top 10 des constructeurs</h3><p>Classement selon la puissance moyenne</p></div>
+            </div>
+        </div>
+
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-puissance-vs-hauteur.png" alt="Puissance vs hauteur totale" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-puissance-vs-hauteur.png</span></div>
+                <div class="figure-caption"><h3>Puissance vs hauteur totale</h3><p>Nuage de points avec droite de tendance</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-puissance-vs-diametre.png" alt="Puissance vs diamètre du rotor" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-puissance-vs-diametre.png</span></div>
+                <div class="figure-caption"><h3>Puissance vs diamètre du rotor</h3><p>Nuage de points avec droite de tendance</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 05 Résultats -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">05</span><h2>Résultats clés</h2></div>
+        <div class="results-grid">
+            <div class="result-card">
+                <h3>Le 2–4 MW domine le parc</h3>
+                <p>Les éoliennes de 2 à 4 MW représentent environ 45 % du parc recensé. Au-delà de 7 MW, leur part chute sous les 5 %.</p>
+            </div>
+            <div class="result-card">
+                <h3>Une puissance moyenne en dents de scie</h3>
+                <p>Après un creux en 2023 (sous 2,6 MW), la puissance moyenne installée a grimpé à 3,2 MW en 2025, avant de rechuter sous 2,8 MW en 2026.</p>
+            </div>
+            <div class="result-card">
+                <h3>Nord et Ouest concentrent la puissance</h3>
+                <p>L'indice de répartition (IRD) dépasse 2,5 dans le Nord et l'Ouest, contre moins de 1,0 en Corse et dans le Sud-Est — une répartition géographique nettement inégale.</p>
+            </div>
+            <div class="result-card">
+                <h3>Eno Energy en tête des constructeurs</h3>
+                <p>Eno Energy se distingue avec une puissance moyenne de 4,61 MW. Le reste du top 10, mené par Nordex, reste plus homogène (2,50 à 3,42 MW).</p>
+            </div>
+            <div class="result-card">
+                <h3>La hauteur détermine la puissance</h3>
+                <p>Corrélation directe entre hauteur totale et puissance : la plupart des modèles mesurent 100 à 200 m pour une production de 2 à 5 MW.</p>
+            </div>
+            <div class="result-card">
+                <h3>Le diamètre du rotor aussi</h3>
+                <p>Les rotors de plus de 150 m de diamètre affichent les meilleures performances, confirmant la relation entre taille des pales et puissance produite.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bandeau citation -->
+    <section class="quote-banner reveal">
+        <blockquote>
+            « Le Nord et l'Ouest concentrent la puissance éolienne française »
+            <cite>Indice de répartition (IRD) > 2,5 dans ces régions, contre moins de 1,0 en Corse et dans le Sud-Est</cite>
+        </blockquote>
+    </section>
+
+    <!-- 06 Ce que ce projet démontre -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">06</span><h2>Ce que ce projet démontre</h2></div>
+        <div class="why-grid">
+            <div class="why-card">
+                <h3>Nettoyage de données rigoureux</h3>
+                <p>Identification et traitement justifié des valeurs aberrantes (seuil physique de hauteur), avec une chaîne de transformations tracée et documentée dans Power Query — pas une correction manuelle invisible.</p>
+            </div>
+            <div class="why-card">
+                <h3>Communication adaptée à l'audience</h3>
+                <p>Un même travail d'analyse restitué sous deux formats distincts : un dashboard interactif pour l'exploration, une infographie statique et concise pour un lecteur pressé — une compétence clé en BI professionnelle.</p>
+            </div>
+            <div class="why-card">
+                <h3>Respect d'un cahier des charges</h3>
+                <p>Charte graphique, contrastes, arrondis, hiérarchie des titres : le projet suit des exigences de design précises, au-delà de la seule exactitude analytique.</p>
+            </div>
+            <div class="why-card">
+                <h3>Travail d'équipe</h3>
+                <p>Projet mené à cinq, de la définition de l'axe d'analyse à la production des deux livrables finaux — coordination et répartition du travail sur un jeu de données partagé.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>Deux livrables, une seule analyse</h2>
+        <p>Le dashboard Power BI interactif et l'infographie de synthèse qui en découle</p>
+        <div class="cta-buttons">
+            <a href="assets/poster-eolien.pdf" download class="cta-button"><span>Télécharger l'infographie (PDF)</span></a>
+            <a href="assets/Eolienne.pbix" download class="cta-button cta-secondary"><span>Télécharger le dashboard (.pbix)</span></a>
+            <a href="index.html" class="cta-button cta-secondary"><span>Retour au portfolio</span></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025–2026 · IUT Grand Ouest Normandie · BUT Science des Données — Projet de groupe : Yanh Bambela, Fatimatou Diagne, Marc-aurel Kamdem Deudjui, Nadira Maulidia, Glaineta Mbang Ndong</p>
+    </footer>
+
+    <script>
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() { reveals.forEach(el => { if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active'); }); }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    </script>
+</body>
+</html>
