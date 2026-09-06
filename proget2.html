@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse des Jeux Olympiques — SAE 2.01 · Portfolio Data Analyst</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #211d17;
+            --ink-soft: #4a4338;
+            --cream: #f6f2e9;
+            --cream-deep: #e9e6d6;
+            --paper: #fbf9f2;
+            --gold: #b3841f;
+            --gold-deep: #7a5a12;
+            --line: rgba(33, 29, 23, 0.14);
+            --line-soft: rgba(33, 29, 23, 0.08);
+            --code-bg: #201c14;
+            --code-text: #ece6d6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .serif { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 1.4rem 4rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: rgba(247, 242, 230, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line);
+        }
+        .back-button {
+            display: flex; align-items: center; gap: 0.5rem;
+            text-decoration: none; color: var(--gold-deep);
+            font-weight: 500; font-size: 0.92rem;
+            transition: opacity 0.3s ease;
+        }
+        .back-button:hover { opacity: 0.7; }
+        .nav-title { font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 78vh;
+            display: flex; align-items: flex-end;
+            position: relative;
+            padding: 10rem 4rem 5rem;
+            background-image:
+                linear-gradient(180deg, rgba(33,29,23,0.55) 0%, rgba(33,29,23,0.72) 65%, rgba(33,29,23,0.88) 100%),
+                url('assets/hero-bg-jo.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--paper);
+        }
+        .hero-content { max-width: 900px; width: 100%; }
+        .project-meta {
+            display: flex; gap: 0.6rem; flex-wrap: wrap;
+            margin-bottom: 1.8rem; font-size: 0.85rem;
+            color: rgba(251, 248, 241, 0.75);
+        }
+        .project-meta span:not(:last-child)::after { content: '·'; margin-left: 0.6rem; color: rgba(251,248,241,0.4); }
+        h1 {
+            font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 500;
+            line-height: 1.15; margin-bottom: 1.4rem; letter-spacing: -0.5px;
+            color: var(--paper);
+        }
+        .hero-description {
+            font-size: 1.12rem; color: rgba(251, 248, 241, 0.82);
+            line-height: 1.8; max-width: 740px; margin-bottom: 2rem; font-weight: 300;
+        }
+        .tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .tag {
+            padding: 0.4rem 1rem; border: 1px solid rgba(251, 248, 241, 0.35);
+            border-radius: 3px; font-size: 0.78rem; letter-spacing: 0.3px;
+            color: rgba(251, 248, 241, 0.85);
+        }
+
+        /* ===== STATS BANNER ===== */
+        .stats-banner { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 3rem 4rem; }
+        .stats-grid {
+            max-width: 1200px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2.5rem;
+        }
+        .stat-item { text-align: left; border-left: 1px solid var(--line); padding-left: 1.2rem; }
+        .stat-value { font-family: 'Fraunces', serif; font-size: 2.1rem; font-weight: 500; color: var(--gold-deep); margin-bottom: 0.3rem; line-height: 1; }
+        .stat-label { color: var(--ink-soft); font-size: 0.85rem; }
+
+        /* ===== CONTENT SECTIONS ===== */
+        .content-section { max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem; }
+        .section-header { display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2.2rem; }
+        .section-number { font-family: 'Fraunces', serif; font-size: 1.1rem; color: var(--gold); font-weight: 400; }
+        h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 500; }
+        .section-content p { font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 1.4rem; max-width: 780px; }
+        .section-content p:last-child { margin-bottom: 0; }
+        .section-content code {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.88em;
+            color: var(--gold-deep); background: var(--cream-deep);
+            padding: 0.1rem 0.4rem; border-radius: 3px;
+        }
+        .highlight-box { border-left: 2px solid var(--gold); padding: 0.3rem 0 0.3rem 1.5rem; margin: 2rem 0; }
+        .team-note { margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--line); font-size: 0.92rem; color: var(--ink-soft); }
+        .team-note strong { color: var(--ink); font-weight: 500; }
+        .highlight-box strong { display: block; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: var(--ink); }
+
+        /* ===== SCHEMA RELATIONNEL ===== */
+        .schema-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 0; margin-top: 2rem;
+            border-top: 1px solid var(--line); border-left: 1px solid var(--line);
+        }
+        .schema-table { padding: 1.8rem 1.5rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+        .schema-table-name {
+            font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+            color: var(--ink); margin-bottom: 0.9rem; font-size: 1.05rem;
+        }
+        .schema-table ul { list-style: none; }
+        .schema-table li {
+            padding: 0.4rem 0; font-size: 0.85rem; color: var(--ink-soft);
+            font-family: 'JetBrains Mono', monospace;
+            border-bottom: 1px dotted var(--line-soft);
+        }
+        .schema-table li:last-child { border-bottom: none; }
+        .schema-table li em {
+            display: block; font-family: 'Inter', sans-serif; font-style: normal;
+            font-size: 0.68rem; letter-spacing: 0.4px; text-transform: uppercase;
+            color: rgba(74,67,56,0.55); margin-top: 0.1rem;
+        }
+        .pk { color: var(--gold-deep) !important; font-weight: 600; }
+
+        .relation-list {
+            display: flex; flex-wrap: wrap; gap: 0.5rem 0;
+            margin-top: 2rem; font-size: 0.92rem; color: var(--ink-soft);
+        }
+        .relation-list span:not(:last-child)::after { content: '  ·  '; color: var(--line); }
+        .relation-list em { font-style: italic; color: var(--gold-deep); }
+
+        /* ===== PREUVES / CAPTURES ===== */
+        .evidence-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 2rem; margin-top: 2.2rem; align-items: start; }
+        .evidence-frame {
+            border: 1px solid var(--line); background: var(--paper);
+            padding: 0.6rem; box-sizing: border-box;
+        }
+        .evidence-frame img { width: 100%; height: auto; display: block; }
+        .evidence-caption { margin-top: 0.9rem; }
+        .evidence-caption h4 { font-size: 0.92rem; font-weight: 500; color: var(--ink); margin-bottom: 0.2rem; }
+        .evidence-caption p { color: var(--ink-soft); font-size: 0.84rem; margin: 0; }
+        .evidence-full { margin-top: 2.2rem; }
+
+        /* ===== SOLUTION STEPS ===== */
+        .solution-steps { margin-top: 2rem; }
+        .step { display: flex; gap: 2rem; margin-bottom: 3rem; align-items: flex-start; padding-bottom: 3rem; border-bottom: 1px solid var(--line-soft); }
+        .step:last-child { border-bottom: none; }
+        .step-number { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 400; color: var(--gold); min-width: 3rem; }
+        .step-content { flex: 1; }
+        .step-content h3 { font-size: 1.2rem; margin-bottom: 0.8rem; font-weight: 500; color: var(--ink); }
+        .step-content p { color: var(--ink-soft); line-height: 1.8; }
+        .step-details { border-left: 2px solid var(--line); padding: 0.2rem 0 0.2rem 1.3rem; margin-top: 1.2rem; }
+        .step-details strong { font-size: 0.85rem; letter-spacing: 0.3px; color: var(--ink-soft); text-transform: uppercase; }
+        .step-details ul { list-style: none; margin-top: 0.6rem; }
+        .step-details li { padding: 0.35rem 0; color: var(--ink-soft); font-size: 0.95rem; border-bottom: 1px dotted var(--line-soft); }
+        .step-details li:last-child { border-bottom: none; }
+
+        /* ===== CODE SHOWCASE ===== */
+        .code-showcase { max-width: 1000px; margin: 0 auto; padding: 0 4rem 5.5rem; }
+        .code-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
+        .code-header h3 { font-size: 1.3rem; font-weight: 500; }
+        .code-header p { color: var(--ink-soft); font-size: 0.92rem; margin-top: 0.3rem; }
+        .code-tabs { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+        .code-tab {
+            background: none; border: none; cursor: pointer;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            color: var(--ink-soft); padding: 0.3rem 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .code-tab.active { color: var(--gold-deep); border-bottom-color: var(--gold); }
+        .code-panel { display: none; }
+        .code-panel.active { display: block; }
+        pre {
+            background: var(--code-bg);
+            border-radius: 6px; padding: 2rem;
+            overflow-x: auto; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; line-height: 1.75; color: var(--code-text);
+        }
+        .kw  { color: #d9ab3e; }
+        .fn  { color: #c9b06a; }
+        .str { color: #a6976f; }
+        .cm  { color: #8a8070; font-style: italic; }
+        .nb  { color: #e0be6a; }
+        .op  { color: #d9ab3e; }
+
+        /* ===== RESULTATS / ENSEIGNEMENTS ===== */
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.2rem; margin-top: 2rem; }
+        .result-card { padding-top: 1.4rem; border-top: 1px solid var(--line); }
+        .result-card h3 { font-size: 1.05rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .result-card p { color: var(--ink-soft); line-height: 1.7; font-size: 0.95rem; }
+
+        /* ===== INSIGHTS / DEFIS ===== */
+        .insights-list { list-style: none; margin-top: 2rem; }
+        .insight-item { padding: 1.6rem 0; border-bottom: 1px solid var(--line-soft); }
+        .insight-item:last-child { border-bottom: none; }
+        .insight-item strong { font-family: 'Fraunces', serif; font-size: 1.08rem; font-weight: 500; color: var(--ink); display: block; margin-bottom: 0.5rem; }
+        .insight-item p { color: var(--ink-soft); line-height: 1.75; }
+
+        /* ===== TECH GRID ===== */
+        .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 2rem; background: var(--line); border: 1px solid var(--line); }
+        .tech-item { background: var(--paper); padding: 1.6rem; }
+        .tech-item h4 { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); margin-bottom: 0.5rem; font-size: 1.05rem; }
+        .tech-item p { color: var(--ink-soft); font-size: 0.88rem; line-height: 1.6; }
+
+        /* ===== CTA ===== */
+        .cta-section { border-top: 1px solid var(--line); padding: 5rem 4rem; text-align: center; }
+        .cta-section h2 { margin-bottom: 0.8rem; }
+        .cta-section p { color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 2.2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.9rem 2.2rem; background: var(--ink); color: var(--paper);
+            text-decoration: none; font-weight: 500; border-radius: 2px;
+            transition: all 0.3s ease; font-size: 0.92rem; border: 1px solid var(--ink);
+        }
+        .cta-button:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+        .cta-secondary { background: transparent; color: var(--ink); }
+        .cta-secondary:hover { background: var(--ink); color: var(--paper); }
+
+        /* ===== QUOTE BANNER ===== */
+        .quote-banner {
+            position: relative;
+            min-height: 52vh;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 4rem;
+            background-image:
+                linear-gradient(rgba(24,20,12,0.58), rgba(24,20,12,0.78)),
+                url('assets/quote-bg-jo.jpg');
+            background-size: cover; background-position: center 58%;
+            color: var(--paper);
+        }
+        .quote-banner blockquote {
+            font-family: 'Fraunces', serif; font-weight: 500;
+            font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+            line-height: 1.35; max-width: 780px; letter-spacing: -0.3px;
+        }
+        .quote-banner cite {
+            display: block; margin-top: 1.4rem; font-style: normal;
+            font-size: 0.82rem; letter-spacing: 0.5px; color: rgba(251, 248, 241, 0.7);
+        }
+
+        /* ===== TEXTURE DE FOND ===== */
+        .content-section.textured {
+            position: relative; max-width: none; overflow: hidden;
+        }
+        .content-section.textured::before {
+            content: '';
+            position: absolute; inset: -60px;
+            background-image: url('assets/texture-bg-jo.jpg');
+            background-size: cover; background-position: center;
+            filter: blur(22px) grayscale(15%);
+            opacity: 0.16; z-index: 0; pointer-events: none;
+        }
+        .content-section.textured > .section-header,
+        .content-section.textured > .section-content {
+            position: relative; z-index: 1;
+            max-width: 1000px; margin-left: auto; margin-right: auto;
+        }
+
+        footer { padding: 3rem 4rem; text-align: center; border-top: 1px solid var(--line); }
+        footer p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 968px) {
+            nav { padding: 1.2rem 1.6rem; }
+            .hero, .content-section, .cta-section, .code-showcase { padding-left: 1.6rem; padding-right: 1.6rem; }
+            .results-grid { grid-template-columns: 1fr; }
+            .evidence-grid { grid-template-columns: 1fr; }
+            .schema-grid { grid-template-columns: repeat(2, 1fr); }
+            .tech-grid { grid-template-columns: repeat(2, 1fr); }
+            .schema-table { border-right: none; }
+            .step { flex-direction: column; gap: 0.8rem; }
+            .stats-banner { padding: 2.5rem 1.6rem; }
+        }
+        @media (max-width: 600px) {
+            .schema-grid, .tech-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="back-button">
+            <span>←</span><span>Retour au portfolio</span>
+        </a>
+        <div class="nav-title">SAE 2.01 · Semestre 2</div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span>IUT Grand Ouest Normandie — Lisieux</span>
+                <span>2025–2026</span>
+                <span>Yanh Bambela Mouanda</span>
+            </div>
+            <h1>Analyse des Jeux Olympiques : conception d'une base de données</h1>
+            <p class="hero-description">
+                Depuis un fichier brut de 120 ans de compétitions olympiques, conception complète d'une base de données relationnelle sous MySQL : nettoyage avec Pandas, modélisation MCD/MLD/MPD, alimentation par scripts Python transactionnels, puis exploration via des requêtes SQL avancées (jointures multi-tables, agrégations conditionnelles).
+            </p>
+            <div class="tags">
+                <span class="tag">Python</span>
+                <span class="tag">MySQL / SQL</span>
+                <span class="tag">Pandas</span>
+                <span class="tag">Modélisation MCD/MLD/MPD</span>
+                <span class="tag">Transactions SQL</span>
+                <span class="tag">SAE 2.01</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item"><div class="stat-value">~37 000</div><div class="stat-label">lignes brutes (1896–2016)</div></div>
+            <div class="stat-item"><div class="stat-value">8</div><div class="stat-label">tables relationnelles</div></div>
+            <div class="stat-item"><div class="stat-value">120 ans</div><div class="stat-label">d'histoire olympique couverts</div></div>
+            <div class="stat-item"><div class="stat-value">1NF</div><div class="stat-label">atomicité respectée (MPD)</div></div>
+            <div class="stat-item"><div class="stat-value">3</div><div class="stat-label">membres dans l'équipe</div></div>
+        </div>
+    </section>
+
+    <!-- 01 Contexte -->
+    <section class="content-section textured reveal">
+        <div class="section-header"><span class="section-number">01</span><h2>Contexte du projet</h2></div>
+        <div class="section-content">
+            <p>Dans le cadre de la SAE 2.01 (Conception et implémentation d'une base de données), nous avons simulé la situation d'un analyste de données chargé de structurer un jeu de données brut — <code>jeux_olympiques.csv</code>, généré à partir de sources Kaggle sur 120 ans de Jeux Olympiques (1896–2016) — en une base de données relationnelle interrogeable sous MySQL.</p>
+            <div class="highlight-box">
+                <strong>Objectif</strong>
+                <p>Construire un pipeline complet : nettoyage des données avec Pandas, conception d'un Modèle Conceptuel (MCD) puis Logique (MLD) et Physique (MPD) de Données, implémentation MySQL avec contraintes d'intégrité référentielle, alimentation par scripts Python transactionnels, puis exploration SQL selon quatre axes — performance sportive globale, égalité homme-femme, disparités géographiques et impact socio-économique.</p>
+            </div>
+            <p>La conception du MCD et du MLD a été un travail obligatoirement collectif : lors de la soutenance, chaque membre devait être capable de justifier individuellement les choix de modélisation, même sur les parties codées par les autres.</p>
+            <div class="evidence-full">
+                <div class="evidence-frame">
+                    <img src="assets/preuve-csv-jo.png" alt="Fichier source jeux_olympiques.csv ouvert dans l'éditeur, avec les colonnes annee, ville, sport, discipline, athlete, code_pays, sexe, epreuve, medaille, saison, pays, population, pibParHab...">
+                </div>
+                <div class="evidence-caption">
+                    <h4>Le fichier source, tel que reçu</h4>
+                    <p>jeux_olympiques.csv — 17 colonnes brutes, avant tout nettoyage Pandas.</p>
+                </div>
+            </div>
+            <div class="team-note">
+                <strong>Ma contribution :</strong> nettoyage et préparation des données brutes (traitement du CSV, gestion des valeurs manquantes), conception du MCD et du MLD, et création de la base MySQL avec insertion des données.<br><br>
+                Projet réalisé en groupe de 3 : <strong>Yanh Bambela Mouanda</strong>, Selma Bennani, Drecy Mouele.
+            </div>
+        </div>
+    </section>
+
+    <!-- 02 Schéma relationnel -->
+    <section id="modelisation" class="content-section reveal">
+        <div class="section-header"><span class="section-number">02</span><h2>Schéma relationnel</h2></div>
+        <div class="section-content">
+            <p>L'analyse du CSV a fait émerger huit entités reliées par des associations 1:N, avec une table de faits centrale — <code>participation</code> — qui relie un athlète, une épreuve, une édition et un pays autour d'une médaille éventuelle.</p>
+            <div class="evidence-grid">
+                <div>
+                    <div class="evidence-frame">
+                        <img src="assets/preuve-mcd-jo.png" alt="Modèle Conceptuel de Données : entités REGION, PAYS, EDITION, SPORT, DISCIPLINE, EPREUVE, ATHLETE reliées à l'association PARTICIPER portant l'attribut medaille">
+                    </div>
+                    <div class="evidence-caption">
+                        <h4>Modèle Conceptuel de Données (MCD)</h4>
+                        <p>Entités, associations et cardinalités — conçu en équipe.</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="evidence-frame">
+                        <img src="assets/preuve-mld-jo.png" alt="Modèle Logique de Données : tables pays, epreuve, participation, edition, discipline, athlete, region, sport avec clés primaires et étrangères">
+                    </div>
+                    <div class="evidence-caption">
+                        <h4>Modèle Logique de Données (MLD)</h4>
+                        <p>Traduction en tables, avec clés primaires et étrangères.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="highlight-box" style="margin-top:2.2rem;">
+                <strong>Point clé de modélisation</strong>
+                <p>L'identifiant de <code>edition</code> repose sur <code>annee + saison</code> et non sur <code>annee + ville</code> : en 1956, les Jeux équestres se sont tenus à Stockholm pendant que le reste des épreuves avait lieu à Melbourne, la même année. Un identifiant basé sur la ville aurait créé deux éditions distinctes là où il n'y en a qu'une — visible ci-dessus dans les attributs de l'entité <code>EDITION</code>.</p>
+            </div>
+            <p style="margin-top:2.2rem; font-size:0.95rem;">Détail des huit tables du Modèle Physique de Données (MPD), tel qu'implémenté sous MySQL :</p>
+        </div>
+        <div class="schema-grid">
+            <div class="schema-table">
+                <div class="schema-table-name">region</div>
+                <ul>
+                    <li class="pk">id_region<em>clé primaire</em></li>
+                    <li>nom_region</li>
+                </ul>
+            </div>
+            <div class="schema-table">
+                <div class="schema-table-name">pays</div>
+                <ul>
+                    <li class="pk">code_pays<em>clé primaire</em></li>
+                    <li>nom_pays</li>
+                    <li>id_region<em>référence</em></li>
+                    <li>population · pibParHab</li>
+                    <li>superficie · migration</li>
+                </ul>
+            </div>
+            <div class="schema-table">
+                <div class="schema-table-name">edition</div>
+                <ul>
+                    <li class="pk">id_edition<em>clé primaire</em></li>
+                    <li>annee · saison · ville</li>
+                </ul>
+            </div>
+            <div class="schema-table">
+                <div class="schema-table-name">sport</div>
+                <ul>
+                    <li class="pk">id_sport<em>clé primaire</em></li>
+                    <li>nom_sport</li>
+                </ul>
+            </div>
+            <div class="schema-table">
+                <div class="schema-table-name">discipline</div>
+                <ul>
+                    <li class="pk">id_discipline<em>clé primaire</em></li>
+                    <li>nom_discipline</li>
+                    <li>id_sport<em>référence</em></li>
+                </ul>
+            </div>
+            <div class="schema-table">
+                <div class="schema-table-name">epreuve</div>
+                <ul>
+                    <li class="pk">id_epreuve<em>clé primaire</em></li>
+                    <li>nom_epreuve</li>
+                    <li>id_discipline<em>référence</em></li>
+                </ul>
+            </div>
+            <div class="schema-table">
+                <div class="schema-table-name">athlete</div>
+                <ul>
+                    <li class="pk">id_athlete<em>clé primaire</em></li>
+                    <li>nom_athlete · prenom_athlete</li>
+                    <li>sexe</li>
+                </ul>
+            </div>
+            <div class="schema-table">
+                <div class="schema-table-name">participation</div>
+                <ul>
+                    <li class="pk">id_athlete, id_epreuve,<br>id_edition, code_pays<em>clé primaire composée</em></li>
+                    <li>medaille</li>
+                </ul>
+            </div>
+        </div>
+        <div class="section-content">
+            <div class="relation-list">
+                <span>region → pays <em>(1:N)</em></span>
+                <span>sport → discipline <em>(1:N)</em></span>
+                <span>discipline → epreuve <em>(1:N)</em></span>
+                <span>athlete / epreuve / edition / pays → participation <em>(1:N chacune)</em></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 Méthodologie -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">03</span><h2>Méthodologie & implémentation</h2></div>
+        <div class="section-content">
+            <p>Le pipeline suit quatre étapes : nettoyage Pandas → conception MCD/MLD/MPD → alimentation transactionnelle de la base MySQL → exploration par requêtes SQL dédiées.</p>
+            <div class="solution-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Nettoyage & préparation (Pandas)</h3>
+                        <p>Le CSV brut contenait des colonnes numériques stockées en texte (virgule décimale), des valeurs manquantes, des doublons et une colonne non atomique.</p>
+                        <div class="step-details">
+                            <strong>Traitements appliqués</strong>
+                            <ul>
+                                <li>Correction des types : <code>densite</code> et <code>migration</code> (virgule → point → float)</li>
+                                <li>Suppression des lignes sans <code>pays</code> / <code>code_pays</code> ; valeurs de <code>region</code> manquantes remplacées par « Inconnue »</li>
+                                <li>Suppression des doublons exacts, standardisation des colonnes textuelles (casse, espaces, caractères parasites)</li>
+                                <li>Vérification des valeurs aberrantes par méthode IQR sur <code>densite</code> — écarts conservés car justifiés (Singapour, Hong Kong, Bahreïn)</li>
+                                <li>Atomicité (1NF) : éclatement de la colonne <code>athlete</code> en <code>nom_athlete</code> / <code>prenom_athlete</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Modélisation MCD → MLD → MPD</h3>
+                        <p>Identification des huit entités, de leurs attributs et des cardinalités entre elles, en s'appuyant sur des analyses Pandas (<code>groupby().nunique()</code>) pour confirmer les relations 1:N. Traduction en tables MySQL avec clés primaires, clés étrangères et contraintes de type.</p>
+                        <div class="step-details">
+                            <strong>Contraintes d'intégrité appliquées</strong>
+                            <ul>
+                                <li>Clés étrangères sur chaque table dépendante (<code>REFERENCES</code>)</li>
+                                <li>Clé primaire composée à 4 colonnes sur la table de faits <code>participation</code></li>
+                                <li>Ordre de création des tables respecté pour éviter les erreurs de dépendance</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Alimentation transactionnelle de la base</h3>
+                        <p>Une connexion unique vérifie d'abord l'existence de la base et des tables avant toute (re)création. L'insertion suit des fonctions modulaires, une par entité, qui ne dépendent jamais directement du DataFrame — uniquement des paramètres simples — afin de séparer clairement traitement des données (Pandas) et gestion de la BDD (MySQL).</p>
+                        <div class="step-details">
+                            <strong>Robustesse appliquée</strong>
+                            <ul>
+                                <li><code>INSERT IGNORE</code> pour éviter les doublons sur les entités de référence</li>
+                                <li><code>autocommit = False</code> + <code>commit()</code> / <code>rollback()</code> pour garantir la cohérence de l'insertion complète</li>
+                                <li>Blocs <code>try/except/finally</code> sur chaque opération sensible, avec messages d'erreur explicites</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Exploration SQL</h3>
+                        <p>Les fonctions d'exploration interrogent directement la base via des requêtes SQL renvoyant des listes de dictionnaires (<code>cursor(dictionary=True)</code>), couvrant les quatre axes d'analyse demandés : performance des pays, égalité femmes-hommes, disparités géographiques et facteurs socio-économiques.</p>
+                        <div class="step-details">
+                            <strong>Techniques SQL mobilisées</strong>
+                            <ul>
+                                <li>Jointures sur 3 à 5 tables (participation ↔ athlete/epreuve/discipline/sport/pays)</li>
+                                <li>Agrégation conditionnelle <code>CASE WHEN … END</code> pour ventiler or / argent / bronze en une seule requête</li>
+                                <li><code>COUNT(DISTINCT …)</code> avec <code>CONCAT</code> pour dédupliquer des médailles par équipe</li>
+                                <li><code>GROUP BY</code> / <code>ORDER BY</code> multi-colonnes / <code>LIMIT</code> pour les classements</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bandeau citation -->
+    <section class="quote-banner reveal">
+        <blockquote>
+            « annee + ville » n'était pas un identifiant fiable
+            <cite>Un seul détail — les Jeux équestres de Stockholm en 1956 — suffit à révéler une mauvaise clé de modélisation</cite>
+        </blockquote>
+    </section>
+
+    <!-- 04 Extraits de code -->
+    <section class="code-showcase reveal">
+        <div class="section-header"><span class="section-number">04</span><h2>Extraits de code clés</h2></div>
+        <div class="code-header">
+            <p style="max-width:600px;">Trois fonctions d'exploration de <code>gestion_bdd.py</code>, illustrant l'agrégation conditionnelle, la déduplication via jointures multiples et le filtrage croisé sur plusieurs tables. Extraits sélectionnés — code complet du projet disponible sur demande.</p>
+            <div class="code-tabs">
+                <button class="code-tab active" onclick="showCode('classement')">classement_top_10_pays</button>
+                <button class="code-tab" onclick="showCode('epreuves')">top_20_epreuves_medailles</button>
+                <button class="code-tab" onclick="showCode('femmes')">top_10_sports_femmes</button>
+            </div>
+        </div>
+
+        <div id="code-classement" class="code-panel active">
+<pre><span class="kw">def</span> <span class="fn">classement_top_10_pays_gold_silver_bronze</span>(connexion):
+    <span class="str">"""Retourne le classement des top 10 pays selon le nombre de
+    médailles d'or, d'argent et de bronze."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> connexion.<span class="fn">cursor</span>(dictionary=<span class="kw">True</span>) <span class="kw">as</span> curseur:
+            requete = <span class="str">"""
+                SELECT
+                    p.nom_pays,
+                    CAST(SUM(CASE WHEN pa.medaille = 'Gold'   THEN 1 ELSE 0 END) AS UNSIGNED) AS gold,
+                    CAST(SUM(CASE WHEN pa.medaille = 'Silver' THEN 1 ELSE 0 END) AS UNSIGNED) AS silver,
+                    CAST(SUM(CASE WHEN pa.medaille = 'Bronze' THEN 1 ELSE 0 END) AS UNSIGNED) AS bronze,
+                    COUNT(pa.medaille) AS total_medailles
+                FROM participation pa
+                INNER JOIN pays p ON pa.code_pays = p.code_pays
+                GROUP BY p.nom_pays
+                ORDER BY gold DESC, silver DESC, bronze DESC
+                LIMIT 10
+            """</span>
+            curseur.<span class="fn">execute</span>(requete)
+            <span class="kw">return</span> curseur.<span class="fn">fetchall</span>()
+
+    <span class="kw">except</span> <span class="fn">Exception</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="nb">f</span><span class="str">"Erreur classement pays : {e}"</span>)
+        <span class="kw">return</span> []</pre>
+        </div>
+
+        <div id="code-epreuves" class="code-panel">
+<pre><span class="kw">def</span> <span class="fn">top_20_epreuves_medailles</span>(connexion):
+    <span class="str">"""Retourne le top 20 des épreuves ayant généré le plus de médailles."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> connexion.<span class="fn">cursor</span>(dictionary=<span class="kw">True</span>) <span class="kw">as</span> curseur:
+            requete = <span class="str">"""
+               SELECT
+                   s.nom_sport AS nom_sport,
+                   d.nom_discipline AS nom_disc,
+                   e.nom_epreuve AS nom_ep,
+                   COUNT(DISTINCT CONCAT(
+                       p.id_epreuve, p.id_edition, p.medaille
+                       )) AS total_medailles
+                FROM participation p
+                JOIN epreuve e ON p.id_epreuve = e.id_epreuve
+                JOIN discipline d ON e.id_discipline = d.id_discipline
+                JOIN sport s ON d.id_sport = s.id_sport
+                WHERE p.medaille IS NOT NULL
+                GROUP BY s.nom_sport, d.nom_discipline, e.nom_epreuve
+                ORDER BY total_medailles DESC
+                LIMIT 20;
+                """</span>
+            curseur.<span class="fn">execute</span>(requete)
+            <span class="kw">return</span> curseur.<span class="fn">fetchall</span>()
+    <span class="kw">except</span> <span class="fn">Exception</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="nb">f</span><span class="str">"Erreur top 20 epreuves : {e}"</span>)
+        <span class="kw">return</span> []</pre>
+        </div>
+
+        <div id="code-femmes" class="code-panel">
+<pre><span class="kw">def</span> <span class="fn">top_10_sports_femmes_medailles</span>(connexion):
+    <span class="str">"""Retourne le top 10 des sports où les femmes ont obtenu
+    le plus de médailles."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> connexion.<span class="fn">cursor</span>(dictionary=<span class="kw">True</span>) <span class="kw">as</span> curseur:
+            requete = <span class="str">"""
+                SELECT
+                    s.nom_sport,
+                    COUNT(pa.medaille) AS total_medailles_femmes
+                FROM participation pa
+                INNER JOIN athlete a ON pa.id_athlete = a.id_athlete
+                INNER JOIN epreuve ep ON pa.id_epreuve = ep.id_epreuve
+                INNER JOIN discipline d ON ep.id_discipline = d.id_discipline
+                INNER JOIN sport s ON d.id_sport = s.id_sport
+                WHERE a.sexe = 'Women'
+                GROUP BY s.nom_sport
+                ORDER BY total_medailles_femmes DESC
+                LIMIT 10
+            """</span>
+            curseur.<span class="fn">execute</span>(requete)
+            <span class="kw">return</span> curseur.<span class="fn">fetchall</span>()
+    <span class="kw">except</span> <span class="fn">Exception</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="nb">f</span><span class="str">"Erreur top 10 sports femmes : {e}"</span>)
+        <span class="kw">return</span> []</pre>
+        </div>
+    </section>
+
+    <!-- 05 Défis & solutions -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">05</span><h2>Défis rencontrés & solutions</h2></div>
+        <div class="section-content">
+            <ul class="insights-list">
+                <li class="insight-item">
+                    <strong>Une colonne non atomique jugée impossible à séparer</strong>
+                    <p>La colonne <code>athlete</code> mélangeait nom et prénom au format <code>"NOM, Prénom"</code>. Premier réflexe : conclure que la séparation était impossible et l'abandonner. Solution retenue après ré-analyse : <code>df_jeux[['nom_athlete','prenom_athlete']] = df_jeux['athlete'].str.split(',', n=1, expand=True)</code>, qui respecte le principe d'atomicité (1NF) exigé par le MPD.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Un identifiant d'édition qui cassait sur un cas réel</strong>
+                    <p>Un identifiant <code>annee + ville</code> pour <code>edition</code> semblait naturel, jusqu'à découvrir que les JO de 1956 se sont déroulés sur deux villes (Melbourne et Stockholm) la même année. Solution : basculer l'identifiant sur <code>annee + saison</code>, qui correspond réellement à une édition unique des Jeux.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Insertion sans dépendre du DataFrame</strong>
+                    <p>La consigne imposait des fonctions d'insertion modulaires, réutilisables, ne manipulant que des paramètres simples — pas de DataFrame. Solution : chaque fonction d'insertion (<code>inserer_pays</code>, <code>inserer_discipline</code>, <code>inserer_participation</code>…) résout d'abord les identifiants nécessaires par une requête <code>SELECT</code>, avant d'insérer avec <code>INSERT IGNORE</code>, en séparant strictement la couche Pandas et la couche MySQL.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Cohérence des insertions en cas d'erreur</strong>
+                    <p>Une erreur en cours d'insertion (des dizaines de milliers de lignes) pouvait laisser la base dans un état partiel. Solution : désactivation de l'autocommit le temps de l'insertion complète, avec <code>rollback()</code> dans le bloc <code>except</code> pour repartir d'une base propre en cas d'échec.</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 06 Stack -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">06</span><h2>Stack technique</h2></div>
+        <div class="section-content">
+            <div class="tech-grid">
+                <div class="tech-item"><h4>Python 3</h4><p>Orchestration du pipeline, nettoyage, logique métier</p></div>
+                <div class="tech-item"><h4>Pandas / NumPy</h4><p>Nettoyage, typage, détection d'aberrations (IQR)</p></div>
+                <div class="tech-item"><h4>MySQL</h4><p>SGBDR, contraintes FK/PK, transactions</p></div>
+                <div class="tech-item"><h4>SQL</h4><p>JOIN, CASE WHEN, GROUP BY, COUNT DISTINCT</p></div>
+                <div class="tech-item"><h4>mysql-connector</h4><p>Requêtes paramétrées, curseurs dictionnaire</p></div>
+                <div class="tech-item"><h4>Modélisation</h4><p>MCD → MLD → MPD, normalisation 1NF</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>De la donnée brute à la base interrogeable</h2>
+        <p>Nettoyage, modélisation relationnelle et SQL avancé, du CSV à la base MySQL</p>
+        <div class="cta-buttons">
+            <a href="#modelisation" class="cta-button"><span>Revoir la modélisation ↑</span></a>
+            <a href="index.html" class="cta-button cta-secondary"><span>Retour au portfolio</span></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025–2026 · IUT Grand Ouest Normandie · BUT Science des Données</p>
+    </footer>
+
+    <script>
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() {
+            reveals.forEach(el => { if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active'); });
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        function showCode(id) {
+            document.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('code-' + id).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
