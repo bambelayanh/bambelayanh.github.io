@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golf & données : quel geste améliore vraiment la performance ? · Portfolio Data Analyst</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #211d17;
+            --ink-soft: #4a4338;
+            --cream: #f7f2e6;
+            --cream-deep: #ebe1d4;
+            --paper: #fbf8f1;
+            --gold: #6b2f3a;
+            --gold-deep: #45151d;
+            --line: rgba(33, 29, 23, 0.14);
+            --line-soft: rgba(33, 29, 23, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--ink); line-height: 1.65; overflow-x: hidden; }
+        h1, h2, h3, .serif { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); }
+
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; padding: 1.4rem 4rem;
+            display: flex; justify-content: space-between; align-items: center; z-index: 1000;
+            background: rgba(247, 242, 230, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+        }
+        .back-button { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--gold-deep); font-weight: 500; font-size: 0.92rem; }
+        .back-button:hover { opacity: 0.7; }
+        .nav-title { font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); }
+
+        .hero {
+            min-height: 78vh; display: flex; align-items: flex-end; position: relative; padding: 10rem 4rem 5rem;
+            background-image: linear-gradient(180deg, rgba(24,18,14,0.5) 0%, rgba(24,18,14,0.74) 65%, rgba(18,13,10,0.9) 100%), url('assets/hero-bg-golf.jpg');
+            background-size: cover; background-position: center; color: var(--paper);
+        }
+        .hero-content { max-width: 900px; width: 100%; }
+        .project-meta { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.8rem; font-size: 0.85rem; color: rgba(251,248,241,0.75); }
+        .project-meta span:not(:last-child)::after { content: '·'; margin-left: 0.6rem; color: rgba(251,248,241,0.4); }
+        h1 { font-size: clamp(2.1rem, 4.6vw, 3.4rem); font-weight: 500; line-height: 1.2; margin-bottom: 1.4rem; letter-spacing: -0.5px; color: var(--paper); }
+        .hero-description { font-size: 1.08rem; color: rgba(251,248,241,0.85); line-height: 1.8; max-width: 720px; margin-bottom: 2rem; font-weight: 300; }
+        .tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .tag { padding: 0.4rem 1rem; border: 1px solid rgba(251,248,241,0.35); border-radius: 3px; font-size: 0.78rem; letter-spacing: 0.3px; color: rgba(251,248,241,0.85); }
+
+        .stats-banner { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 3rem 4rem; }
+        .stats-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2.5rem; }
+        .stat-item { text-align: left; border-left: 1px solid var(--line); padding-left: 1.2rem; }
+        .stat-value { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 500; color: var(--gold-deep); margin-bottom: 0.3rem; line-height: 1.15; }
+        .stat-label { color: var(--ink-soft); font-size: 0.82rem; }
+
+        .content-section { max-width: 1000px; margin: 0 auto; padding: 5rem 4rem; }
+        .section-header { display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2.2rem; }
+        .section-number { font-family: 'Fraunces', serif; font-size: 1.1rem; color: var(--gold); font-weight: 400; }
+        h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 500; }
+        .section-content p { font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 1.4rem; max-width: 780px; }
+        .section-content p:last-child { margin-bottom: 0; }
+        .section-content code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--gold-deep); background: var(--cream-deep); padding: 0.1rem 0.4rem; border-radius: 3px; }
+        .highlight-box { border-left: 2px solid var(--gold); padding: 0.3rem 0 0.3rem 1.5rem; margin: 2rem 0; }
+        .highlight-box strong { display: block; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: var(--ink); }
+
+        .solution-steps { margin-top: 2rem; }
+        .step { display: flex; gap: 2rem; margin-bottom: 2.5rem; align-items: flex-start; padding-bottom: 2.5rem; border-bottom: 1px solid var(--line-soft); }
+        .step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .step-number { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 400; color: var(--gold); min-width: 2.8rem; }
+        .step-content h3 { font-size: 1.08rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .step-content p { color: var(--ink-soft); line-height: 1.8; margin-bottom: 0; }
+
+        /* Figures */
+        .charts-section { max-width: 1000px; margin: 0 auto; padding: 0 4rem 5rem; }
+        .charts-grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2rem; margin-bottom: 2.2rem; }
+        .figure-frame { width: 100%; aspect-ratio: 4/3; border: 1px solid var(--line); background: var(--paper); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .figure-frame img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 0.5rem; box-sizing: border-box; }
+        .figure-placeholder-text { font-family: 'Fraunces', serif; font-style: italic; color: rgba(33,29,23,0.3); font-size: 0.9rem; text-align: center; padding: 1rem; }
+        .figure-caption { margin-top: 0.9rem; }
+        .figure-caption h3 { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.25rem; color: var(--ink); }
+        .figure-caption p { color: var(--ink-soft); font-size: 0.85rem; }
+
+        /* Results */
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.2rem; margin-top: 2rem; }
+        .result-card { padding-top: 1.4rem; border-top: 1px solid var(--line); }
+        .result-card h3 { font-size: 1.02rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .result-card p { color: var(--ink-soft); line-height: 1.7; font-size: 0.94rem; }
+
+        .formula-box {
+            background: var(--paper); border: 1px solid var(--line); padding: 1.6rem 2rem; margin: 2rem 0;
+            text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.92rem; color: var(--ink);
+        }
+        .formula-box .label { display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.7rem; }
+
+        .team-note { margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--line); font-size: 0.92rem; color: var(--ink-soft); }
+        .team-note strong { color: var(--ink); font-weight: 500; }
+
+        .cta-section { border-top: 1px solid var(--line); padding: 4.5rem 4rem; text-align: center; }
+        .cta-section h2 { margin-bottom: 0.8rem; }
+        .cta-section p { color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 2.2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.9rem 2.2rem; background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 500; border-radius: 2px; font-size: 0.92rem; border: 1px solid var(--ink); }
+        .cta-button:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+        .cta-secondary { background: transparent; color: var(--ink); }
+        .cta-secondary:hover { background: var(--ink); color: var(--paper); }
+
+        footer { padding: 3rem 4rem; text-align: center; border-top: 1px solid var(--line); }
+        footer p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 968px) {
+            nav { padding: 1.2rem 1.6rem; }
+            .hero, .content-section, .cta-section, .charts-section { padding-left: 1.6rem; padding-right: 1.6rem; }
+            .charts-grid-top, .results-grid { grid-template-columns: 1fr; }
+            .step { flex-direction: column; gap: 0.8rem; }
+            .stats-banner { padding: 2.5rem 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="back-button"><span>←</span><span>Retour au portfolio</span></a>
+        <div class="nav-title">SAE 2.03 · Régression</div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span>BUT Science des Données</span>
+                <span>IUT Grand Ouest Normandie — Lisieux</span>
+                <span>2025–2026</span>
+                <span>Projet de groupe (4)</span>
+            </div>
+            <h1>Golf & données : quel geste améliore vraiment la performance ?</h1>
+            <p class="hero-description">
+                Analyse des données d'un radar de golf (Garmin Approach R10) pour identifier, par régression linéaire, le geste technique qui influence le plus la distance de frappe — puis celui qui permet de réduire la déviation latérale de la balle.
+            </p>
+            <div class="tags">
+                <span class="tag">R</span>
+                <span class="tag">Régression linéaire</span>
+                <span class="tag">Corrélation de Pearson</span>
+                <span class="tag">Régression lissée</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item"><div class="stat-value">49,68 %</div><div class="stat-label">R² du meilleur modèle — distance</div></div>
+            <div class="stat-item"><div class="stat-value">99,27 %</div><div class="stat-label">R² du meilleur modèle — déviation</div></div>
+            <div class="stat-item"><div class="stat-value">2,27 m</div><div class="stat-label">décalage par degré de face de club</div></div>
+            <div class="stat-item"><div class="stat-value">9</div><div class="stat-label">variables techniques mesurées</div></div>
+            <div class="stat-item"><div class="stat-value">Pitching Wedge</div><div class="stat-label">club analysé</div></div>
+        </div>
+    </section>
+
+    <!-- 01 Problématique -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">01</span><h2>Problématique</h2></div>
+        <div class="section-content">
+            <p>Un radar de golf (Garmin Approach R10) enregistre à chaque coup neuf variables techniques du swing et de la trajectoire de la balle : vitesse et angle du club à l'impact, rotation de la balle (backspin, sidespin), chemin de club, orientation de la face, Smash Factor.</p>
+            <div class="highlight-box">
+                <strong>Question posée</strong>
+                <p>Parmi ces neuf variables, laquelle permet réellement au joueur d'augmenter sa distance de frappe (distance carry) — et laquelle lui permettrait de réduire sa déviation latérale (dispersion à gauche ou à droite) ?</p>
+            </div>
+            <p>Deux problématiques distinctes, donc deux analyses en parallèle, chacune devant déboucher sur une recommandation technique concrète pour le joueur.</p>
+        </div>
+    </section>
+
+    <!-- 02 Solution -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">02</span><h2>Solution</h2></div>
+        <div class="section-content">
+            <p>Plutôt que de tester une régression multivariée d'emblée, nous avons suivi une démarche progressive pour isoler, variable par variable, celle qui explique le mieux chaque phénomène.</p>
+            <div class="solution-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Corrélation de Pearson</h3>
+                        <p>Calcul de la corrélation entre chaque variable et la cible (distance ou déviation), pour ne retenir que les associations les plus fortes — trois variables candidates par problématique.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Régression lissée</h3>
+                        <p>Visualisation de la forme exacte de chaque relation (linéaire, avec seuil, ou non-monotone) avant de supposer qu'un modèle linéaire simple est adapté.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Régression linéaire simple & coefficient de détermination</h3>
+                        <p>Ajustement d'une droite des moindres carrés pour chaque variable candidate, et comparaison de leur R² pour identifier objectivement le meilleur prédicteur.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualisations -->
+    <section class="charts-section reveal">
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-radar-donnees.png" alt="Extrait des données du radar de golf" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">assets/fig-radar-donnees.png</span></div>
+                <div class="figure-caption"><h3>Données brutes du radar</h3><p>Un coup par ligne, neuf variables techniques mesurées automatiquement</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-correlation-distance.png" alt="Corrélation de Pearson avec la distance carry" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">assets/fig-correlation-distance.png</span></div>
+                <div class="figure-caption"><h3>Corrélations avec la distance</h3><p>Smash Factor, Backspin et Chemin de club se détachent nettement</p></div>
+            </div>
+        </div>
+        <div class="charts-grid-top" style="margin-bottom:0;">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-distance-vs-smashfactor.png" alt="Distance Carry vs Smash Factor" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">assets/fig-distance-vs-smashfactor.png</span></div>
+                <div class="figure-caption"><h3>Distance vs Smash Factor</h3><p>Le meilleur modèle retenu pour la distance (R² = 49,68 %)</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-deviation-vs-faceclub.png" alt="Déviation Carry vs Face de Club" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">assets/fig-deviation-vs-faceclub.png</span></div>
+                <div class="figure-caption"><h3>Déviation vs Face de club</h3><p>Un alignement quasi parfait des points (R² = 99,27 %)</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 Résultats & recommandations -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">03</span><h2>Résultats & recommandations</h2></div>
+        <div class="section-content">
+            <p>Les deux problématiques débouchent sur deux leviers techniques bien distincts, chacun quantifié par une équation de régression :</p>
+
+            <div class="formula-box">
+                <span class="label">Distance carry</span>
+                Distance = 93,73 × Smash Factor − 11,76
+            </div>
+            <div class="formula-box">
+                <span class="label">Déviation carry</span>
+                Déviation = 2,27 × Face de club − 1,65
+            </div>
+        </div>
+
+        <div class="results-grid">
+            <div class="result-card">
+                <h3>La qualité de frappe prime sur la vitesse brute</h3>
+                <p>Ce n'est pas la vitesse du club qui détermine la distance, mais le Smash Factor — le rapport entre la vitesse de balle et la vitesse de club à l'impact. C'est le meilleur des trois modèles testés (R² = 49,68 %), loin devant le Backspin et le Chemin de club (R² = 33 % chacun).</p>
+            </div>
+            <div class="result-card">
+                <h3>La face de club explique presque toute la déviation</h3>
+                <p>Avec R² = 99,27 %, l'orientation de la face de club au moment de l'impact suffit presque entièrement à prédire où la balle va se poser latéralement — un degré d'erreur se traduit par 2,27 mètres de décalage.</p>
+            </div>
+            <div class="result-card">
+                <h3>Deux recommandations concrètes pour le joueur</h3>
+                <p>Maximiser le Smash Factor (qualité de contact) pour gagner en distance ; maîtriser l'orientation de la face de club à l'impact pour réduire la dispersion latérale.</p>
+            </div>
+            <div class="result-card">
+                <h3>Une limite assumée</h3>
+                <p>Ces modèles reposent sur une régression linéaire simple, variable par variable. Une régression multivariée intégrant plusieurs facteurs simultanément affinerait probablement la compréhension du phénomène.</p>
+            </div>
+        </div>
+
+        <div class="team-note">
+            Projet réalisé en groupe de 4 : <strong>Yanh Bambela Mouanda</strong>, Fatimatou Diagne, Marc-Aurel Kamdem Deudjui, Glaineta Mbang Ndong.
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>Voir le rapport complet</h2>
+        <p>Annexe technique, détail des 16 figures et explication des variables mesurées par le radar</p>
+        <div class="cta-buttons">
+            <a href="assets/rapport-regression-golf.pdf" download class="cta-button"><span>Télécharger le rapport (PDF)</span></a>
+            <a href="index.html" class="cta-button cta-secondary"><span>Retour au portfolio</span></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025–2026 · IUT Grand Ouest Normandie · BUT Science des Données</p>
+    </footer>
+
+    <script>
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() { reveals.forEach(el => { if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active'); }); }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    </script>
+</body>
+</html>
