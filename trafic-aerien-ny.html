@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retards et annulations de vols : ce que révèlent les données de New York · Portfolio Data Analyst</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #211d17;
+            --ink-soft: #4a4338;
+            --cream: #f7f2e6;
+            --cream-deep: #e8e6de;
+            --paper: #fbf8f1;
+            --gold: #35506b;
+            --gold-deep: #22374a;
+            --line: rgba(33, 29, 23, 0.14);
+            --line-soft: rgba(33, 29, 23, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--ink); line-height: 1.65; overflow-x: hidden; }
+        h1, h2, h3, .serif { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); }
+
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; padding: 1.4rem 4rem;
+            display: flex; justify-content: space-between; align-items: center; z-index: 1000;
+            background: rgba(247, 242, 230, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+        }
+        .back-button { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--gold-deep); font-weight: 500; font-size: 0.92rem; }
+        .back-button:hover { opacity: 0.7; }
+        .nav-title { font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); }
+
+        .hero {
+            min-height: 78vh; display: flex; align-items: flex-end; position: relative; padding: 10rem 4rem 5rem;
+            background-image: linear-gradient(180deg, rgba(16,22,28,0.5) 0%, rgba(16,22,28,0.74) 65%, rgba(12,16,20,0.9) 100%), url('assets/hero-bg-flights.jpg');
+            background-size: cover; background-position: center; color: var(--paper);
+        }
+        .hero-content { max-width: 900px; width: 100%; }
+        .project-meta { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.8rem; font-size: 0.85rem; color: rgba(251,248,241,0.75); }
+        .project-meta span:not(:last-child)::after { content: '·'; margin-left: 0.6rem; color: rgba(251,248,241,0.4); }
+        h1 { font-size: clamp(2.1rem, 4.6vw, 3.3rem); font-weight: 500; line-height: 1.2; margin-bottom: 1.4rem; letter-spacing: -0.5px; color: var(--paper); }
+        .hero-description { font-size: 1.08rem; color: rgba(251,248,241,0.85); line-height: 1.8; max-width: 720px; margin-bottom: 2rem; font-weight: 300; }
+        .tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .tag { padding: 0.4rem 1rem; border: 1px solid rgba(251,248,241,0.35); border-radius: 3px; font-size: 0.78rem; letter-spacing: 0.3px; color: rgba(251,248,241,0.85); }
+
+        .stats-banner { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 3rem 4rem; }
+        .stats-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2.5rem; }
+        .stat-item { text-align: left; border-left: 1px solid var(--line); padding-left: 1.2rem; }
+        .stat-value { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 500; color: var(--gold-deep); margin-bottom: 0.3rem; line-height: 1.15; }
+        .stat-label { color: var(--ink-soft); font-size: 0.82rem; }
+
+        .content-section { max-width: 1000px; margin: 0 auto; padding: 5rem 4rem; }
+        .section-header { display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2.2rem; }
+        .section-number { font-family: 'Fraunces', serif; font-size: 1.1rem; color: var(--gold); font-weight: 400; }
+        h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 500; }
+        .section-content p { font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 1.4rem; max-width: 780px; }
+        .section-content p:last-child { margin-bottom: 0; }
+        .section-content code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--gold-deep); background: var(--cream-deep); padding: 0.1rem 0.4rem; border-radius: 3px; }
+        .highlight-box { border-left: 2px solid var(--gold); padding: 0.3rem 0 0.3rem 1.5rem; margin: 2rem 0; }
+        .highlight-box strong { display: block; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: var(--ink); }
+
+        .solution-steps { margin-top: 2rem; }
+        .step { display: flex; gap: 2rem; margin-bottom: 2.5rem; align-items: flex-start; padding-bottom: 2.5rem; border-bottom: 1px solid var(--line-soft); }
+        .step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .step-number { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 400; color: var(--gold); min-width: 2.8rem; }
+        .step-content h3 { font-size: 1.08rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .step-content p { color: var(--ink-soft); line-height: 1.8; margin-bottom: 0; }
+
+        .charts-section { max-width: 1000px; margin: 0 auto; padding: 0 4rem 5rem; }
+        .charts-grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2rem; margin-bottom: 2.2rem; }
+        .figure-frame { width: 100%; aspect-ratio: 4/3; border: 1px solid var(--line); background: var(--paper); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .figure-frame img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 0.5rem; box-sizing: border-box; }
+        .figure-placeholder-text { font-family: 'Fraunces', serif; font-style: italic; color: rgba(33,29,23,0.3); font-size: 0.9rem; text-align: center; padding: 1rem; }
+        .figure-caption { margin-top: 0.9rem; }
+        .figure-caption h3 { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.25rem; color: var(--ink); }
+        .figure-caption p { color: var(--ink-soft); font-size: 0.85rem; }
+
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.2rem; margin-top: 2rem; }
+        .result-card { padding-top: 1.4rem; border-top: 1px solid var(--line); }
+        .result-card h3 { font-size: 1.02rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .result-card p { color: var(--ink-soft); line-height: 1.7; font-size: 0.94rem; }
+
+        .formula-box {
+            background: var(--paper); border: 1px solid var(--line); padding: 1.6rem 2rem; margin: 2rem 0;
+            text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.92rem; color: var(--ink);
+        }
+        .formula-box .label { display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.7rem; }
+
+        .team-note { margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--line); font-size: 0.92rem; color: var(--ink-soft); }
+        .team-note strong { color: var(--ink); font-weight: 500; }
+
+        .cta-section { border-top: 1px solid var(--line); padding: 4.5rem 4rem; text-align: center; }
+        .cta-section h2 { margin-bottom: 0.8rem; }
+        .cta-section p { color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 2.2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.9rem 2.2rem; background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 500; border-radius: 2px; font-size: 0.92rem; border: 1px solid var(--ink); }
+        .cta-button:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+        .cta-secondary { background: transparent; color: var(--ink); }
+        .cta-secondary:hover { background: var(--ink); color: var(--paper); }
+
+        footer { padding: 3rem 4rem; text-align: center; border-top: 1px solid var(--line); }
+        footer p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 968px) {
+            nav { padding: 1.2rem 1.6rem; }
+            .hero, .content-section, .cta-section, .charts-section { padding-left: 1.6rem; padding-right: 1.6rem; }
+            .charts-grid-top, .results-grid { grid-template-columns: 1fr; }
+            .step { flex-direction: column; gap: 0.8rem; }
+            .stats-banner { padding: 2.5rem 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="back-button"><span>←</span><span>Retour au portfolio</span></a>
+        <div class="nav-title">SAE 2.06 · Reporting & datavisualisation</div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span>BUT Science des Données</span>
+                <span>IUT Grand Ouest Normandie</span>
+                <span>2025–2026</span>
+                <span>Projet de groupe (5)</span>
+            </div>
+            <h1>Retards et annulations de vols : ce que révèlent les données de New York</h1>
+            <p class="hero-description">
+                Analyse de l'ensemble des vols au départ des trois aéroports de New York (JFK, LaGuardia, Newark) en 2023, pour comprendre ce qui explique vraiment les retards — et ce qui n'y explique presque rien.
+            </p>
+            <div class="tags">
+                <span class="tag">R</span>
+                <span class="tag">Corrélation & régression</span>
+                <span class="tag">V de Cramér</span>
+                <span class="tag">Datavisualisation</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item"><div class="stat-value">3</div><div class="stat-label">aéroports analysés (JFK, LGA, EWR)</div></div>
+            <div class="stat-item"><div class="stat-value">r = 0,97</div><div class="stat-label">retard décollage ↔ atterrissage</div></div>
+            <div class="stat-item"><div class="stat-value">94 %</div><div class="stat-label">variance du retard à l'arrivée expliquée</div></div>
+            <div class="stat-item"><div class="stat-value">56,16 %</div><div class="stat-label">association retard départ/arrivée (V de Cramér)</div></div>
+            <div class="stat-item"><div class="stat-value">≈ 2,5 %</div><div class="stat-label">taux d'annulation moyen par aéroport</div></div>
+        </div>
+    </section>
+
+    <!-- 01 Problématique -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">01</span><h2>Problématique</h2></div>
+        <div class="section-content">
+            <p>Le consortium des trois principaux aéroports de New York (JFK, LaGuardia, Newark) gère une part importante du trafic aérien de la côte Est américaine. Un jeu de données réunit l'ensemble des vols enregistrés en 2023, avec leurs horaires, retards, annulations et conditions météorologiques.</p>
+            <div class="highlight-box">
+                <strong>Question posée</strong>
+                <p>Quels facteurs expliquent réellement les retards et les annulations de vols — l'aéroport de départ, l'heure, la compagnie, la météo ? Et surtout : lesquels de ces facteurs sont de vrais leviers d'action, et lesquels ne sont que des idées reçues ?</p>
+            </div>
+            <p>Deux angles d'analyse, donc : les retards (au décollage et à l'atterrissage), puis les annulations, chacun confronté aux mêmes candidats explicatifs.</p>
+        </div>
+    </section>
+
+    <!-- 02 Solution -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">02</span><h2>Solution</h2></div>
+        <div class="section-content">
+            <p>Plutôt que de supposer quels facteurs comptent, chaque association a été mesurée et quantifiée — pour distinguer ce qui est statistiquement établi de ce qui n'est qu'une impression.</p>
+            <div class="solution-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Mesurer l'association entre variables catégorielles</h3>
+                        <p>Le V de Cramér a été utilisé pour quantifier la force du lien entre des variables qualitatives — aéroport, créneau horaire, compagnie — et la survenue d'un retard ou d'une annulation, sans présumer d'une relation forte.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Quantifier les relations numériques</h3>
+                        <p>Corrélation linéaire et régression entre le retard au décollage et le retard à l'atterrissage, pour vérifier si les retards se propagent ou s'atténuent au cours du vol.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Comparer systématiquement les candidats</h3>
+                        <p>Chaque facteur (aéroport, horaire, compagnie, distance, météo) a été testé de la même façon sur les deux phénomènes, pour ne retenir que les associations réellement significatives plutôt que la première hypothèse plausible.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualisations -->
+    <section class="charts-section reveal">
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-donnees-vols.png" alt="Extrait des données de vols" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">assets/fig-donnees-vols.png</span></div>
+                <div class="figure-caption"><h3>Données brutes des vols</h3><p>Horaires, retards, météo — un vol par ligne, 2023</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-retard-atterrissage-decollage.png" alt="Retard à l'atterrissage en fonction du retard au décollage" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">assets/fig-retard-atterrissage-decollage.png</span></div>
+                <div class="figure-caption"><h3>Le retard se propage presque intégralement</h3><p>r = 0,97 — chaque minute de retard au départ se répercute à l'arrivée</p></div>
+            </div>
+        </div>
+        <div class="charts-grid-top" style="margin-bottom:0;">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-retard-heure-depart.png" alt="Répartition des retards selon l'heure de départ" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">assets/fig-retard-heure-depart.png</span></div>
+                <div class="figure-caption"><h3>L'heure de départ, un vrai levier</h3><p>26,9 % de retards le matin contre 45,3 % en après-midi</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-annulation-point-rosee.png" alt="Annulations selon le point de rosée" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">assets/fig-annulation-point-rosee.png</span></div>
+                <div class="figure-caption"><h3>La météo, seul vrai facteur d'annulation</h3><p>Le taux d'annulation est multiplié par 7 au-delà de 14°C de point de rosée</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 Résultats & recommandations -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">03</span><h2>Résultats & recommandations</h2></div>
+        <div class="section-content">
+            <p>La relation la plus forte de toute l'étude concerne la propagation du retard en vol :</p>
+            <div class="formula-box">
+                <span class="label">Retard à l'atterrissage</span>
+                m̂(x) ≈ 0,97 × Retard au décollage − 0,26 &nbsp;·&nbsp; R² = 0,94
+            </div>
+        </div>
+
+        <div class="results-grid">
+            <div class="result-card">
+                <h3>L'aéroport de départ compte peu</h3>
+                <p>Sur les retards (V = 8 %) comme sur les annulations (V = 1,4 %), l'aéroport de départ n'a qu'une influence négligeable — contrairement à une idée reçue fréquente.</p>
+            </div>
+            <div class="result-card">
+                <h3>Le système aérien ne rattrape pas ses retards</h3>
+                <p>Un retard au décollage se répercute presque intégralement à l'arrivée (r = 0,97 ; R² = 94 %) — la marge de récupération en vol est quasi nulle.</p>
+            </div>
+            <div class="result-card">
+                <h3>L'horaire est le vrai levier pour les retards</h3>
+                <p>Voler entre 6h et 14h réduit le risque de retard à 26,9 %, contre 45,3 % pour un vol d'après-midi — un facteur bien plus déterminant que l'aéroport ou la distance.</p>
+            </div>
+            <div class="result-card">
+                <h3>La météo domine les annulations</h3>
+                <p>Le point de rosée est le facteur le plus explicatif des annulations (V = 16,6 %) : au-delà de 14°C, le taux d'annulation passe de ~1 % à 7 %.</p>
+            </div>
+        </div>
+
+        <div class="team-note">
+            Projet réalisé en groupe de 5 : <strong>Yanh Bambela Mouanda</strong>, Fatimatou Diagne, Marc-Aurel Kamdem Deudjui, Glaineta Mbang Ndong, Nadira Maulidia.
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>Voir le rapport complet</h2>
+        <p>Détail des 14 figures, méthodologie complète et dictionnaire des variables</p>
+        <div class="cta-buttons">
+            <a href="assets/rapport-trafic-aerien-ny.pdf" download class="cta-button"><span>Télécharger le rapport (PDF)</span></a>
+            <a href="index.html" class="cta-button cta-secondary"><span>Retour au portfolio</span></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025–2026 · IUT Grand Ouest Normandie · BUT Science des Données</p>
+    </footer>
+
+    <script>
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() { reveals.forEach(el => { if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active'); }); }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    </script>
+</body>
+</html>
