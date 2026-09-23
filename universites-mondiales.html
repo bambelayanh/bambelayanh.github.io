@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universités mondiales — SAE 1.01 · Yanh Bambela</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #211d17;
+            --ink-soft: #4a4338;
+            --cream: #f6f2e9;
+            --cream-deep: #e9e6d6;
+            --paper: #fbf9f2;
+            --gold: #4f6349;
+            --gold-deep: #33422e;
+            --line: rgba(33, 29, 23, 0.14);
+            --line-soft: rgba(33, 29, 23, 0.08);
+            --code-bg: #1e2419;
+            --code-text: #e6e9dc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .serif { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 1.4rem 4rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: rgba(247, 242, 230, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line);
+        }
+        .back-button {
+            display: flex; align-items: center; gap: 0.5rem;
+            text-decoration: none; color: var(--gold-deep);
+            font-weight: 500; font-size: 0.92rem;
+            transition: opacity 0.3s ease;
+        }
+        .back-button:hover { opacity: 0.7; }
+        .nav-title { font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 78vh;
+            display: flex; align-items: flex-end;
+            position: relative;
+            padding: 10rem 4rem 5rem;
+            background-image:
+                linear-gradient(180deg, rgba(33,29,23,0.55) 0%, rgba(33,29,23,0.72) 65%, rgba(33,29,23,0.88) 100%),
+                url('assets/hero-bg-univ.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--paper);
+        }
+        .hero-content { max-width: 900px; width: 100%; }
+        .project-meta {
+            display: flex; gap: 0.6rem; flex-wrap: wrap;
+            margin-bottom: 1.8rem; font-size: 0.85rem;
+            color: rgba(251, 248, 241, 0.75);
+        }
+        .project-meta span:not(:last-child)::after { content: '·'; margin-left: 0.6rem; color: rgba(251,248,241,0.4); }
+        h1 {
+            font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 500;
+            line-height: 1.15; margin-bottom: 1.4rem; letter-spacing: -0.5px;
+            color: var(--paper);
+        }
+        .hero-description {
+            font-size: 1.12rem; color: rgba(251, 248, 241, 0.82);
+            line-height: 1.8; max-width: 740px; margin-bottom: 2rem; font-weight: 300;
+        }
+        .tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .tag {
+            padding: 0.4rem 1rem; border: 1px solid rgba(251, 248, 241, 0.35);
+            border-radius: 3px; font-size: 0.78rem; letter-spacing: 0.3px;
+            color: rgba(251, 248, 241, 0.85);
+        }
+
+        /* ===== STATS BANNER ===== */
+        .stats-banner { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 3rem 4rem; }
+        .stats-grid {
+            max-width: 1200px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2.5rem;
+        }
+        .stat-item { text-align: left; border-left: 1px solid var(--line); padding-left: 1.2rem; }
+        .stat-value { font-family: 'Fraunces', serif; font-size: 2.1rem; font-weight: 500; color: var(--gold-deep); margin-bottom: 0.3rem; line-height: 1; }
+        .stat-label { color: var(--ink-soft); font-size: 0.85rem; }
+
+        /* ===== CONTENT SECTIONS ===== */
+        .content-section { max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem; }
+        .section-header { display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2.2rem; }
+        .section-number { font-family: 'Fraunces', serif; font-size: 1.1rem; color: var(--gold); font-weight: 400; }
+        h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 500; }
+        .section-content p { font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 1.4rem; max-width: 780px; }
+        .section-content p:last-child { margin-bottom: 0; }
+        .section-content code {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.88em;
+            color: var(--gold-deep); background: var(--cream-deep);
+            padding: 0.1rem 0.4rem; border-radius: 3px;
+        }
+        .highlight-box { border-left: 2px solid var(--gold); padding: 0.3rem 0 0.3rem 1.5rem; margin: 2rem 0; }
+        .highlight-box strong { display: block; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: var(--ink); }
+
+        /* ===== CODE SHOWCASE (contenu réel, restylé) ===== */
+        .code-showcase { max-width: 1000px; margin: 0 auto; padding: 0 4rem 5.5rem; }
+        .code-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
+        .code-header h3 { font-size: 1.3rem; font-weight: 500; }
+        .code-header p { color: var(--ink-soft); font-size: 0.92rem; margin-top: 0.3rem; }
+        .code-tabs { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+        .code-tab {
+            background: none; border: none; cursor: pointer;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            color: var(--ink-soft); padding: 0.3rem 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .code-tab.active { color: var(--gold-deep); border-bottom-color: var(--gold); }
+        .code-panel { display: none; }
+        .code-panel.active { display: block; }
+        pre {
+            background: var(--code-bg);
+            border-radius: 6px; padding: 2rem;
+            overflow-x: auto; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; line-height: 1.75; color: var(--code-text);
+        }
+        .kw  { color: #d4a35a; }
+        .fn  { color: #8fae7a; }
+        .str { color: #a9c49a; }
+        .cm  { color: #7d8a75; font-style: italic; }
+        .nb  { color: #c9a86a; }
+        .op  { color: #d4a35a; }
+
+        /* ===== CTA ===== */
+        .cta-section { border-top: 1px solid var(--line); padding: 5rem 4rem; text-align: center; }
+        .cta-section h2 { margin-bottom: 0.8rem; }
+        .cta-section p { color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 2.2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.9rem 2.2rem; background: var(--ink); color: var(--paper);
+            text-decoration: none; font-weight: 500; border-radius: 2px;
+            transition: all 0.3s ease; font-size: 0.92rem; border: 1px solid var(--ink);
+        }
+        .cta-button:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+        .cta-secondary { background: transparent; color: var(--ink); }
+        .cta-secondary:hover { background: var(--ink); color: var(--paper); }
+
+        /* ===== QUOTE BANNER ===== */
+        .quote-banner {
+            position: relative;
+            min-height: 52vh;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 4rem;
+            background-image:
+                linear-gradient(rgba(20,24,17,0.58), rgba(20,24,17,0.76)),
+                url('assets/quote-bg-univ.jpg');
+            background-size: cover; background-position: center 58%;
+            color: var(--paper);
+        }
+        .quote-banner blockquote {
+            font-family: 'Fraunces', serif; font-weight: 500;
+            font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+            line-height: 1.35; max-width: 780px; letter-spacing: -0.3px;
+        }
+        .quote-banner cite {
+            display: block; margin-top: 1.4rem; font-style: normal;
+            font-size: 0.82rem; letter-spacing: 0.5px; color: rgba(251, 248, 241, 0.7);
+        }
+
+        /* ===== TEXTURE DE FOND (section Contexte) ===== */
+        .content-section.textured {
+            position: relative; max-width: none; overflow: hidden;
+        }
+        .content-section.textured::before {
+            content: '';
+            position: absolute; inset: -60px;
+            background-image: url('assets/texture-bg-univ.jpg');
+            background-size: cover; background-position: center;
+            filter: blur(22px) grayscale(15%);
+            opacity: 0.16; z-index: 0; pointer-events: none;
+        }
+        .content-section.textured > .section-header,
+        .content-section.textured > .section-content {
+            position: relative; z-index: 1;
+            max-width: 1000px; margin-left: auto; margin-right: auto;
+        }
+
+        footer { padding: 3rem 4rem; text-align: center; border-top: 1px solid var(--line); }
+        footer p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        
+        /* ===== SCHÉMA : la chaîne des 4 tables ===== */
+        .schema-chain {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+            align-items: stretch;
+            margin-top: 2.4rem;
+        }
+        .schema-table {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            padding: 1.3rem 1.2rem 1.1rem;
+            display: flex; flex-direction: column;
+        }
+        .schema-table.focus { border-color: var(--gold); box-shadow: inset 0 3px 0 var(--gold); }
+        .schema-role {
+            font-size: 0.66rem; letter-spacing: 0.6px; text-transform: uppercase;
+            color: rgba(74,67,56,0.6); margin-bottom: 0.3rem;
+        }
+        .schema-table.focus .schema-role { color: var(--gold-deep); font-weight: 600; }
+        .schema-table-name {
+            font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+            font-size: 1.1rem; margin-bottom: 0.8rem; color: var(--ink);
+        }
+        .schema-table ul { list-style: none; }
+        .schema-table li {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.76rem;
+            color: var(--ink-soft); padding: 0.28rem 0;
+            border-bottom: 1px dotted var(--line-soft);
+            display: flex; justify-content: space-between; gap: 0.5rem;
+        }
+        .schema-table li:last-child { border-bottom: none; }
+        .key {
+            font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 600;
+            letter-spacing: 0.4px; padding: 0.05rem 0.35rem; border-radius: 2px;
+            align-self: center;
+        }
+        .key.pk { background: var(--gold-deep); color: var(--paper); }
+        .key.fk { border: 1px solid var(--gold); color: var(--gold-deep); }
+        .schema-link {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 0 0.6rem; min-width: 56px;
+        }
+        .schema-link .line { width: 100%; height: 1px; background: var(--ink-soft); position: relative; }
+        .schema-link .line::after {
+            content: ''; position: absolute; right: -1px; top: -4px;
+            border-left: 7px solid var(--ink-soft); border-top: 4.5px solid transparent; border-bottom: 4.5px solid transparent;
+        }
+        .schema-link .card { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--gold-deep); margin-top: 0.45rem; }
+        .schema-note {
+            margin-top: 1.6rem; font-size: 0.95rem; color: var(--ink-soft); max-width: 780px;
+        }
+        .schema-legend { display: flex; gap: 1.4rem; margin-top: 1rem; font-size: 0.8rem; color: var(--ink-soft); flex-wrap: wrap; }
+        .schema-legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+
+        /* ===== PIPELINE ===== */
+        .pipeline {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+            margin: 2.2rem 0 3rem;
+        }
+        .pipe-step { padding: 1.6rem 1.3rem 1.6rem 0; position: relative; }
+        .pipe-step + .pipe-step { padding-left: 1.3rem; border-left: 1px solid var(--line); }
+        .pipe-step + .pipe-step::before {
+            content: ''; position: absolute; left: -6px; top: 50%;
+            width: 11px; height: 11px; background: var(--cream);
+            border-top: 1px solid var(--line); border-right: 1px solid var(--line);
+            transform: translateY(-50%) rotate(45deg);
+        }
+        .pipe-num { font-family: 'Fraunces', serif; color: var(--gold); font-size: 1.5rem; line-height: 1; margin-bottom: 0.7rem; }
+        .pipe-step h3 { font-size: 1rem; margin-bottom: 0.45rem; }
+        .pipe-step p { font-size: 0.87rem; color: var(--ink-soft); line-height: 1.6; }
+        .pipe-step code { font-family: 'JetBrains Mono', monospace; font-size: 0.8em; color: var(--gold-deep); }
+
+        /* ===== OBSTACLES → RÉPONSES ===== */
+        .obstacles { border-top: 1px solid var(--line); margin-top: 1.4rem; }
+        .obstacle {
+            display: grid; grid-template-columns: 1fr 1.25fr; gap: 2.5rem;
+            padding: 1.3rem 0; border-bottom: 1px solid var(--line-soft);
+        }
+        .obstacle-label { font-size: 0.68rem; letter-spacing: 0.6px; text-transform: uppercase; color: rgba(74,67,56,0.6); margin-bottom: 0.3rem; }
+        .obstacle .pb { font-family: 'Fraunces', serif; font-size: 1.02rem; color: var(--ink); line-height: 1.45; }
+        .obstacle .sol { color: var(--ink-soft); font-size: 0.95rem; line-height: 1.7; }
+        .obstacle code {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85em;
+            color: var(--gold-deep); background: var(--cream-deep); padding: 0.05rem 0.35rem; border-radius: 3px;
+        }
+        .sub-title { font-family: 'Fraunces', serif; font-size: 1.25rem; font-weight: 500; margin: 0.5rem 0 0.2rem; }
+        .sub-intro { color: var(--ink-soft); font-size: 0.95rem; }
+
+        /* ===== CONSTATS (figure + texte) ===== */
+        .finding {
+            display: grid; grid-template-columns: 1.15fr 1fr; gap: 3rem; align-items: center;
+            padding: 2.6rem 0; border-top: 1px solid var(--line);
+        }
+        .finding:last-child { border-bottom: 1px solid var(--line); }
+        .finding-num { font-family: 'Fraunces', serif; color: var(--gold); font-size: 0.95rem; margin-bottom: 0.5rem; }
+        .finding h3 { font-size: 1.35rem; line-height: 1.3; margin-bottom: 0.8rem; }
+        .finding p { color: var(--ink-soft); line-height: 1.75; font-size: 0.98rem; }
+        .finding .figure-note { font-size: 0.8rem; margin-top: 0.9rem; color: rgba(74,67,56,0.7); }
+        .big-number { font-family: 'Fraunces', serif; font-size: 2.2rem; color: var(--gold-deep); line-height: 1; margin: 0.2rem 0 0.8rem; }
+        .big-number small { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--ink-soft); margin-left: 0.4rem; }
+        .figure-frame {
+            width: 100%; aspect-ratio: 4/3; border: 1px solid var(--line); background: var(--paper);
+            display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
+        }
+        .figure-frame img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+        .figure-placeholder-text {
+            font-family: 'Fraunces', serif; font-style: italic; color: rgba(33,29,23,0.35);
+            font-size: 0.92rem; text-align: center; padding: 1rem; display: none;
+        }
+        .figure-frame.empty .figure-placeholder-text { display: block; }
+
+        /* ===== À RETENIR ===== */
+        .takeaways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.2rem; margin-top: 2rem; }
+        .takeaway { border-top: 2px solid var(--ink); padding-top: 1.2rem; }
+        .takeaway.muted { border-top-color: var(--line); }
+        .takeaway h3 { font-size: 1.05rem; margin-bottom: 0.6rem; }
+        .takeaway p { color: var(--ink-soft); font-size: 0.93rem; line-height: 1.7; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 968px) {
+            nav { padding: 1.2rem 1.6rem; }
+            .hero, .content-section, .cta-section, .code-showcase { padding-left: 1.6rem; padding-right: 1.6rem; }
+            .stats-banner { padding: 2.5rem 1.6rem; }
+            .schema-chain { grid-template-columns: 1fr; }
+            .schema-link { flex-direction: row; gap: 0.6rem; padding: 0.5rem 0; min-height: 44px; }
+            .schema-link .line { width: 1px; height: 34px; }
+            .schema-link .line::after {
+                right: -4px; top: auto; bottom: -1px;
+                border-left: 4.5px solid transparent; border-right: 4.5px solid transparent;
+                border-top: 7px solid var(--ink-soft); border-bottom: none;
+            }
+            .schema-link .card { margin-top: 0; }
+            .pipeline { grid-template-columns: 1fr 1fr; }
+            .pipe-step:nth-child(3) { border-left: none; padding-left: 0; }
+            .pipe-step:nth-child(3)::before { display: none; }
+            .pipe-step:nth-child(n+3) { border-top: 1px solid var(--line); }
+            .finding, .obstacle { grid-template-columns: 1fr; gap: 1.4rem; }
+            .takeaways { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .pipeline { grid-template-columns: 1fr; }
+            .pipe-step, .pipe-step + .pipe-step { padding-left: 0; border-left: none; }
+            .pipe-step + .pipe-step { border-top: 1px solid var(--line); }
+            .pipe-step + .pipe-step::before { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="projets-academiques.html" class="back-button">
+            <span>←</span><span>Projets académiques</span>
+        </a>
+        <div class="nav-title">SAE 1.01</div>
+    </nav>
+
+    <!-- ===================== HÉRO ===================== -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span>IUT Grand Ouest Normandie — Lisieux</span>
+                <span>SAE 1.01 · 2025–2026</span>
+                <span>Projet de groupe (3 personnes)</span>
+            </div>
+            <h1>Universités mondiales : ce que le pays dit de ses universités</h1>
+            <p class="hero-description">
+                Une base SQLite de 2 336 universités réparties dans 115 pays, interrogée en SQL et en Python pour mesurer le lien entre le développement d'un pays et la performance de ses universités — puis restituée dans un classeur Excel généré automatiquement.
+            </p>
+            <div class="tags">
+                <span class="tag">Python</span>
+                <span class="tag">SQL / SQLite</span>
+                <span class="tag">openpyxl</span>
+                <span class="tag">Reporting Excel</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== CHIFFRES CLÉS ===================== -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item"><div class="stat-value">2 336</div><div class="stat-label">universités</div></div>
+            <div class="stat-item"><div class="stat-value">115</div><div class="stat-label">pays</div></div>
+            <div class="stat-item"><div class="stat-value">10 ans</div><div class="stat-label">de classements, 2016 → 2025</div></div>
+            <div class="stat-item"><div class="stat-value">13</div><div class="stat-label">analyses exportées vers Excel</div></div>
+        </div>
+    </section>
+
+    <!-- ===================== 01 PROBLÉMATIQUE ===================== -->
+    <section class="content-section textured reveal">
+        <div class="section-header"><span class="section-number">01</span><h2>Problématique</h2></div>
+        <div class="section-content">
+            <p>Le classement du Times Higher Education compare les universités du monde entier comme si elles partaient toutes du même point. Or une université ne fonctionne pas dans le vide : elle dépend de la richesse de son pays, du niveau d'éducation de sa population, de son ouverture sur l'étranger.</p>
+            <div class="highlight-box">
+                <strong>La question</strong>
+                <p>Le niveau de développement d'un pays — PIB par habitant, alphabétisation, part d'étudiants internationaux, parité — se retrouve-t-il dans la performance de ses universités ?</p>
+            </div>
+            <p><strong style="color:var(--ink);font-weight:600;">La contrainte :</strong> n'utiliser que <code>os</code>, <code>sqlite3</code> et <code>openpyxl</code>. Pas de Pandas, pas de Matplotlib — tout le calcul passe par SQL et Python pur.</p>
+            <p>Projet mené à trois avec Glaineta et Martin ; requêtes SQL, fonctions Python et reporting Excel ont été répartis à parts égales.</p>
+        </div>
+    </section>
+
+    <!-- ===================== 02 DONNÉES ===================== -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">02</span><h2>Les données : quatre tables en chaîne</h2></div>
+        <div class="section-content">
+            <p>Chaque lien est de type un-à-plusieurs : une région regroupe plusieurs pays, un pays plusieurs universités, et chaque université possède une ligne de classement par année.</p>
+        </div>
+
+        <div class="schema-chain" role="img" aria-label="Schéma relationnel : regions, 1 à N, pays, 1 à N, universites, 1 à N, classements">
+            <div class="schema-table">
+                <div class="schema-role">Zone</div>
+                <div class="schema-table-name">regions</div>
+                <ul>
+                    <li>id_reg <span class="key pk">PK</span></li>
+                    <li>nom_reg</li>
+                </ul>
+            </div>
+            <div class="schema-link" aria-hidden="true"><div class="line"></div><div class="card">1 → N</div></div>
+            <div class="schema-table focus">
+                <div class="schema-role">Contexte national</div>
+                <div class="schema-table-name">pays</div>
+                <ul>
+                    <li>id_pays <span class="key pk">PK</span></li>
+                    <li>id_reg <span class="key fk">FK</span></li>
+                    <li>pib_par_hab</li>
+                    <li>taux_alphabet</li>
+                    <li>migration_nette</li>
+                    <li>population, …</li>
+                </ul>
+            </div>
+            <div class="schema-link" aria-hidden="true"><div class="line"></div><div class="card">1 → N</div></div>
+            <div class="schema-table">
+                <div class="schema-role">Établissement</div>
+                <div class="schema-table-name">universites</div>
+                <ul>
+                    <li>id_univ <span class="key pk">PK</span></li>
+                    <li>id_pays <span class="key fk">FK</span></li>
+                    <li>nom_univ</li>
+                </ul>
+            </div>
+            <div class="schema-link" aria-hidden="true"><div class="line"></div><div class="card">1 → N</div></div>
+            <div class="schema-table focus">
+                <div class="schema-role">Performance</div>
+                <div class="schema-table-name">classements</div>
+                <ul>
+                    <li>id_class <span class="key pk">PK</span></li>
+                    <li>id_univ <span class="key fk">FK</span></li>
+                    <li>annee, rang</li>
+                    <li>score_the</li>
+                    <li>score_enseig</li>
+                    <li>score_qualite_rech</li>
+                    <li>pct_etud_internat</li>
+                    <li>ratio_fem, …</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-content">
+            <div class="schema-legend">
+                <span><span class="key pk">PK</span> clé primaire</span>
+                <span><span class="key fk">FK</span> clé étrangère</span>
+            </div>
+            <p class="schema-note">Toute l'analyse consiste à relier les deux tables encadrées : le <em>contexte national</em> (<code>pays</code>) et la <em>performance</em> (<code>classements</code>), en traversant la table <code>universites</code> par des jointures.</p>
+        </div>
+    </section>
+
+    <!-- ===================== 03 SOLUTION ===================== -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">03</span><h2>La solution : du fichier .db au classeur Excel</h2></div>
+
+        <div class="pipeline">
+            <div class="pipe-step">
+                <div class="pipe-num">1</div>
+                <h3>Connexion</h3>
+                <p>Une connexion SQLite unique, résultats lisibles par nom de colonne (<code>sqlite3.Row</code>).</p>
+            </div>
+            <div class="pipe-step">
+                <div class="pipe-num">2</div>
+                <h3>Requêtes SQL</h3>
+                <p>Jointures jusqu'à 4 tables, <code>AVG</code> / <code>GROUP BY</code>, <code>CASE WHEN</code> pour créer des catégories.</p>
+            </div>
+            <div class="pipe-step">
+                <div class="pipe-num">3</div>
+                <h3>Structuration Python</h3>
+                <p>Résultats rangés en tuples ou en dictionnaires selon l'analyse.</p>
+            </div>
+            <div class="pipe-step">
+                <div class="pipe-num">4</div>
+                <h3>Export Excel</h3>
+                <p>Une feuille par analyse, graphiques générés automatiquement avec <code>openpyxl</code>.</p>
+            </div>
+        </div>
+
+        <div class="sub-title">Quatre obstacles, quatre réponses</div>
+        <p class="sub-intro">Les difficultés qui ont vraiment façonné le code.</p>
+        <div class="obstacles">
+            <div class="obstacle">
+                <div><div class="obstacle-label">Obstacle</div><div class="pb">Les jointures entre 4 tables dupliquaient des lignes et faussaient les moyennes.</div></div>
+                <div><div class="obstacle-label">Réponse</div><div class="sol">Les indicateurs globaux sont calculés par des sous-requêtes séparées, table par table.</div></div>
+            </div>
+            <div class="obstacle">
+                <div><div class="obstacle-label">Obstacle</div><div class="pb">La recherche d'universités devait accepter des filtres facultatifs : pays, année, seuils de score.</div></div>
+                <div><div class="obstacle-label">Réponse</div><div class="sol">Les conditions sont ajoutées à la requête seulement si le filtre est renseigné, toujours avec des marqueurs <code>?</code> — ce qui protège aussi des injections SQL.</div></div>
+            </div>
+            <div class="obstacle">
+                <div><div class="obstacle-label">Obstacle</div><div class="pb">Classer les pays par tranche de PIB en Python demandait 9 listes et 68 lignes.</div></div>
+                <div><div class="obstacle-label">Réponse</div><div class="sol">Un seul <code>SELECT</code> avec <code>CASE WHEN</code> fait tout le travail : 35 lignes, plus lisibles et plus rapides.</div></div>
+            </div>
+            <div class="obstacle">
+                <div><div class="obstacle-label">Obstacle</div><div class="pb">Un pays avec une seule université brillante se retrouvait en tête du Top 10.</div></div>
+                <div><div class="obstacle-label">Réponse</div><div class="sol">Seuls les pays d'au moins 20 universités sont retenus (<code>HAVING</code>), et le score est pondéré : <code>score × nb / (nb + 20)</code>.</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Extraits de code -->
+    <section class="code-showcase reveal">
+        <div class="code-header">
+            <div>
+                <h3>Le code correspondant</h3>
+                <p>Un extrait pour chacune des trois dernières réponses.</p>
+            </div>
+            <div class="code-tabs" role="tablist">
+                <button class="code-tab active" role="tab" data-code="rechercher">Filtres facultatifs</button>
+                <button class="code-tab" role="tab" data-code="pib">CASE WHEN</button>
+                <button class="code-tab" role="tab" data-code="top10">Top 10 pondéré</button>
+            </div>
+        </div>
+        <div id="code-rechercher" class="code-panel active">
+<pre><span class="kw">def</span> <span class="fn">rechercher_universites</span>(conn, pays=<span class="kw">None</span>, annee=<span class="kw">None</span>,
+                          min_enseig=<span class="kw">None</span>, min_rech=<span class="kw">None</span>, limite=<span class="op">50</span>):
+    <span class="str">"""Filtre les universités selon des critères optionnels, triées par rang."""</span>
+    <span class="cm"># Validation des types d'entrée</span>
+    <span class="kw">if</span> pays <span class="kw">is not</span> <span class="kw">None</span> <span class="kw">and not</span> <span class="fn">isinstance</span>(pays, <span class="fn">str</span>):
+        <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="str">"'pays' doit être une chaîne de caractères"</span>)
+    <span class="kw">if</span> annee <span class="kw">is not</span> <span class="kw">None</span> <span class="kw">and not</span> <span class="fn">isinstance</span>(annee, (<span class="fn">int</span>, <span class="fn">float</span>)):
+        <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="str">"'annee' doit être un entier"</span>)
+
+    <span class="cm"># Requête SQL de base</span>
+    req = <span class="str">"""
+    SELECT c.rang, u.nom_univ, p.nom_pays,
+           c.score_enseig, c.score_qualite_rech, c.score_the
+    FROM classements c
+    JOIN universites u ON c.id_univ = u.id_univ
+    JOIN pays p ON u.id_pays = p.id_pays
+    WHERE p.pib_par_hab &gt;= 0
+    """</span>
+
+    <span class="cm"># Ajout dynamique des critères optionnels</span>
+    conditions = []
+    parametres = []
+
+    <span class="kw">if</span> pays <span class="kw">is not</span> <span class="kw">None</span>:
+        conditions.<span class="fn">append</span>(<span class="str">"p.nom_pays = ?"</span>)
+        parametres.<span class="fn">append</span>(pays)
+    <span class="kw">if</span> annee <span class="kw">is not</span> <span class="kw">None</span>:
+        conditions.<span class="fn">append</span>(<span class="str">"c.annee = ?"</span>)
+        parametres.<span class="fn">append</span>(annee)
+    <span class="kw">if</span> min_enseig <span class="kw">is not</span> <span class="kw">None</span>:
+        conditions.<span class="fn">append</span>(<span class="str">"c.score_enseig &gt;= ?"</span>)
+        parametres.<span class="fn">append</span>(min_enseig)
+    <span class="kw">if</span> min_rech <span class="kw">is not</span> <span class="kw">None</span>:
+        conditions.<span class="fn">append</span>(<span class="str">"c.score_qualite_rech &gt;= ?"</span>)
+        parametres.<span class="fn">append</span>(min_rech)
+
+    <span class="kw">if</span> conditions:
+        req += <span class="str">" AND "</span> + <span class="str">" AND "</span>.<span class="fn">join</span>(conditions)  <span class="cm"># pas de WHERE dupliqué !</span>
+
+    req += <span class="str">" ORDER BY c.rang LIMIT ?"</span>
+    parametres.<span class="fn">append</span>(limite)
+
+    curseur = conn.<span class="fn">cursor</span>()
+    curseur.<span class="fn">execute</span>(req, parametres)
+    <span class="kw">return</span> [<span class="fn">tuple</span>(ligne) <span class="kw">for</span> ligne <span class="kw">in</span> curseur.<span class="fn">fetchall</span>()]</pre>
+        </div>
+        <div id="code-pib" class="code-panel">
+<pre><span class="kw">def</span> <span class="fn">stats_pib_vs_perf</span>(connexion, annee=<span class="op">2025</span>):
+    <span class="str">"""Catégorise les universités selon le PIB/hab du pays et calcule
+    la moyenne de score_enseig, score_qualite_rech, score_the."""</span>
+    curseur = connexion.<span class="fn">cursor</span>()
+    req = <span class="str">"""
+    SELECT
+        ROUND(AVG(CASE WHEN p.pib_par_hab &lt;= 1135
+                       THEN c.score_enseig END), 4) AS moy_ens_faible,
+        ROUND(AVG(CASE WHEN p.pib_par_hab BETWEEN 1136 AND 4495
+                       THEN c.score_enseig END), 4) AS moy_ens_inter,
+        ROUND(AVG(CASE WHEN p.pib_par_hab &gt;= 4496
+                       THEN c.score_enseig END), 4) AS moy_ens_eleve,
+
+        ROUND(AVG(CASE WHEN p.pib_par_hab &lt;= 1135
+                       THEN c.score_qualite_rech END), 4) AS moy_rech_faible,
+        ROUND(AVG(CASE WHEN p.pib_par_hab BETWEEN 1136 AND 4495
+                       THEN c.score_qualite_rech END), 4) AS moy_rech_inter,
+        ROUND(AVG(CASE WHEN p.pib_par_hab &gt;= 4496
+                       THEN c.score_qualite_rech END), 4) AS moy_rech_eleve,
+
+        ROUND(AVG(CASE WHEN p.pib_par_hab &lt;= 1135
+                       THEN c.score_the END), 4) AS moy_the_faible,
+        ROUND(AVG(CASE WHEN p.pib_par_hab BETWEEN 1136 AND 4495
+                       THEN c.score_the END), 4) AS moy_the_inter,
+        ROUND(AVG(CASE WHEN p.pib_par_hab &gt;= 4496
+                       THEN c.score_the END), 4) AS moy_the_eleve
+    FROM classements AS c
+    JOIN universites AS d ON c.id_univ = d.id_univ
+    JOIN pays AS p ON d.id_pays = p.id_pays
+    WHERE c.annee = ?
+    """</span>
+    curseur.<span class="fn">execute</span>(req, (annee,))
+    ligne = curseur.<span class="fn">fetchone</span>()  <span class="cm"># fetchone() car une seule ligne de résultats</span>
+
+    <span class="kw">return</span> {
+        <span class="str">"Faible"</span>:       {<span class="str">"moy_ens"</span>: ligne[<span class="op">0</span>], <span class="str">"moy_rech"</span>: ligne[<span class="op">3</span>], <span class="str">"moy_the"</span>: ligne[<span class="op">6</span>]},
+        <span class="str">"Intermédiaire"</span>: {<span class="str">"moy_ens"</span>: ligne[<span class="op">1</span>], <span class="str">"moy_rech"</span>: ligne[<span class="op">4</span>], <span class="str">"moy_the"</span>: ligne[<span class="op">7</span>]},
+        <span class="str">"Elevé"</span>:        {<span class="str">"moy_ens"</span>: ligne[<span class="op">2</span>], <span class="str">"moy_rech"</span>: ligne[<span class="op">5</span>], <span class="str">"moy_the"</span>: ligne[<span class="op">8</span>]},
+    }</pre>
+        </div>
+        <div id="code-top10" class="code-panel">
+<pre><span class="kw">def</span> <span class="fn">top10_pays_multi_annees</span>(connexion, annee_deb=<span class="op">2020</span>, annee_fin=<span class="op">2025</span>,
+                            critere=<span class="str">"score_enseig"</span>):
+    <span class="str">"""Top 10 des pays avec ≥ 20 universités, score pondéré sur la période."""</span>
+    pascur = connexion.<span class="fn">cursor</span>()
+
+    <span class="cm"># Moyenne + comptage par pays, filtrée sur la période</span>
+    req = <span class="nb">f</span><span class="str">"""
+    SELECT p.nom_pays, AVG(c.{critere}) AS moy, COUNT(DISTINCT u.id_univ) AS nb
+    FROM classements c
+    JOIN universites u ON c.id_univ = u.id_univ
+    JOIN pays p ON u.id_pays = p.id_pays
+    WHERE c.annee BETWEEN ? AND ?
+    GROUP BY p.nom_pays
+    HAVING nb &gt;= 20
+    """</span>
+
+    res = []
+    <span class="cm"># Pondération : score × nb / (nb + 20) → évite qu'un pays à 1 univ top parasite</span>
+    <span class="kw">for</span> r <span class="kw">in</span> pascur.<span class="fn">execute</span>(req, (annee_deb, annee_fin)):
+        score = r[<span class="str">"moy"</span>] * r[<span class="str">"nb"</span>] / (r[<span class="str">"nb"</span>] + <span class="op">20</span>)
+        res.<span class="fn">append</span>((r[<span class="str">"nom_pays"</span>], <span class="fn">round</span>(score, <span class="op">3</span>), r[<span class="str">"nb"</span>]))
+
+    <span class="kw">return</span> <span class="fn">sorted</span>(res, key=<span class="kw">lambda</span> x: x[<span class="op">1</span>], reverse=<span class="kw">True</span>)[:<span class="op">10</span>]</pre>
+        </div>
+    </section>
+
+    <!-- Bandeau citation -->
+    <section class="quote-banner reveal">
+        <blockquote>
+            « Les universités mixtes obtiennent les meilleurs scores »
+            <cite>Entre 40 et 60 % de femmes : meilleures moyennes en enseignement et en recherche</cite>
+        </blockquote>
+    </section>
+
+    <!-- ===================== 04 RÉSULTATS ===================== -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">04</span><h2>Résultats</h2></div>
+        <div class="section-content">
+            <p>Chaque graphique a été produit automatiquement dans le classeur Excel. Quatre constats répondent directement à la question.</p>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-univ-pib.png" alt="Scores moyens selon le PIB par habitant du pays, en 2025" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-pib.png</span></div>
+            <div>
+                <div class="finding-num">Constat 1</div>
+                <h3>La richesse du pays compte</h3>
+                <p>En 2025, les universités des pays au PIB par habitant élevé (≥ 4 496 $) obtiennent des scores d'enseignement et de recherche nettement supérieurs à celles des pays moins riches — avec toutefois des exceptions notables.</p>
+            </div>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-univ-internat.png" alt="Score de recherche selon la part d'étudiants internationaux" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-internat.png</span></div>
+            <div>
+                <div class="finding-num">Constat 2</div>
+                <h3>L'ouverture internationale va de pair avec la recherche</h3>
+                <div class="big-number">73,95 <small>contre 44,68</small></div>
+                <p>C'est le score moyen de recherche des universités qui comptent plus de 30 % d'étudiants internationaux, face à celles qui en comptent moins de 10 %.</p>
+            </div>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-univ-alphabet.png" alt="Répartition des universités classées selon le taux d'alphabétisation du pays" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-alphabet.png</span></div>
+            <div>
+                <div class="finding-num">Constat 3</div>
+                <h3>Un socle éducatif national</h3>
+                <div class="big-number">68 %</div>
+                <p>des universités classées se trouvent dans un pays dont le taux d'alphabétisation dépasse 90 %.</p>
+            </div>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-univ-top10.png" alt="Top 10 des pays par score moyen d'enseignement, 2020 à 2025" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-top10.png</span></div>
+            <div>
+                <div class="finding-num">Constat 4</div>
+                <h3>Des leaders très stables</h3>
+                <p>Sur 2020–2025, les États-Unis, le Royaume-Uni et Singapour dominent tous les critères, avec un écart marqué sur le reste du classement.</p>
+                <p class="figure-note">Score pondéré, pays d'au moins 20 universités.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== 05 À RETENIR ===================== -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">05</span><h2>À retenir</h2></div>
+        <div class="takeaways">
+            <div class="takeaway">
+                <h3>La réponse</h3>
+                <p>Oui : richesse, alphabétisation, ouverture internationale et parité se retrouvent dans les scores des universités. Ce sont des liens observés, pas des relations de cause à effet.</p>
+            </div>
+            <div class="takeaway">
+                <h3>Ce que le projet démontre</h3>
+                <p>Des requêtes SQL multi-tables, un code Python sans bibliothèque d'analyse, et un reporting Excel entièrement automatisé.</p>
+            </div>
+            <div class="takeaway muted">
+                <h3>Les limites</h3>
+                <p>Seules les universités déjà classées par le THE figurent dans la base, et les écarts sont décrits par des moyennes, sans test statistique.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>Aller plus loin</h2>
+        <p>Le rapport détaille les 13 analyses et le classeur Excel généré.</p>
+        <div class="cta-buttons">
+            <a href="assets/rapport-universites-mondiales.pdf" class="cta-button" target="_blank" rel="noopener"><span>Voir le rapport complet</span></a>
+            <a href="projets-academiques.html" class="cta-button cta-secondary"><span>Tous les projets académiques</span></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025–2026 · Yanh Bambela Mouanda · IUT Grand Ouest Normandie · BUT Science des Données</p>
+    </footer>
+
+    <script>
+        // Apparition au défilement
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() {
+            reveals.forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active');
+            });
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        // Onglets de code
+        document.querySelectorAll('.code-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+                document.getElementById('code-' + tab.dataset.code).classList.add('active');
+                tab.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
