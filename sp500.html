@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peut-on battre le marché boursier ? · Portfolio Data Analyst</title>
+    <meta name="description" content="Dix ans de S&P 500 analysés, puis 75 003 articles d'actualité passés au crible de FinBERT pour tenter de prévoir le lendemain. Protocole avec période de test réservée et terminal de backtest interactif.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #211d17;
+            --ink-soft: #4a4338;
+            --cream: #f6f2e9;
+            --cream-deep: #e9e6d6;
+            --paper: #fbf9f2;
+            --gold: #2b4c7e;
+            --gold-deep: #1a3358;
+            --line: rgba(33, 29, 23, 0.14);
+            --line-soft: rgba(33, 29, 23, 0.08);
+            --code-bg: #1a1e27;
+            --code-text: #e3e7ee;
+            --up: #1f7a5a;
+            --down: #a8343f;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--ink); line-height: 1.65; overflow-x: hidden; }
+        h1, h2, h3, .serif { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 1.4rem 4rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: rgba(247, 242, 230, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line);
+        }
+        .back-button { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--gold-deep); font-weight: 500; font-size: 0.92rem; transition: opacity 0.3s ease; }
+        .back-button:hover { opacity: 0.7; }
+        .nav-title { font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 78vh;
+            display: flex; align-items: flex-end;
+            position: relative;
+            padding: 10rem 4rem 5rem;
+            background-image:
+                linear-gradient(180deg, rgba(20,24,33,0.55) 0%, rgba(20,24,33,0.74) 65%, rgba(14,18,26,0.9) 100%),
+                url('assets/hero-bg-sp500.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--paper);
+        }
+        .hero-content { max-width: 900px; width: 100%; }
+        .project-meta { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.8rem; font-size: 0.85rem; color: rgba(251, 248, 241, 0.75); }
+        .project-meta span:not(:last-child)::after { content: '·'; margin-left: 0.6rem; color: rgba(251,248,241,0.4); }
+        h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 500; line-height: 1.15; margin-bottom: 1rem; letter-spacing: -0.5px; color: var(--paper); }
+        .hero-subtitle { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; font-size: clamp(1.15rem, 2.2vw, 1.5rem); line-height: 1.45; color: rgba(251, 248, 241, 0.92); margin-bottom: 1.4rem; max-width: 740px; }
+        .hero-description { font-size: 1.12rem; color: rgba(251, 248, 241, 0.82); line-height: 1.8; max-width: 740px; margin-bottom: 2rem; font-weight: 300; }
+        .tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .tag { padding: 0.4rem 1rem; border: 1px solid rgba(251, 248, 241, 0.35); border-radius: 3px; font-size: 0.78rem; letter-spacing: 0.3px; color: rgba(251, 248, 241, 0.85); }
+
+        /* ===== STATS BANNER ===== */
+        .stats-banner { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 3rem 4rem; }
+        .stats-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2.5rem; }
+        .stat-item { text-align: left; border-left: 1px solid var(--line); padding-left: 1.2rem; }
+        .stat-value { font-family: 'Fraunces', serif; font-size: 2.1rem; font-weight: 500; color: var(--gold-deep); margin-bottom: 0.3rem; line-height: 1; }
+        .stat-label { color: var(--ink-soft); font-size: 0.85rem; }
+
+        /* ===== SECTIONS ===== */
+        .content-section { max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem; }
+        .section-header { display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2.2rem; }
+        .section-number { font-family: 'Fraunces', serif; font-size: 1.1rem; color: var(--gold); font-weight: 400; }
+        h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 500; }
+        .section-content p { font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 1.4rem; max-width: 780px; }
+        .section-content p:last-child { margin-bottom: 0; }
+        .section-content code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--gold-deep); background: var(--cream-deep); padding: 0.1rem 0.4rem; border-radius: 3px; }
+        .highlight-box { border-left: 2px solid var(--gold); padding: 0.3rem 0 0.3rem 1.5rem; margin: 2rem 0; }
+        .highlight-box strong { display: block; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: var(--ink); }
+        .highlight-box p { margin-bottom: 0.8rem; }
+        .team-note { margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--line); font-size: 0.92rem; color: var(--ink-soft); }
+        .team-note strong { color: var(--ink); font-weight: 500; }
+        .nowrap { white-space: nowrap; }
+
+        /* Repère de partie */
+        .part-label { font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 0.9rem; }
+        .part-title { font-family: 'Fraunces', serif; font-weight: 400; font-size: clamp(2rem, 4.2vw, 3rem); line-height: 1.12; letter-spacing: -0.5px; color: var(--ink); margin-bottom: 1rem; }
+        .part-intro { font-size: 1.08rem; line-height: 1.8; color: var(--ink-soft); max-width: 740px; }
+        .part-opening { max-width: 1000px; margin: 0 auto; padding: 6rem 4rem 0; }
+
+        /* Étapes */
+        .solution-steps { margin-top: 2rem; }
+        .step { display: flex; gap: 2rem; margin-bottom: 2.5rem; align-items: flex-start; padding-bottom: 2.5rem; border-bottom: 1px solid var(--line-soft); }
+        .step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .step-number { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 400; color: var(--gold); min-width: 2.8rem; }
+        .step-content h3 { font-size: 1.08rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .step-content p { color: var(--ink-soft); line-height: 1.8; margin-bottom: 0; }
+
+        /* ===== PREUVES / FIGURES ===== */
+        .evidence-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 2rem; margin-top: 2.2rem; align-items: start; }
+        .evidence-frame { border: 1px solid var(--line); background: var(--paper); padding: 0.6rem; box-sizing: border-box; }
+        .evidence-frame img { width: 100%; height: auto; display: block; }
+        .evidence-caption { margin-top: 0.9rem; }
+        .evidence-caption h4 { font-size: 0.92rem; font-weight: 500; color: var(--ink); margin-bottom: 0.2rem; }
+        .evidence-caption p { color: var(--ink-soft); font-size: 0.84rem; margin: 0; }
+        .evidence-full { margin-top: 2.2rem; }
+        .evidence-narrow { max-width: 720px; }
+
+        /* Résultats en cartes */
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2.2rem; margin-top: 2rem; }
+        .result-card { padding-top: 1.4rem; border-top: 1px solid var(--line); }
+        .result-card .date { font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+        .result-card .value { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 500; color: var(--gold-deep); line-height: 1.1; margin-bottom: 0.6rem; }
+        .result-card .value.down { color: var(--down); }
+        .result-card p { color: var(--ink-soft); line-height: 1.7; font-size: 0.94rem; margin: 0; }
+        .result-card .up { color: var(--up); font-weight: 500; }
+        .result-card .down { color: var(--down); font-weight: 500; }
+
+        /* ===== TERMINAL INTÉGRÉ ===== */
+        .terminal-section { max-width: 1320px; margin: 0 auto; padding: 0 4rem 5.5rem; }
+        .terminal-frame { border: 1px solid #2e3340; background: #131722; }
+        .terminal-frame iframe { display: block; width: 100%; height: 1250px; border: 0; }
+        .terminal-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; justify-content: space-between; margin-top: 0.9rem; font-size: 0.84rem; color: var(--ink-soft); }
+        .terminal-links a { color: var(--gold-deep); font-weight: 500; }
+
+        /* ===== CODE SHOWCASE ===== */
+        .code-showcase { max-width: 1000px; margin: 0 auto; padding: 0 4rem 5.5rem; }
+        .code-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
+        .code-header p { color: var(--ink-soft); font-size: 0.92rem; margin-top: 0.3rem; }
+        .code-header code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--gold-deep); background: var(--cream-deep); padding: 0.1rem 0.4rem; border-radius: 3px; }
+        .code-tabs { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+        .code-tab { background: none; border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--ink-soft); padding: 0.3rem 0; border-bottom: 2px solid transparent; transition: all 0.2s ease; }
+        .code-tab.active { color: var(--gold-deep); border-bottom-color: var(--gold); }
+        .code-panel { display: none; }
+        .code-panel.active { display: block; }
+        pre { background: var(--code-bg); border-radius: 6px; padding: 2rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.75; color: var(--code-text); }
+        .kw { color: #8fb3e0; }
+        .fn { color: #c3d3ea; }
+        .str { color: #8d97a8; }
+        .nb { color: #d9b77a; }
+
+        /* ===== DÉFIS ===== */
+        .insights-list { list-style: none; margin-top: 2rem; }
+        .insight-item { padding: 1.6rem 0; border-bottom: 1px solid var(--line-soft); }
+        .insight-item:last-child { border-bottom: none; }
+        .insight-item strong { font-family: 'Fraunces', serif; font-size: 1.08rem; font-weight: 500; color: var(--ink); display: block; margin-bottom: 0.5rem; }
+        .insight-item p { color: var(--ink-soft); line-height: 1.75; }
+
+        /* ===== STACK ===== */
+        .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 2rem; background: var(--line); border: 1px solid var(--line); }
+        .tech-item { background: var(--paper); padding: 1.6rem; }
+        .tech-item h4 { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); margin-bottom: 0.5rem; font-size: 1.05rem; }
+        .tech-item p { color: var(--ink-soft); font-size: 0.88rem; line-height: 1.6; }
+
+        /* ===== CTA ===== */
+        .cta-section { border-top: 1px solid var(--line); padding: 5rem 4rem; text-align: center; }
+        .cta-section h2 { margin-bottom: 0.8rem; }
+        .cta-section p { color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 2.2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.9rem 2.2rem; background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 500; border-radius: 2px; transition: all 0.3s ease; font-size: 0.92rem; border: 1px solid var(--ink); }
+        .cta-button:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+        .cta-secondary { background: transparent; color: var(--ink); }
+        .cta-secondary:hover { background: var(--ink); color: var(--paper); }
+
+        /* ===== QUOTE BANNER ===== */
+        .quote-banner {
+            position: relative;
+            min-height: 52vh;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 4rem;
+            background-image:
+                linear-gradient(rgba(14,18,26,0.6), rgba(14,18,26,0.8)),
+                url('assets/quote-bg-sp500.jpg');
+            background-size: cover; background-position: center;
+            color: var(--paper);
+        }
+        .quote-banner blockquote {
+            font-family: 'Fraunces', serif; font-weight: 500;
+            font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+            line-height: 1.35; max-width: 780px; letter-spacing: -0.3px;
+        }
+        .quote-banner cite {
+            display: block; margin-top: 1.4rem; font-style: normal;
+            font-size: 0.82rem; letter-spacing: 0.5px; color: rgba(251, 248, 241, 0.7);
+        }
+
+        /* ===== TEXTURE DE FOND ===== */
+        .content-section.textured { position: relative; max-width: none; overflow: hidden; }
+        .content-section.textured::before {
+            content: '';
+            position: absolute; inset: -60px;
+            background-image: url('assets/texture-bg-sp500.jpg');
+            background-size: cover; background-position: center;
+            filter: blur(22px) grayscale(15%);
+            opacity: 0.16; z-index: 0; pointer-events: none;
+        }
+        .content-section.textured > .section-header,
+        .content-section.textured > .section-content {
+            position: relative; z-index: 1;
+            max-width: 1000px; margin-left: auto; margin-right: auto;
+        }
+
+        footer { padding: 3rem 4rem; text-align: center; border-top: 1px solid var(--line); }
+        footer p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; transition: none; }
+        }
+
+        @media (max-width: 968px) {
+            nav { padding: 1.2rem 1.6rem; }
+            .hero, .content-section, .cta-section, .code-showcase, .part-opening, .terminal-section { padding-left: 1.6rem; padding-right: 1.6rem; }
+            .results-grid { grid-template-columns: 1fr; }
+            .evidence-grid { grid-template-columns: 1fr; }
+            .tech-grid { grid-template-columns: repeat(2, 1fr); }
+            .step { flex-direction: column; gap: 0.8rem; }
+            .stats-banner { padding: 2.5rem 1.6rem; }
+            .terminal-section { padding-left: 0.8rem; padding-right: 0.8rem; }
+        }
+        @media (max-width: 600px) {
+            .tech-grid { grid-template-columns: 1fr; }
+            .nav-title { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="back-button"><span>←</span><span>Retour au portfolio</span></a>
+        <div class="nav-title">Projet personnel · Finance quantitative</div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span>Projet personnel</span>
+                <span>2026</span>
+                <span>Yanh Bambela Mouanda</span>
+            </div>
+            <h1>Peut-on battre le marché boursier&nbsp;?</h1>
+            <p class="hero-subtitle">La réalité, mise à l'épreuve sur dix ans de S&amp;P&nbsp;500 et 75&nbsp;003 articles d'actualité.</p>
+            <p class="hero-description">
+                D'abord comprendre dix ans de marché, puis tenter de prévoir le lendemain avec un modèle de langage. Chaque résultat a été confronté à des données que le modèle n'avait jamais vues, et même à ce qui s'est réellement passé en 2025.
+            </p>
+            <div class="tags">
+                <span class="tag">Python</span>
+                <span class="tag">Séries temporelles</span>
+                <span class="tag">NLP · FinBERT</span>
+                <span class="tag">Tests statistiques</span>
+                <span class="tag">Backtesting</span>
+                <span class="tag">JavaScript</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item"><div class="stat-value">2&nbsp;515</div><div class="stat-label">séances de bourse analysées (2015–2024)</div></div>
+            <div class="stat-item"><div class="stat-value">R²&nbsp;=&nbsp;0,93</div><div class="stat-label">le passé s'explique très bien…</div></div>
+            <div class="stat-item"><div class="stat-value">75&nbsp;003</div><div class="stat-label">titres d'articles lus par FinBERT</div></div>
+            <div class="stat-item"><div class="stat-value">p&nbsp;=&nbsp;0,76</div><div class="stat-label">…mais l'actualité ne prévoit pas le lendemain</div></div>
+            <div class="stat-item"><div class="stat-value">+2&nbsp;% / +7&nbsp;%</div><div class="stat-label">suivre le modèle, ou garder l'indice</div></div>
+        </div>
+    </section>
+
+    <!-- 01 Contexte -->
+    <section class="content-section textured reveal">
+        <div class="section-header"><span class="section-number">01</span><h2>Contexte du projet</h2></div>
+        <div class="section-content">
+            <p>La gestion active promet de faire mieux que le marché. Ce projet personnel teste cette promesse sur le S&amp;P&nbsp;500, l'indice des 500 plus grandes entreprises américaines, en deux temps : comprendre dix ans de cours, puis essayer de prévoir le lendemain en y ajoutant ce que les prix ne contiennent pas, l'actualité.</p>
+            <div class="highlight-box">
+                <strong>Question posée</strong>
+                <p>Un modèle statistique, aidé ou non par le sentiment de milliers d'articles financiers, peut-il prévoir l'évolution de l'indice mieux qu'une règle naïve, et en tirer une stratégie plus rentable que simplement garder l'indice ?</p>
+            </div>
+            <p>Chaque étape a été conçue pour ne pas se tromper soi-même : une période de test mise de côté dès le départ, des contrôles contre les fuites d'information, et une confrontation finale aux cours réels de 2025.</p>
+            <div class="team-note">
+                <strong>Projet personnel, réalisé seul.</strong> Relu par deux personnes extérieures : trois erreurs de code identifiées, corrigées et vérifiées avant les résultats finaux.
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ PREMIÈRE PARTIE ============ -->
+    <div class="part-opening reveal">
+        <div class="part-label">Première partie</div>
+        <div class="part-title">Comprendre dix ans de marché</div>
+        <p class="part-intro">Cours de clôture quotidien du S&amp;P&nbsp;500, de janvier 2015 à décembre 2024 : tendance, ruptures, et ce qu'un modèle peut réellement en dire.</p>
+    </div>
+
+    <!-- 02 -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">02</span><h2>Dix ans de S&amp;P&nbsp;500</h2></div>
+        <div class="section-content">
+            <div class="evidence-full" style="margin-top:0;">
+                <div class="evidence-frame"><img src="assets/fig-sp500-cours-2015-2024.png" alt="Cours de clôture du S&P 500 de 2015 à 2024, passant d'environ 2 000 à près de 6 000 points, avec des chutes en 2018, 2020 et 2022" loading="lazy" width="1375" height="596"></div>
+                <div class="evidence-caption"><h4>Cours de clôture journalier</h4><p>2&nbsp;515 séances, de janvier 2015 à décembre 2024.</p></div>
+            </div>
+            <div class="highlight-box">
+                <strong>Lecture</strong>
+                <p>En dix ans, l'indice est presque multiplié par trois, mais jamais en ligne droite : correction de 2018, krach du Covid en 2020 (plus d'un tiers perdu en cinq semaines), recul de 2022 face à la hausse des taux.</p>
+                <p>Les tests confirment ce que l'œil devine : la série n'est pas stationnaire (test ADF, <span class="nowrap">p = 0,98</span>) et se comporte comme une marche aléatoire, où le meilleur indicateur du cours de demain est le cours d'aujourd'hui. Aucun effet de calendrier non plus : ni un mois ni un jour de la semaine n'est plus favorable qu'un autre (ANOVA, <span class="nowrap">p = 0,52</span> et <span class="nowrap">0,99</span>).</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">03</span><h2>Six phases, cinq ruptures</h2></div>
+        <div class="section-content">
+            <div class="evidence-full" style="margin-top:0;">
+                <div class="evidence-frame"><img src="assets/fig-sp500-ruptures.png" alt="Série du S&P 500 et modèle de régression linéaire par morceaux en orange, avec cinq ruptures en pointillés : janvier 2018, février, mars et juin 2020, avril 2022" loading="lazy" width="1331" height="632"></div>
+                <div class="evidence-caption"><h4>Régression linéaire par morceaux</h4><p>Les pointillés marquent les cinq ruptures détectées.</p></div>
+            </div>
+            <div class="highlight-box">
+                <strong>Lecture</strong>
+                <p>Le modèle découpe la décennie en six phases et explique 93&nbsp;% des variations (<span class="nowrap">R² = 0,93</span>). Le krach de 2020 y apparaît nettement : <span class="nowrap">−34,8 points</span> par jour entre le 19 février et le 23 mars, puis <span class="nowrap">+23,1 points</span> par jour pendant le rebond. Les autres ruptures correspondent à des événements identifiables : la correction de janvier 2018 et le resserrement monétaire d'avril 2022.</p>
+                <p>Limite assumée : ces ruptures sont repérées après coup. Le 20 février 2020, personne ne savait que le sommet était atteint.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">04</span><h2>Ce que le modèle laisse de côté</h2></div>
+        <div class="section-content">
+            <div class="evidence-full" style="margin-top:0;">
+                <div class="evidence-frame"><img src="assets/fig-sp500-residus.png" alt="Résidus standardisés du modèle entre 2015 et 2024, formant de longues vagues qui dépassent la bande de plus ou moins deux écarts-types en 2021-2022 et en 2023" loading="lazy" width="1314" height="495"></div>
+                <div class="evidence-caption"><h4>Résidus standardisés</h4><p>Écarts entre la série et le modèle, divisés par leur écart-type ; bande de fluctuation à ±2.</p></div>
+            </div>
+            <div class="highlight-box">
+                <strong>Lecture</strong>
+                <p>Si le modèle capturait toute la dynamique du marché, ses erreurs ressembleraient à un bruit sans mémoire. Ici, elles forment de longues vagues : une erreur positive est presque toujours suivie d'une autre erreur positive (Durbin-Watson <span class="nowrap">= 0,017</span>, test de Ljung-Box <span class="nowrap">p ≈ 0</span>), et les dépassements de ±2 arrivent par blocs.</p>
+                <p>Le modèle décrit bien la tendance, mais la dynamique de court terme lui échappe entièrement.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 05 -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">05</span><h2>Prévoir six mois, puis vérifier</h2></div>
+        <div class="section-content">
+            <div class="evidence-full" style="margin-top:0;">
+                <div class="evidence-frame"><img src="assets/fig-sp500-prevision-six-mois.png" alt="Modèle ajusté prolongé sur six mois en rouge avec un intervalle de prédiction à 95 % en rose, partant sous le dernier cours observé" loading="lazy" width="1321" height="655"></div>
+                <div class="evidence-caption"><h4>Prévision à six mois</h4><p>Prolongement du dernier segment sur 125 séances, avec intervalle de prédiction à 95&nbsp;%.</p></div>
+            </div>
+            <div class="highlight-box">
+                <strong>Lecture</strong>
+                <p>Prolongée telle quelle, la droite annonçait <span class="nowrap">5 698 points</span> fin juin 2025, soit moins que le dernier cours connu (<span class="nowrap">5 907</span>) alors que la tendance était haussière : en fin de période, le modèle « traîne » environ 450 points derrière le marché. Recalée sur le dernier cours, la prévision donnait <span class="nowrap">6 160 points</span>, dans un intervalle de <span class="nowrap">5 138</span> à <span class="nowrap">6 257</span>.</p>
+            </div>
+            <p style="margin-top:2.6rem;"><strong style="font-family:'Fraunces',serif; font-weight:500; font-size:1.25rem; color:var(--ink);">La réalité, en 2025</strong><br>Cours de clôture officiels, un an après la fin de l'étude.</p>
+            <div class="results-grid" style="margin-top:1rem;">
+                <div class="result-card">
+                    <div class="date">30 décembre 2024</div>
+                    <div class="value">5&nbsp;906,94</div>
+                    <p>Dernier cours connu du modèle.</p>
+                </div>
+                <div class="result-card">
+                    <div class="date">8 avril 2025</div>
+                    <div class="value down">4&nbsp;982,77</div>
+                    <p>Choc des droits de douane, bien sous la borne basse prévue pour fin juin (5&nbsp;138).</p>
+                </div>
+                <div class="result-card">
+                    <div class="date">30 juin 2025</div>
+                    <div class="value">6&nbsp;204,95</div>
+                    <p>Prévision recalée : écart de <span class="up">0,7&nbsp;%</span>.<br>Prévision brute : écart de <span class="down">8,2&nbsp;%</span>.</p>
+                </div>
+            </div>
+            <div class="highlight-box" style="margin-top:2.4rem;">
+                <strong>Lecture</strong>
+                <p>À l'arrivée, la prévision recalée tombe presque juste. Mais le chemin, lui, était imprévisible : aucun modèle construit sur le passé ne pouvait annoncer la chute d'avril, près de 16&nbsp;% sous le dernier cours connu. Tomber juste un jour donné ne dit rien de la capacité à anticiper ce qui se passe entre-temps.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bandeau citation -->
+    <section class="quote-banner reveal">
+        <blockquote>
+            « Un modèle peut être excellent pour décrire et mauvais pour prévoir. »
+            <cite>Conclusion de la première partie. Restait une piste : et si l'actualité donnait une longueur d'avance sur le marché&nbsp;?</cite>
+        </blockquote>
+    </section>
+
+    <!-- ============ DEUXIÈME PARTIE ============ -->
+    <div class="part-opening reveal">
+        <div class="part-label">Deuxième partie</div>
+        <div class="part-title">Prévoir le lendemain avec l'actualité</div>
+        <p class="part-intro">75&nbsp;003 titres d'articles financiers (GDELT), notés de −1 à +1 par FinBERT, un modèle de langage spécialisé en finance. La moyenne de la veille sert à prévoir le rendement du jour, de juillet 2023 à juin 2024.</p>
+    </div>
+
+    <!-- 06 -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">06</span><h2>Un protocole pour ne pas se tromper soi-même</h2></div>
+        <div class="section-content">
+            <div class="solution-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content"><h3>Collecte</h3><p>Cours quotidiens via yfinance, articles via l'API GDELT, avec un cache par jour et une reprise automatique face aux limites de requêtes.</p></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content"><h3>Sentiment</h3><p>Chaque titre noté par FinBERT, puis moyenne quotidienne. Toutes les variables sont décalées d'un jour : aucune information du futur ne peut s'y glisser.</p></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content"><h3>Modèles</h3><p>ARIMA sur les rendements, avec indicateurs techniques seuls (modèle B) ou avec le sentiment en plus (modèle C), ré-entraînés chaque jour sur les 60 séances précédentes et comparés à une prévision naïve.</p></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content"><h3>Évaluation</h3><p>Tests de Diebold-Mariano et de Pesaran-Timmermann, puis backtest financier avec frais de transaction.</p></div>
+                </div>
+            </div>
+            <div class="evidence-full">
+                <div class="evidence-frame"><img src="assets/fig-sp500-protocole.png" alt="Cours du S&P 500 de juillet 2023 à juin 2024 découpé en trois zones colorées : sélection de 64 jours, validation de 82 jours, test de 83 jours" loading="lazy" width="1584" height="626"></div>
+                <div class="evidence-caption"><h4>Trois périodes sans chevauchement</h4><p>Sélection du modèle, réglages, puis test final.</p></div>
+            </div>
+            <div class="highlight-box">
+                <strong>Lecture</strong>
+                <p>Le modèle est choisi sur la première période, réglé sur la deuxième, et évalué une seule fois sur la troisième, jamais consultée avant. Ce pipeline a d'abord été vérifié sur des données synthétiques dont la réponse était connue d'avance : il détecte un vrai signal, et ne détecte rien quand il n'y en a pas.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 07 -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">07</span><h2>L'humeur de la veille, le marché du jour</h2></div>
+        <div class="section-content">
+            <div class="evidence-full evidence-narrow" style="margin-top:0;">
+                <div class="evidence-frame"><img src="assets/fig-sp500-sentiment-rendement.png" alt="Nuage de points sans structure entre le sentiment moyen des titres de la veille et le rendement du jour, corrélation de 0,05 sur 210 jours" loading="lazy" width="1025" height="753"></div>
+                <div class="evidence-caption"><h4>Sentiment de la veille et rendement du jour</h4><p>Chaque point est une séance.</p></div>
+            </div>
+            <div class="highlight-box">
+                <strong>Lecture</strong>
+                <p>Le nuage n'a pas de forme : la corrélation vaut <span class="nowrap">0,05</span> sur 210 séances. Des journées très pessimistes sont suivies de hausses, des journées optimistes de baisses. FinBERT lit correctement la tonalité des titres ; une explication possible est que le marché a déjà intégré l'information au moment où elle est publiée.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 08 -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">08</span><h2>Le verdict</h2></div>
+        <div class="section-content">
+            <div class="evidence-full" style="margin-top:0;">
+                <div class="evidence-frame"><img src="assets/fig-sp500-erreurs-test.png" alt="Erreur de prévision sur la période de test : 33,7 pour la prévision naïve, 34,0 pour la moyenne récente, 40,6 et 41,0 pour les modèles ARIMA sans et avec sentiment" loading="lazy" width="1265" height="690"></div>
+                <div class="evidence-caption"><h4>Erreur de prévision sur la période de test</h4><p>83 séances jamais vues ; plus la barre est basse, meilleure est la prévision.</p></div>
+            </div>
+            <div class="highlight-box">
+                <strong>Lecture</strong>
+                <p>Ajouter le sentiment ne change rien (modèle C contre B, <span class="nowrap">p = 0,76</span>). Plus surprenant : les deux modèles se trompent significativement plus que la prévision la plus naïve, « demain, rendement nul » (<span class="nowrap">p = 0,006</span> et <span class="nowrap">0,003</span>). Sur des rendements quotidiens, le signal est si faible qu'un modèle plus riche apprend surtout le bruit.</p>
+                <p>C'est la marche aléatoire de la première partie, retrouvée par une tout autre voie.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 09 -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">09</span><h2>Un signal qui ne tenait pas</h2></div>
+        <div class="section-content">
+            <div class="evidence-full" style="margin-top:0;">
+                <div class="evidence-frame"><img src="assets/fig-sp500-exploratoire-vs-test.png" alt="P-values du test de Pesaran-Timmermann : 0,011 et 0,035 en phase exploratoire, sous le seuil de 0,05 ; 0,601 et 0,692 sur la période de test" loading="lazy" width="1264" height="691"></div>
+                <div class="evidence-caption"><h4>Exploration contre test final</h4><p>Test de Pesaran-Timmermann : sous la ligne rouge, le lien entre directions prévues et réelles serait significatif.</p></div>
+            </div>
+            <div class="highlight-box">
+                <strong>Lecture</strong>
+                <p>Lors de l'exploration, sur l'ensemble des données, le modèle semblait deviner le sens du marché mieux que le hasard (<span class="nowrap">p = 0,011</span>). Sur la période de test, l'effet disparaît (<span class="nowrap">p = 0,60</span>). Sans période réservée, ce faux résultat aurait pu être présenté comme une découverte.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">10</span><h2>Et en argent réel&nbsp;?</h2></div>
+        <div class="section-content">
+            <div class="evidence-full" style="margin-top:0;">
+                <div class="evidence-frame"><img src="assets/fig-sp500-capital-test.png" alt="Évolution d'un capital de 10 000 sur la période de test : 10 715 en gardant l'indice, environ 10 204 en suivant les modèles" loading="lazy" width="1580" height="618"></div>
+                <div class="evidence-caption"><h4>Évolution d'un capital de 10&nbsp;000</h4><p>Période de test, frais de transaction inclus.</p></div>
+            </div>
+            <div class="highlight-box">
+                <strong>Lecture</strong>
+                <p>Vendre quand le modèle prévoit une baisse, racheter sinon : la stratégie termine à <span class="nowrap">+2,0 %</span>, contre <span class="nowrap">+7,1 %</span> pour qui garde simplement l'indice. Elle passe environ une séance sur cinq hors du marché et manque une partie de la hausse. Son ratio de Sharpe est de <span class="nowrap">0,75</span>, contre <span class="nowrap">2,08</span> sans rien faire.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 11 Terminal -->
+    <section class="content-section reveal" id="terminal" style="padding-top:0; padding-bottom:2.2rem;">
+        <div class="section-header"><span class="section-number">11</span><h2>Rejouer le backtest</h2></div>
+        <div class="section-content">
+            <p>Chaque décision du modèle, séance par séance : bougies, signaux d'achat et de vente, sentiment du jour et titres d'articles lus par FinBERT, capital comparé à l'indice. Survolez le graphique, zoomez à la molette, cliquez sur une transaction pour la retrouver.</p>
+        </div>
+    </section>
+    <section class="terminal-section">
+        <div class="terminal-frame">
+            <iframe id="terminal-frame" src="sp500-terminal.html" title="Terminal interactif de backtest du S&P 500" loading="lazy"></iframe>
+        </div>
+        <div class="terminal-links">
+            <span>Backtest rejoué à des fins de démonstration, pas un conseil d'investissement.</span>
+            <a href="sp500-terminal.html" target="_blank" rel="noopener">Ouvrir en plein écran ↗</a>
+        </div>
+    </section>
+
+    <!-- 12 Conclusion -->
+    <section class="content-section textured reveal">
+        <div class="section-header"><span class="section-number">12</span><h2>Alors, peut-on battre le marché&nbsp;?</h2></div>
+        <div class="section-content">
+            <div class="highlight-box" style="margin-top:0;">
+                <strong>Pas avec ces outils, sur ces périodes.</strong>
+                <p>Le passé du S&amp;P&nbsp;500 se décrit très bien, mais ni sa tendance, ni les indicateurs techniques, ni le sentiment de 75&nbsp;003 articles ne prévoient le lendemain mieux que « demain ressemblera à aujourd'hui ».</p>
+            </div>
+            <p>Ce n'est pas un échec : c'est une réponse, obtenue avec un protocole capable de détecter un signal s'il avait existé. Le résultat le plus utile n'était pas celui que j'espérais, c'est celui qu'une démarche rigoureuse empêche d'inventer.</p>
+        </div>
+    </section>
+
+    <!-- 13 Extraits de code -->
+    <section class="code-showcase reveal">
+        <div class="section-header"><span class="section-number">13</span><h2>Extraits de code clés</h2></div>
+        <div class="code-header">
+            <p style="max-width:600px;">Trois garde-fous du pipeline : une collecte qui résiste aux coupures, un décalage qui empêche toute fuite d'information, une validation qui ne regarde jamais le futur. Extraits simplifiés du code complet.</p>
+            <div class="code-tabs" role="tablist">
+                <button class="code-tab active" role="tab" aria-selected="true" onclick="showCode('collecte', this)">get_financial_news</button>
+                <button class="code-tab" role="tab" aria-selected="false" onclick="showCode('fuite', this)">merge_price_and_sentiment</button>
+                <button class="code-tab" role="tab" aria-selected="false" onclick="showCode('walk', this)">walk_forward</button>
+            </div>
+        </div>
+        <div id="code-collecte" class="code-panel active">
+<pre><span class="kw">for</span> attempt <span class="kw">in</span> <span class="fn">range</span>(max_retries):
+    <span class="kw">try</span>:
+        response = requests.<span class="fn">get</span>(base_url, params=params, timeout=<span class="nb">30</span>)
+    <span class="kw">except</span> requests.exceptions.<span class="fn">RequestException</span>:
+        time.<span class="fn">sleep</span>(<span class="nb">10</span> * (attempt + <span class="nb">1</span>))   <span class="str"># coupure réseau : on réessaie</span>
+        <span class="kw">continue</span>
+    <span class="kw">if</span> response.status_code == <span class="nb">429</span>:           <span class="str"># trop de requêtes pour GDELT</span>
+        time.<span class="fn">sleep</span>(<span class="nb">10</span> * (attempt + <span class="nb">1</span>))   <span class="str"># pause croissante : 10 s, 20 s, 30 s…</span>
+        <span class="kw">continue</span>
+    <span class="kw">break</span>
+
+<span class="str"># Chaque jour réussi est mis en cache : une relance reprend là où elle s'était arrêtée</span>
+day_df.<span class="fn">to_csv</span>(day_cache_path, index=<span class="kw">False</span>)</pre>
+        </div>
+        <div id="code-fuite" class="code-panel">
+<pre><span class="str"># Le sentiment utilisé pour la séance t est celui du jour CALENDAIRE t-1</span>
+full_days = pd.<span class="fn">date_range</span>(sentiment.index.<span class="fn">min</span>(), sentiment.index.<span class="fn">max</span>(), freq=<span class="str">"D"</span>)
+sentiment = sentiment.<span class="fn">reindex</span>(full_days)
+available = sentiment[<span class="str">"sentiment_mean"</span>].<span class="fn">notna</span>().<span class="fn">astype</span>(<span class="fn">int</span>)
+sentiment[<span class="str">"sentiment_mean"</span>] = sentiment[<span class="str">"sentiment_mean"</span>].<span class="fn">ffill</span>()   <span class="str"># jours sans article</span>
+
+shifted = sentiment.<span class="fn">shift</span>(<span class="nb">1</span>, freq=<span class="str">"D"</span>)      <span class="str"># un jour exactement, pas une ligne</span>
+merged = prices_features_df.<span class="fn">join</span>(shifted, how=<span class="str">"left"</span>)</pre>
+        </div>
+        <div id="code-walk" class="code-panel">
+<pre><span class="kw">def</span> <span class="fn">walk_forward</span>(frame, dates, exog_cols, order):
+    preds = {}
+    <span class="kw">for</span> t <span class="kw">in</span> dates:
+        pos = frame.index.<span class="fn">get_loc</span>(t)
+        train = frame.iloc[pos - WINDOW : pos]         <span class="str"># les 60 séances précédentes</span>
+        <span class="kw">assert</span> train.index.<span class="fn">max</span>() &lt; t                 <span class="str"># garde-fou anti-fuite</span>
+        fitted = <span class="fn">fit_model</span>(train[<span class="str">"ret"</span>], train[exog_cols], order)
+        preds[t] = <span class="fn">forecast_next</span>(fitted, frame.loc[[t], exog_cols])
+    <span class="kw">return</span> pd.<span class="fn">Series</span>(preds)</pre>
+        </div>
+    </section>
+
+    <!-- 14 Défis & solutions -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">14</span><h2>Défis rencontrés &amp; solutions</h2></div>
+        <div class="section-content">
+            <ul class="insights-list">
+                <li class="insight-item">
+                    <strong>L'algorithme ne voyait pas le krach du Covid</strong>
+                    <p>Trop bref (130 séances sur 2&nbsp;515), le creux de 2020 pesait peu dans le critère de détection des ruptures, qui préférait découper ailleurs. Solution : une approche hybride, détection automatique des grands cycles et repérage ciblé du creux réel du marché (23 mars 2020), validée par le R² ajusté.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Une API qui bloque au bout de quelques requêtes</strong>
+                    <p>GDELT renvoyait des erreurs 429 (« trop de requêtes ») presque à chaque jour interrogé, et une coupure réseau faisait planter des heures de collecte. Solution : pauses croissantes entre les tentatives, gestion des erreurs réseau, et un cache par jour pour que chaque relance reprenne exactement où elle s'était arrêtée.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Un résultat prometteur qui cachait des erreurs</strong>
+                    <p>La première version annonçait un gain sur la direction du marché. Deux relectures extérieures et des tests sur données synthétiques ont révélé trois erreurs : une précision directionnelle mal définie, un signal de stratégie décalé d'un jour, un décalage du sentiment par ligne au lieu de par jour. Solution : corriger, vérifier sur des cas dont la réponse est connue, puis tout recalculer.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Tester sans se donner raison</strong>
+                    <p>Réessayer des réglages jusqu'à trouver un bon chiffre, c'est fabriquer un résultat. Solution : fixer la question principale à l'avance, choisir tous les réglages sur une période de validation, et ne consulter la période de test qu'une seule fois.</p>
+                </li>
+                <li class="insight-item">
+                    <strong>Des limites qui restent</strong>
+                    <p>Ruptures détectées a posteriori ; 83 séances de test sur une période haussière ; sentiment calculé sur les titres seuls, avec au plus 250 articles par jour, souvent ceux du soir ; modèles linéaires uniquement. La suite logique : une nouvelle période de test totalement neuve et des modèles plus sobres.</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 15 Stack -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">15</span><h2>Stack technique</h2></div>
+        <div class="section-content">
+            <div class="tech-grid">
+                <div class="tech-item"><h4>Python / pandas</h4><p>Pipeline complet, séries temporelles, fusion des sources</p></div>
+                <div class="tech-item"><h4>statsmodels</h4><p>ADF, régression, ARIMA, diagnostic des résidus</p></div>
+                <div class="tech-item"><h4>ruptures</h4><p>Détection des points de rupture, méthode du coude</p></div>
+                <div class="tech-item"><h4>transformers · FinBERT</h4><p>Score de sentiment sur 75&nbsp;003 titres</p></div>
+                <div class="tech-item"><h4>API yfinance · GDELT</h4><p>Collecte avec cache et reprise automatique</p></div>
+                <div class="tech-item"><h4>JavaScript / SVG</h4><p>Terminal de backtest interactif, sans bibliothèque</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>Voir le rapport complet</h2>
+        <p>Protocole, tests statistiques et limites détaillés de la deuxième partie</p>
+        <div class="cta-buttons">
+            <a href="assets/rapport-sp500-sentiment.pdf" download class="cta-button"><span>Télécharger le rapport (PDF)</span></a>
+            <a href="#terminal" class="cta-button cta-secondary"><span>Rejouer le backtest ↑</span></a>
+            <a href="index.html" class="cta-button cta-secondary"><span>Retour au portfolio</span></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 · Projet personnel · Yanh Bambela Mouanda · BUT Science des Données</p>
+    </footer>
+
+    <script>
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() {
+            reveals.forEach(el => { if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active'); });
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        function showCode(id, btn) {
+            document.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.code-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+            document.getElementById('code-' + id).classList.add('active');
+            btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
+        }
+
+        // Le terminal intégré transmet sa hauteur réelle : le cadre s'ajuste, sans double défilement.
+        window.addEventListener('message', function (e) {
+            if (!e.data || e.data.type !== 'sp500-terminal-height') return;
+            const frame = document.getElementById('terminal-frame');
+            if (frame && e.source === frame.contentWindow) frame.style.height = e.data.height + 'px';
+        });
+    </script>
+</body>
+</html>
