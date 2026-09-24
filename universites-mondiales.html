@@ -520,6 +520,62 @@
         </div>
     </section>
 
+    <!-- Bandeau citation -->
+    <section class="quote-banner reveal">
+        <blockquote>
+            « Les universités mixtes obtiennent les meilleurs scores »
+            <cite>Entre 40 et 60 % de femmes : meilleures moyennes en enseignement et en recherche</cite>
+        </blockquote>
+    </section>
+
+    <!-- ===================== 04 RÉSULTATS ===================== -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">04</span><h2>Résultats</h2></div>
+        <div class="section-content">
+            <p>Chaque graphique a été produit automatiquement dans le classeur Excel. Quatre constats répondent directement à la question.</p>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-univ-pib.png" alt="Scores moyens selon le PIB par habitant du pays, en 2025" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-pib.png</span></div>
+            <div>
+                <div class="finding-num">Constat 1</div>
+                <h3>La richesse du pays compte</h3>
+                <p>En 2025, les universités des pays au PIB par habitant élevé (≥ 4 496 $) obtiennent des scores d'enseignement et de recherche nettement supérieurs à celles des pays moins riches — avec toutefois des exceptions notables.</p>
+            </div>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-univ-internat.png" alt="Score de recherche selon la part d'étudiants internationaux" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-internat.png</span></div>
+            <div>
+                <div class="finding-num">Constat 2</div>
+                <h3>L'ouverture internationale va de pair avec la recherche</h3>
+                <div class="big-number">73,95 <small>contre 44,68</small></div>
+                <p>C'est le score moyen de recherche des universités qui comptent plus de 30 % d'étudiants internationaux, face à celles qui en comptent moins de 10 %.</p>
+            </div>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-univ-alphabet.png" alt="Répartition des universités classées selon le taux d'alphabétisation du pays" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-alphabet.png</span></div>
+            <div>
+                <div class="finding-num">Constat 3</div>
+                <h3>Un socle éducatif national</h3>
+                <div class="big-number">68 %</div>
+                <p>des universités classées se trouvent dans un pays dont le taux d'alphabétisation dépasse 90 %.</p>
+            </div>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-univ-top10.png" alt="Top 10 des pays par score moyen d'enseignement, 2020 à 2025" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-top10.png</span></div>
+            <div>
+                <div class="finding-num">Constat 4</div>
+                <h3>Des leaders très stables</h3>
+                <p>Sur 2020–2025, les États-Unis, le Royaume-Uni et Singapour dominent tous les critères, avec un écart marqué sur le reste du classement.</p>
+                <p class="figure-note">Score pondéré, pays d'au moins 20 universités.</p>
+            </div>
+        </div>
+    </section>
+
+    
     <!-- Extraits de code -->
     <section class="code-showcase reveal">
         <div class="code-header">
@@ -645,61 +701,6 @@
         res.<span class="fn">append</span>((r[<span class="str">"nom_pays"</span>], <span class="fn">round</span>(score, <span class="op">3</span>), r[<span class="str">"nb"</span>]))
 
     <span class="kw">return</span> <span class="fn">sorted</span>(res, key=<span class="kw">lambda</span> x: x[<span class="op">1</span>], reverse=<span class="kw">True</span>)[:<span class="op">10</span>]</pre>
-        </div>
-    </section>
-
-    <!-- Bandeau citation -->
-    <section class="quote-banner reveal">
-        <blockquote>
-            « Les universités mixtes obtiennent les meilleurs scores »
-            <cite>Entre 40 et 60 % de femmes : meilleures moyennes en enseignement et en recherche</cite>
-        </blockquote>
-    </section>
-
-    <!-- ===================== 04 RÉSULTATS ===================== -->
-    <section class="content-section reveal">
-        <div class="section-header"><span class="section-number">04</span><h2>Résultats</h2></div>
-        <div class="section-content">
-            <p>Chaque graphique a été produit automatiquement dans le classeur Excel. Quatre constats répondent directement à la question.</p>
-        </div>
-
-        <div class="finding">
-            <div class="figure-frame"><img src="assets/fig-univ-pib.png" alt="Scores moyens selon le PIB par habitant du pays, en 2025" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-pib.png</span></div>
-            <div>
-                <div class="finding-num">Constat 1</div>
-                <h3>La richesse du pays compte</h3>
-                <p>En 2025, les universités des pays au PIB par habitant élevé (≥ 4 496 $) obtiennent des scores d'enseignement et de recherche nettement supérieurs à celles des pays moins riches — avec toutefois des exceptions notables.</p>
-            </div>
-        </div>
-
-        <div class="finding">
-            <div class="figure-frame"><img src="assets/fig-univ-internat.png" alt="Score de recherche selon la part d'étudiants internationaux" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-internat.png</span></div>
-            <div>
-                <div class="finding-num">Constat 2</div>
-                <h3>L'ouverture internationale va de pair avec la recherche</h3>
-                <div class="big-number">73,95 <small>contre 44,68</small></div>
-                <p>C'est le score moyen de recherche des universités qui comptent plus de 30 % d'étudiants internationaux, face à celles qui en comptent moins de 10 %.</p>
-            </div>
-        </div>
-
-        <div class="finding">
-            <div class="figure-frame"><img src="assets/fig-univ-alphabet.png" alt="Répartition des universités classées selon le taux d'alphabétisation du pays" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-alphabet.png</span></div>
-            <div>
-                <div class="finding-num">Constat 3</div>
-                <h3>Un socle éducatif national</h3>
-                <div class="big-number">68 %</div>
-                <p>des universités classées se trouvent dans un pays dont le taux d'alphabétisation dépasse 90 %.</p>
-            </div>
-        </div>
-
-        <div class="finding">
-            <div class="figure-frame"><img src="assets/fig-univ-top10.png" alt="Top 10 des pays par score moyen d'enseignement, 2020 à 2025" loading="lazy" onerror="var f=this.parentNode; this.remove(); f.classList.add('empty');"><span class="figure-placeholder-text">Capture à déposer :<br>fig-univ-top10.png</span></div>
-            <div>
-                <div class="finding-num">Constat 4</div>
-                <h3>Des leaders très stables</h3>
-                <p>Sur 2020–2025, les États-Unis, le Royaume-Uni et Singapour dominent tous les critères, avec un écart marqué sur le reste du classement.</p>
-                <p class="figure-note">Score pondéré, pays d'au moins 20 universités.</p>
-            </div>
         </div>
     </section>
 
