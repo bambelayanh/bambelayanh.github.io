@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SPX — Testeur de stratégie (sentiment de l'actualité)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg: #131722; --panel: #1e222d; --panel-2: #2a2e39; --grid: #20242f; --line: #2e3340;
+    --text: #d1d4dc; --muted: #787b86; --strong: #ffffff;
+    --area: rgba(41, 98, 255, 0.10); --up: #26a69a; --down: #ef5350; --accent: #2962ff;
+    --bh: #b2b5be; --sma: #f7a600; --rsi: #9c6ade; --neutral: #5d606b;
+    --cash: rgba(239, 83, 80, 0.07); --sel: rgba(41, 98, 255, 0.13);
+    --warn: #f0a33a; --warn-bg: rgba(240, 163, 58, 0.12); --cross: #9598a1;
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff; --panel: #f8f9fd; --panel-2: #eef1f7; --grid: #f0f3fa; --line: #e0e3eb;
+    --text: #131722; --muted: #6a6d78; --strong: #000000;
+    --area: rgba(41, 98, 255, 0.08); --up: #089981; --down: #f23645; --accent: #2962ff;
+    --bh: #6a6d78; --sma: #e08a00; --rsi: #7e57c2; --neutral: #b2b5be;
+    --cash: rgba(242, 54, 69, 0.06); --sel: rgba(41, 98, 255, 0.10);
+    --warn: #b26a00; --warn-bg: rgba(240, 163, 58, 0.14); --cross: #787b86;
+  }
+  :root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  *, *::before, *::after { box-sizing: inherit; }
+  html, body { height: 100%; }
+  html.embedded, html.embedded body { height: auto; }
+  html.embedded .app { min-height: 0; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; font-size: 13px; line-height: 1.45;
+    font-variant-numeric: tabular-nums;
+  }
+  .mono { font-family: "IBM Plex Mono", Consolas, "Courier New", monospace; }
+  .up { color: var(--up); } .down { color: var(--down); } .muted { color: var(--muted); }
+  button { font: inherit; }
+  button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .app { display: grid; grid-template-columns: minmax(0, 1fr); min-height: 100%; }
+
+  .symbolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+  .symbol { display: flex; align-items: baseline; gap: 10px; }
+  .symbol .tick { font-weight: 600; font-size: 17px; color: var(--strong); }
+  .symbol .name { color: var(--muted); }
+  .badge { border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; font-size: 12px; color: var(--muted); }
+  .readout { display: flex; flex-wrap: wrap; gap: 3px 14px; font-size: 12.5px; }
+  .readout b { font-weight: 500; color: var(--muted); margin-right: 4px; }
+  .spacer { flex: 1; }
+  .btn { color: var(--text); background: transparent; border: 1px solid var(--line); border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+  .btn:hover { background: var(--panel-2); }
+
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 8px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  .tool { display: flex; align-items: center; gap: 8px; }
+  .lbl { color: var(--muted); }
+  .seg { display: inline-flex; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .seg button { color: var(--muted); background: transparent; border: 0; padding: 4px 11px; cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { color: var(--strong); background: var(--panel-2); box-shadow: inset 0 -2px 0 var(--accent); }
+  .tool input[type="range"] { width: 110px; accent-color: var(--accent); }
+  .tool output { min-width: 52px; color: var(--strong); }
+  .flag { color: var(--warn); background: var(--warn-bg); border-radius: 4px; padding: 3px 8px; font-size: 12px; }
+  .flag[hidden] { display: none; }
+
+  .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 320px; }
+  .chart-area { border-right: 1px solid var(--line); min-width: 0; display: flex; flex-direction: column; }
+  .chartbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip { color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 12px; padding: 2px 10px; cursor: pointer; font-size: 12px; }
+  .chip[aria-pressed="true"] { color: var(--strong); border-color: var(--accent); background: var(--sel); }
+  .chart-scroll { overflow-x: auto; }
+  .chart-focus { outline: none; }
+  svg#chart { display: block; width: 100%; height: auto; min-width: 640px; user-select: none; touch-action: pan-x pan-y; }
+  svg#chart text { font-family: "IBM Plex Mono", Consolas, monospace; font-size: 11px; }
+  svg#chart .ptitle { font-family: "IBM Plex Sans", sans-serif; font-size: 11.5px; white-space: pre; }
+  .hint { color: var(--muted); font-size: 11.5px; padding: 4px 10px 8px; }
+
+  .side { background: var(--bg); overflow-y: auto; }
+  .side section { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .side h2 { font-size: 13px; font-weight: 600; margin: 0 0 2px; color: var(--strong); }
+  .side .sub { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+  .verdict { border-left: 3px solid var(--accent); padding: 8px 10px; background: var(--panel); margin-bottom: 12px; }
+  .verdict .big { font-size: 22px; font-weight: 600; }
+  .verdict .vs { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  dl.kv { display: grid; grid-template-columns: 1fr auto; margin: 0; }
+  dl.kv dt, dl.kv dd { padding: 5px 0; border-bottom: 1px solid var(--line); margin: 0; }
+  dl.kv dt { color: var(--muted); }
+  dl.kv dd { text-align: right; font-family: "IBM Plex Mono", Consolas, monospace; padding-left: 10px; }
+  .note { color: var(--muted); font-size: 11.5px; margin: 8px 0 0; }
+  .warnbox { margin: 12px 0 0; color: var(--warn); background: var(--warn-bg); padding: 8px 10px; border-radius: 4px; font-size: 12px; }
+  .warnbox[hidden] { display: none; }
+  .news-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .headline { display: grid; grid-template-columns: 52px 1fr; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); font-size: 12.5px; }
+  .headline .score { font-family: "IBM Plex Mono", Consolas, monospace; text-align: right; }
+  .headline .src { display: block; color: var(--muted); font-size: 11.5px; }
+
+  .bottom { border-top: 1px solid var(--line); }
+  .tabs { display: flex; align-items: center; gap: 2px; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  .tabs [role="tab"] { color: var(--muted); background: transparent; border: 0; padding: 8px 12px; cursor: pointer; border-bottom: 2px solid transparent; }
+  .tabs [role="tab"][aria-selected="true"] { color: var(--strong); border-bottom-color: var(--accent); }
+  .tabpanel { padding: 0 16px 16px; max-height: 300px; overflow: auto; }
+  .tabpanel[hidden] { display: none; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; position: sticky; top: 0; background: var(--bg); }
+  th:nth-child(-n+2), td:nth-child(-n+2) { text-align: left; }
+  td { font-family: "IBM Plex Mono", Consolas, monospace; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: var(--panel); }
+  tbody tr[aria-selected="true"] { background: var(--sel); }
+  .method { max-width: 80ch; padding-top: 12px; }
+  .method p { margin: 0 0 10px; }
+  footer { padding: 10px 16px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); }
+
+  @media (max-width: 1000px) {
+    .workspace { grid-template-columns: minmax(0, 1fr); }
+    .chart-area { border-right: 0; border-bottom: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="symbolbar">
+    <div class="symbol"><span class="tick">SPX</span><span class="name">Indice S&amp;P 500</span><span class="badge">1J</span></div>
+    <div class="readout mono" id="readout" aria-live="polite"></div>
+    <div class="spacer"></div>
+    <button type="button" class="btn" id="theme-btn">Thème clair</button>
+  </header>
+
+  <nav class="toolbar" aria-label="Paramètres de la stratégie">
+    <div class="tool">
+      <span class="lbl" id="lbl-model">Modèle</span>
+      <div class="seg" role="group" aria-labelledby="lbl-model">
+        <button type="button" data-model="C" aria-pressed="true" title="ARIMA + indicateurs techniques + sentiment des articles">C : technique + sentiment</button>
+        <button type="button" data-model="B" aria-pressed="false" title="ARIMA + indicateurs techniques">B : technique</button>
+      </div>
+    </div>
+    <div class="tool">
+      <span class="lbl" id="lbl-period">Période</span>
+      <div class="seg" role="group" aria-labelledby="lbl-period">
+        <button type="button" data-period="validation" aria-pressed="false">Validation</button>
+        <button type="button" data-period="test" aria-pressed="true">Test</button>
+      </div>
+    </div>
+    <div class="tool">
+      <label class="lbl" for="threshold">Seuil de sortie</label>
+      <input type="range" id="threshold" min="0" max="0.5" step="0.05">
+      <output class="mono" id="threshold-out" for="threshold"></output>
+    </div>
+    <div class="tool">
+      <label class="lbl" for="cost">Frais</label>
+      <input type="range" id="cost" min="0" max="20" step="1">
+      <output class="mono" id="cost-out" for="cost"></output>
+    </div>
+    <button type="button" class="btn" id="reset-btn">Réglages officiels</button>
+    <span class="flag" id="flag" hidden>Réglage exploratoire</span>
+  </nav>
+
+  <main class="workspace">
+    <section class="chart-area" aria-label="Graphique">
+      <div class="chartbar">
+        <div class="seg" role="group" aria-label="Type de graphique">
+          <button type="button" data-ctype="candles" aria-pressed="true">Bougies</button>
+          <button type="button" data-ctype="line" aria-pressed="false">Ligne</button>
+        </div>
+        <div class="chips" role="group" aria-label="Indicateurs affichés">
+          <button type="button" class="chip" data-ind="sma" aria-pressed="true">MM 20</button>
+          <button type="button" class="chip" data-ind="volume" aria-pressed="true">Volume</button>
+          <button type="button" class="chip" data-ind="capital" aria-pressed="true">Capital</button>
+          <button type="button" class="chip" data-ind="sentiment" aria-pressed="true">Sentiment</button>
+          <button type="button" class="chip" data-ind="rsi" aria-pressed="false">RSI 14</button>
+          <button type="button" class="chip" data-ind="returns" aria-pressed="false">Rendements</button>
+        </div>
+        <div class="spacer"></div>
+        <div class="seg" role="group" aria-label="Plage affichée">
+          <button type="button" data-range="21" aria-pressed="false">1M</button>
+          <button type="button" data-range="63" aria-pressed="false">3M</button>
+          <button type="button" data-range="all" aria-pressed="true">Tout</button>
+        </div>
+      </div>
+      <div class="chart-scroll">
+        <div class="chart-focus" id="chart-focus" tabindex="0" aria-label="Graphique interactif. Flèches gauche et droite pour parcourir les jours, plus et moins pour zoomer.">
+          <svg id="chart" role="img" aria-label="Cours du S&P 500 avec signaux d'achat et de vente et indicateurs"></svg>
+        </div>
+      </div>
+      <div class="hint">Molette : zoom · glisser : déplacer · flèches du clavier : jour par jour · clic sur une transaction : la localiser</div>
+    </section>
+
+    <aside class="side" aria-label="Testeur de stratégie et actualité">
+      <section>
+        <h2>Testeur de stratégie</h2>
+        <p class="sub" id="tester-sub"></p>
+        <div class="verdict"><div class="big mono" id="net"></div><div class="vs" id="vs"></div></div>
+        <dl class="kv" id="kv"></dl>
+        <p class="note">Sharpe annualisé sur une courte période : ordre de grandeur, pas une mesure fiable.</p>
+        <p class="warnbox" id="warnbox" hidden>Paramètres modifiés en regardant la période de test : ce résultat n'a pas valeur de preuve. Seul le réglage officiel (seuil 0,20 %, frais 5 pb) a été fixé avant le test.</p>
+      </section>
+      <section aria-live="polite">
+        <h2>Actualité lue par FinBERT</h2>
+        <p class="sub" id="news-sub"></p>
+        <div id="news"></div>
+      </section>
+    </aside>
+  </main>
+
+  <section class="bottom">
+    <div class="tabs">
+      <div role="tablist" aria-label="Détails" style="display:flex;gap:2px">
+        <button type="button" role="tab" id="tab-trades" aria-controls="panel-trades" aria-selected="true">Liste des transactions</button>
+        <button type="button" role="tab" id="tab-method" aria-controls="panel-method" aria-selected="false">Méthode</button>
+      </div>
+      <div class="spacer"></div>
+      <button type="button" class="btn" id="csv-btn">Exporter en CSV</button>
+    </div>
+    <div class="tabpanel" id="panel-trades" role="tabpanel" aria-labelledby="tab-trades">
+      <table>
+        <thead><tr><th>N°</th><th>Statut</th><th>Entrée</th><th>Prix d'entrée</th><th>Sortie</th><th>Prix de sortie</th><th>Jours</th><th>Résultat hors frais</th></tr></thead>
+        <tbody id="trades"></tbody>
+      </table>
+    </div>
+    <div class="tabpanel" id="panel-method" role="tabpanel" aria-labelledby="tab-method" hidden>
+      <div class="method">
+        <p>Chaque jour, le modèle prévoit le rendement du lendemain à partir des 60 jours de bourse précédents uniquement. Si la baisse prévue dépasse le seuil de sortie, la stratégie vend à la clôture et reste en liquidités ; sinon elle reste investie. Les frais sont prélevés à chaque achat ou vente.</p>
+        <p>Le seuil officiel (0,20 %) et le traitement des jours sans article (propagation du dernier sentiment connu) ont été fixés sur la période de validation, avant de consulter la période de test. Sur le test, ni B ni C ne battent le fait de garder l'indice, et leurs prévisions sont moins précises qu'une prévision de rendement nul (Diebold-Mariano, p = 0,006 et 0,003). Le sentiment n'apporte pas d'amélioration mesurable (C contre B, p = 0,76).</p>
+        <p>Modèle C : ARIMA(0,0,1) avec rendement de la veille, volatilité 20 jours, RSI 14 jours, écart à la moyenne mobile 20 jours et sentiment FinBERT moyen des titres d'articles du jour calendaire précédent. Modèle B : identique, sans le sentiment. Les titres affichés sont ceux dont le score est le plus positif et le plus négatif parmi les articles collectés via GDELT (250 au maximum par jour).</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>Rejeu d'un backtest à des fins de démonstration. Ne constitue pas un conseil d'investissement. Données : Yahoo Finance (^GSPC), GDELT, FinBERT (ProsusAI).</footer>
+</div>
+
+<script>
+const EMBEDDED = window.self !== window.top;
+if (EMBEDDED) document.documentElement.classList.add("embedded");
+const DATA = {"version":2,"meta":{"periods":{"validation":["2023-11-01","2024-02-29"],"test":["2024-03-01","2024-06-28"]},"thresholds_chosen_on_validation":{"B":0.002,"C":0.002},"fill_method":"ffill","arima_order":[0,0,1],"cost_bps":5.0},"dates":["2023-11-01","2023-11-02","2023-11-03","2023-11-06","2023-11-07","2023-11-08","2023-11-09","2023-11-10","2023-11-13","2023-11-14","2023-11-15","2023-11-16","2023-11-17","2023-11-20","2023-11-21","2023-11-22","2023-11-24","2023-11-27","2023-11-28","2023-11-29","2023-11-30","2023-12-01","2023-12-04","2023-12-05","2023-12-06","2023-12-07","2023-12-08","2023-12-11","2023-12-12","2023-12-13","2023-12-14","2023-12-15","2023-12-18","2023-12-19","2023-12-20","2023-12-21","2023-12-22","2023-12-26","2023-12-27","2023-12-28","2023-12-29","2024-01-02","2024-01-03","2024-01-04","2024-01-05","2024-01-08","2024-01-09","2024-01-10","2024-01-11","2024-01-12","2024-01-16","2024-01-17","2024-01-18","2024-01-19","2024-01-22","2024-01-23","2024-01-24","2024-01-25","2024-01-26","2024-01-29","2024-01-30","2024-01-31","2024-02-01","2024-02-02","2024-02-05","2024-02-06","2024-02-07","2024-02-08","2024-02-09","2024-02-12","2024-02-13","2024-02-14","2024-02-15","2024-02-16","2024-02-20","2024-02-21","2024-02-22","2024-02-23","2024-02-26","2024-02-27","2024-02-28","2024-02-29","2024-03-01","2024-03-04","2024-03-05","2024-03-06","2024-03-07","2024-03-08","2024-03-11","2024-03-12","2024-03-13","2024-03-14","2024-03-15","2024-03-18","2024-03-19","2024-03-20","2024-03-21","2024-03-22","2024-03-25","2024-03-26","2024-03-27","2024-03-28","2024-04-01","2024-04-02","2024-04-03","2024-04-04","2024-04-05","2024-04-08","2024-04-09","2024-04-10","2024-04-11","2024-04-12","2024-04-15","2024-04-16","2024-04-17","2024-04-18","2024-04-19","2024-04-22","2024-04-23","2024-04-24","2024-04-25","2024-04-26","2024-04-29","2024-04-30","2024-05-01","2024-05-02","2024-05-03","2024-05-06","2024-05-07","2024-05-08","2024-05-09","2024-05-10","2024-05-13","2024-05-14","2024-05-15","2024-05-16","2024-05-17","2024-05-20","2024-05-21","2024-05-22","2024-05-23","2024-05-24","2024-05-28","2024-05-29","2024-05-30","2024-05-31","2024-06-03","2024-06-04","2024-06-05","2024-06-06","2024-06-07","2024-06-10","2024-06-11","2024-06-12","2024-06-13","2024-06-14","2024-06-17","2024-06-18","2024-06-20","2024-06-21","2024-06-24","2024-06-25","2024-06-26","2024-06-27","2024-06-28"],"period":["validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","validation","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test"],"open":[4201.27,4268.26,4334.23,4364.27,4366.21,4384.37,4391.41,4364.15,4406.66,4458.97,4505.3,4497.08,4509.55,4511.7,4538.77,4553.04,4555.84,4554.86,4545.55,4571.84,4554.87,4559.43,4564.37,4557.25,4586.23,4568.84,4576.2,4593.39,4618.3,4646.2,4721.04,4714.23,4725.58,4743.72,4764.73,4724.29,4753.92,4758.86,4773.45,4786.44,4782.88,4745.2,4725.07,4697.42,4690.57,4703.7,4741.93,4759.94,4792.13,4791.18,4772.35,4739.13,4760.1,4796.28,4853.42,4856.8,4888.56,4886.66,4888.91,4892.95,4925.89,4899.19,4861.11,4916.06,4957.19,4950.16,4973.05,4995.16,5004.17,5026.83,4967.94,4976.44,5003.14,5031.13,4989.32,4963.03,5038.83,5100.92,5093.0,5074.6,5067.2,5085.36,5098.51,5130.99,5110.52,5108.03,5132.38,5164.46,5111.96,5134.3,5173.49,5175.14,5123.31,5154.77,5139.09,5181.69,5253.43,5242.48,5219.52,5228.85,5226.31,5248.03,5257.97,5204.29,5194.37,5244.05,5158.95,5211.37,5217.03,5167.88,5172.95,5171.51,5149.67,5064.59,5068.97,5031.52,5005.44,4987.33,5028.85,5084.86,5019.88,5084.65,5114.13,5103.78,5029.03,5049.32,5122.78,5142.42,5187.2,5168.98,5189.03,5225.49,5233.08,5221.1,5263.26,5310.07,5303.1,5305.35,5298.69,5319.28,5340.26,5281.45,5315.91,5278.73,5259.77,5243.21,5297.15,5278.24,5314.48,5357.8,5343.81,5341.22,5353.0,5409.13,5441.93,5424.08,5431.11,5476.15,5499.99,5466.77,5459.58,5460.73,5460.71,5473.59,5488.48],"high":[4245.64,4319.72,4373.62,4372.21,4386.26,4391.2,4393.4,4418.03,4421.76,4508.67,4521.17,4511.99,4520.12,4557.11,4542.14,4568.43,4560.31,4560.52,4568.14,4587.64,4569.89,4599.39,4572.37,4578.56,4590.74,4590.92,4609.23,4623.71,4643.93,4709.69,4738.57,4725.53,4749.52,4768.69,4778.01,4748.71,4772.94,4784.72,4785.39,4793.3,4788.43,4754.33,4729.29,4726.78,4721.49,4764.54,4765.47,4790.8,4798.5,4802.4,4782.34,4744.23,4785.79,4842.07,4868.41,4866.48,4903.68,4898.15,4906.69,4929.31,4931.09,4906.75,4906.97,4975.29,4957.19,4957.77,4999.89,5000.4,5030.06,5048.39,4971.3,5002.52,5032.72,5038.7,4993.71,4983.21,5094.39,5111.06,5097.66,5080.69,5077.37,5104.99,5140.33,5149.67,5114.54,5127.97,5165.62,5189.26,5124.66,5179.87,5179.14,5176.85,5136.86,5175.6,5180.31,5226.19,5261.1,5246.09,5229.09,5235.16,5249.26,5264.85,5263.95,5208.34,5228.75,5256.59,5222.18,5219.57,5224.81,5178.43,5211.78,5175.03,5168.43,5079.84,5077.96,5056.66,5019.02,5038.84,5076.12,5089.48,5057.75,5114.62,5123.49,5110.83,5096.12,5073.21,5139.12,5181.0,5200.23,5191.95,5215.3,5239.66,5237.26,5250.37,5311.76,5325.49,5305.45,5325.32,5324.32,5323.18,5341.88,5311.65,5315.91,5282.27,5260.21,5280.33,5302.11,5298.8,5354.16,5362.35,5375.08,5365.79,5375.95,5447.25,5441.93,5432.39,5488.5,5490.38,5505.53,5478.31,5490.66,5472.88,5483.14,5490.81,5523.64],"low":[4197.74,4268.26,4334.23,4347.53,4355.41,4359.76,4343.94,4353.34,4393.82,4458.97,4495.31,4487.83,4499.66,4510.36,4525.51,4545.05,4552.8,4546.32,4540.51,4547.15,4537.24,4554.71,4546.72,4551.68,4546.5,4565.22,4574.06,4593.39,4608.09,4643.23,4694.34,4704.69,4725.58,4743.72,4697.82,4708.35,4736.77,4758.45,4768.9,4780.98,4751.99,4722.67,4699.71,4687.53,4682.11,4699.82,4730.35,4756.2,4739.58,4768.98,4747.12,4714.82,4740.57,4785.87,4844.05,4844.37,4865.94,4869.34,4881.47,4887.4,4916.27,4845.15,4853.52,4907.99,4918.09,4934.88,4969.05,4987.09,5000.34,5016.83,4920.31,4956.45,4999.44,4999.52,4955.02,4946.0,5038.83,5081.46,5068.91,5057.29,5058.35,5061.89,5094.16,5127.18,5056.82,5092.22,5128.21,5117.5,5091.14,5114.48,5151.88,5123.3,5104.35,5145.47,5131.59,5171.55,5240.66,5229.87,5216.09,5203.42,5213.92,5245.82,5229.2,5184.05,5194.37,5146.06,5157.21,5197.35,5160.78,5138.7,5138.77,5107.94,5052.47,5039.83,5007.25,5001.89,4953.56,4969.4,5027.96,5047.02,4990.58,5073.14,5088.65,5035.31,5013.45,5011.05,5101.22,5142.42,5178.96,5165.86,5180.41,5209.68,5211.16,5217.98,5263.26,5296.19,5283.59,5302.4,5297.87,5286.01,5256.93,5278.39,5280.89,5262.7,5222.1,5191.68,5234.32,5257.63,5297.64,5335.36,5331.33,5331.52,5327.25,5409.13,5402.51,5403.75,5420.4,5471.32,5455.56,5452.03,5447.59,5446.56,5451.87,5467.54,5451.12],"close":[4237.86,4317.78,4358.34,4365.98,4378.38,4382.78,4347.35,4415.24,4411.55,4495.7,4502.88,4508.24,4514.02,4547.38,4538.19,4556.62,4559.34,4550.43,4554.89,4550.58,4567.8,4594.63,4569.78,4567.18,4549.34,4585.59,4604.37,4622.44,4643.7,4707.09,4719.55,4719.19,4740.56,4768.37,4698.35,4746.75,4754.63,4774.75,4781.58,4783.35,4769.83,4742.83,4704.81,4688.68,4697.24,4763.54,4756.5,4783.45,4780.24,4783.83,4765.98,4739.21,4780.94,4839.81,4850.43,4864.6,4868.55,4894.16,4890.97,4927.93,4924.97,4845.65,4906.19,4958.61,4942.81,4954.23,4995.06,4997.91,5026.61,5021.84,4953.17,5000.62,5029.73,5005.57,4975.51,4981.8,5087.03,5088.8,5069.53,5078.18,5069.76,5096.27,5137.08,5130.95,5078.65,5104.76,5157.36,5123.69,5117.94,5175.27,5165.31,5150.48,5117.09,5149.42,5178.51,5224.62,5241.53,5234.18,5218.19,5203.58,5248.49,5254.35,5243.77,5205.81,5211.49,5147.21,5204.34,5202.39,5209.91,5160.64,5199.06,5123.41,5061.82,5051.41,5022.21,5011.12,4967.23,5010.6,5070.55,5071.63,5048.42,5099.96,5116.17,5035.69,5018.39,5064.2,5127.79,5180.74,5187.7,5187.67,5214.08,5222.68,5221.42,5246.68,5308.15,5297.1,5303.27,5308.13,5321.41,5307.01,5267.84,5304.72,5306.04,5266.95,5235.48,5277.51,5283.4,5291.34,5354.03,5352.96,5346.99,5360.79,5375.32,5421.03,5433.74,5431.6,5473.23,5487.03,5473.17,5464.62,5447.87,5469.3,5477.9,5482.87,5460.48],"prev_close":[4193.8,4237.86,4317.78,4358.34,4365.98,4378.38,4382.78,4347.35,4415.24,4411.55,4495.7,4502.88,4508.24,4514.02,4547.38,4538.19,4556.62,4559.34,4550.43,4554.89,4550.58,4567.8,4594.63,4569.78,4567.18,4549.34,4585.59,4604.37,4622.44,4643.7,4707.09,4719.55,4719.19,4740.56,4768.37,4698.35,4746.75,4754.63,4774.75,4781.58,4783.35,4769.83,4742.83,4704.81,4688.68,4697.24,4763.54,4756.5,4783.45,4780.24,4783.83,4765.98,4739.21,4780.94,4839.81,4850.43,4864.6,4868.55,4894.16,4890.97,4927.93,4924.97,4845.65,4906.19,4958.61,4942.81,4954.23,4995.06,4997.91,5026.61,5021.84,4953.17,5000.62,5029.73,5005.57,4975.51,4981.8,5087.03,5088.8,5069.53,5078.18,5069.76,5096.27,5137.08,5130.95,5078.65,5104.76,5157.36,5123.69,5117.94,5175.27,5165.31,5150.48,5117.09,5149.42,5178.51,5224.62,5241.53,5234.18,5218.19,5203.58,5248.49,5254.35,5243.77,5205.81,5211.49,5147.21,5204.34,5202.39,5209.91,5160.64,5199.06,5123.41,5061.82,5051.41,5022.21,5011.12,4967.23,5010.6,5070.55,5071.63,5048.42,5099.96,5116.17,5035.69,5018.39,5064.2,5127.79,5180.74,5187.7,5187.67,5214.08,5222.68,5221.42,5246.68,5308.15,5297.1,5303.27,5308.13,5321.41,5307.01,5267.84,5304.72,5306.04,5266.95,5235.48,5277.51,5283.4,5291.34,5354.03,5352.96,5346.99,5360.79,5375.32,5421.03,5433.74,5431.6,5473.23,5487.03,5473.17,5464.62,5447.87,5469.3,5477.9,5482.87],"volume":[4224900000.0,4669780000.0,4570960000.0,3656340000.0,3791230000.0,3729510000.0,3900780000.0,3665080000.0,3326240000.0,4700350000.0,4347170000.0,3964520000.0,3777240000.0,3644790000.0,3511080000.0,3042810000.0,1639500000.0,3403990000.0,3586240000.0,4418760000.0,5399300000.0,4397120000.0,4369910000.0,3909950000.0,4245680000.0,3818880000.0,3707010000.0,3823210000.0,3808380000.0,5063650000.0,6314040000.0,8218980000.0,4060340000.0,4026970000.0,4201320000.0,3431180000.0,3046770000.0,2513910000.0,2748450000.0,2698860000.0,3126060000.0,3743050000.0,3950760000.0,3715480000.0,3844370000.0,3742320000.0,3529960000.0,3498680000.0,3759890000.0,3486340000.0,4260550000.0,3928600000.0,4019000000.0,4287200000.0,4297610000.0,3912800000.0,4330030000.0,4020430000.0,3353400000.0,3525160000.0,3836130000.0,4696120000.0,4386090000.0,3974350000.0,4023640000.0,4440880000.0,4895590000.0,4341860000.0,3912990000.0,3805740000.0,4302190000.0,3845600000.0,4137970000.0,3833270000.0,4034880000.0,3788390000.0,4051710000.0,3672790000.0,3683930000.0,3925950000.0,3789370000.0,5219740000.0,4748110000.0,4758440000.0,4418410000.0,4559050000.0,4137980000.0,4208870000.0,3896430000.0,4080510000.0,4282890000.0,4687970000.0,7753670000.0,4036220000.0,4031760000.0,4064850000.0,4207730000.0,3374700000.0,3331360000.0,3871790000.0,3850500000.0,3998270000.0,3325930000.0,3886590000.0,3703250000.0,4075680000.0,3386780000.0,3278180000.0,3400680000.0,3845930000.0,3509380000.0,3963220000.0,3950210000.0,4006200000.0,3596130000.0,3619760000.0,3878750000.0,3820250000.0,3751400000.0,3656740000.0,3958050000.0,3604140000.0,3447450000.0,4082470000.0,4544170000.0,4381660000.0,3924990000.0,3683250000.0,3987890000.0,3842100000.0,3727370000.0,3617900000.0,4255710000.0,4763580000.0,4360810000.0,3817470000.0,3578120000.0,3420100000.0,3662240000.0,3847130000.0,3869520000.0,3005510000.0,3751540000.0,3552750000.0,3818750000.0,5437160000.0,4046920000.0,3707900000.0,3591460000.0,3609990000.0,3692760000.0,3622280000.0,3568030000.0,3962840000.0,3530380000.0,3438650000.0,3447840000.0,3544330000.0,3847060000.0,6773800000.0,3696750000.0,3591960000.0,3563920000.0,3589530000.0,7199220000.0],"sma_20":[4269.15,4272.13,4274.63,4276.14,4277.15,4277.44,4277.33,4281.7,4283.6,4289.72,4299.14,4310.65,4325.14,4341.66,4356.18,4374.68,4395.78,4417.43,4436.84,4454.68,4471.17,4485.02,4495.59,4505.65,4514.2,4524.34,4537.19,4547.55,4559.16,4569.72,4580.56,4591.11,4602.43,4613.48,4621.49,4631.0,4640.76,4651.98,4663.31,4674.95,4685.05,4692.46,4699.21,4705.29,4712.68,4721.58,4729.19,4737.24,4744.06,4747.9,4750.22,4751.22,4753.24,4756.82,4764.42,4770.31,4776.01,4781.98,4787.45,4794.68,4802.43,4807.57,4817.64,4831.14,4843.42,4852.95,4864.88,4875.6,4887.92,4899.82,4909.18,4922.25,4934.69,4942.98,4949.23,4955.09,4966.02,4975.75,4984.68,4992.19,4999.43,5011.96,5023.51,5032.12,5038.91,5046.44,5054.56,5060.85,5065.41,5073.08,5083.69,5091.18,5095.55,5102.74,5112.89,5125.03,5132.76,5140.03,5147.46,5153.73,5162.67,5170.57,5175.91,5179.65,5186.29,5188.41,5190.76,5194.7,5199.3,5198.57,5200.25,5198.9,5196.14,5191.24,5183.42,5172.75,5159.03,5147.85,5140.47,5133.87,5123.87,5116.15,5109.77,5101.26,5091.61,5087.46,5083.63,5082.55,5081.44,5082.79,5083.54,5088.5,5096.48,5106.25,5120.54,5134.84,5151.64,5166.52,5179.06,5190.83,5201.8,5212.04,5221.54,5233.1,5243.95,5254.62,5262.4,5267.93,5276.25,5284.51,5291.16,5298.06,5305.76,5314.47,5320.75,5327.48,5335.98,5344.92,5352.51,5360.39,5369.39,5377.62,5386.21,5397.01,5408.26],"rsi_14":[38.95,49.11,48.63,49.36,56.14,60.75,63.14,68.71,66.3,79.37,87.8,91.66,90.8,90.94,87.83,85.6,83.77,80.86,80.33,78.85,90.43,88.73,81.3,70.88,62.77,68.18,70.01,67.83,73.71,78.13,78.89,81.41,82.51,85.23,68.04,69.84,75.22,77.03,81.13,79.21,74.82,67.59,58.51,47.05,46.38,55.93,52.22,52.1,64.04,57.51,52.21,43.26,49.89,57.94,61.43,67.92,76.78,82.59,81.26,79.3,80.47,59.46,66.31,70.09,70.42,75.75,75.69,71.92,73.26,71.29,59.75,61.68,64.4,58.28,55.09,66.09,69.33,65.61,65.06,64.83,59.69,62.02,63.11,62.91,65.45,63.53,65.63,64.14,68.1,71.76,61.21,58.51,56.32,58.9,62.92,64.57,62.54,62.36,68.29,63.36,62.58,69.54,68.55,54.77,57.32,49.55,61.22,57.39,54.66,40.59,44.13,37.11,33.55,33.85,25.16,23.6,22.01,30.46,37.27,42.3,32.93,39.88,40.9,38.56,32.79,44.02,56.64,61.98,65.99,67.43,75.25,73.35,69.08,70.86,78.36,73.62,72.97,91.06,96.23,90.97,75.76,74.23,73.65,63.71,53.64,58.37,59.32,57.09,57.25,59.12,57.14,58.36,58.52,66.4,75.83,72.15,75.59,86.51,91.88,87.38,81.49,82.4,78.08,78.94,73.56],"sentiment_lag1":[-0.0319,0.095,0.2943,0.0776,0.0754,-0.1028,-0.1448,-0.2729,0.0629,0.0629,0.1047,0.0901,-0.351,0.0715,0.111,-0.3273,0.0085,0.2149,-0.347,-0.347,-0.0347,0.0683,-0.1472,-0.1751,-0.3547,-0.1726,-0.1726,0.0227,0.0886,0.0127,-0.0962,-0.0962,0.0357,0.1624,0.2298,-0.2359,-0.0188,0.1004,0.3979,0.0817,0.0525,-0.0472,-0.2059,-0.2895,-0.0748,-0.1215,-0.0735,-0.1193,-0.0396,-0.0636,0.0187,-0.3378,-0.3873,-0.1577,-0.0424,0.1359,-0.0442,0.1044,0.1149,-0.0797,0.0806,-0.1239,-0.2399,0.0397,-0.0009,-0.2166,0.0195,0.1535,0.1002,0.0169,-0.0195,-0.3805,0.1905,-0.1072,-0.0232,-0.2141,-0.2665,0.2855,0.0278,-0.2089,0.0748,-0.2762,0.0509,0.0439,-0.0908,-0.2734,0.0931,0.0605,-0.1141,-0.2512,0.1368,-0.1497,-0.1744,-0.0663,0.1733,-0.1354,0.2173,0.1595,-0.0606,-0.2069,0.031,0.0341,0.0046,-0.1014,-0.3121,-0.0484,0.0216,-0.0657,-0.009,-0.1058,-0.2762,-0.34,0.0359,-0.2851,-0.1889,-0.1166,-0.0418,-0.0019,0.0759,0.0063,0.0442,-0.3911,0.0851,0.0312,-0.2163,-0.2927,0.1202,-0.0536,0.1631,-0.0262,-0.1427,-0.0459,-0.0249,-0.1336,0.0656,0.1371,-0.0091,0.007,0.1804,0.0197,-0.2694,-0.1749,0.1669,-0.0424,-0.3566,-0.3173,-0.1253,-0.0401,-0.3342,0.1518,-0.0288,-0.2056,-0.1736,-0.2802,0.0989,-0.1114,-0.1149,-0.103,-0.0089,0.0155,-0.0158,-0.1099,-0.1096,-0.1216,-0.2014],"sentiment_available":[1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"pred_ret_B":[-0.15776,0.04173,0.81371,0.78979,0.37785,0.18998,-0.28713,-0.56797,-0.0053,-0.12352,0.77285,0.08026,0.01333,-0.11361,-0.09311,-0.22236,-0.27947,-0.47652,-0.57433,-0.73874,-0.87495,-0.88388,-0.65056,-0.63538,-0.57128,-0.48319,-0.31813,-0.19149,-0.16108,-0.07231,0.23694,0.15762,0.04138,0.14411,0.23431,-0.16535,0.19311,0.16419,0.1615,0.07041,0.04404,0.01112,-0.01773,-0.05191,0.08362,0.26986,0.51573,0.29227,0.32199,0.41089,0.41702,0.43738,0.35605,0.31214,0.38243,0.28266,0.12985,0.2322,0.05936,0.08733,0.04498,0.17536,0.35826,0.13387,0.13743,0.29982,0.22602,0.20679,0.19839,0.18267,0.26083,0.44468,0.42013,0.36305,0.32418,0.40251,0.54501,0.18307,-0.12744,0.56322,0.06139,0.11703,0.23406,-0.08878,-0.02861,0.52921,0.4662,0.1163,0.12645,0.60096,0.05387,-0.00684,0.28117,0.17581,0.8217,0.06918,0.14547,-0.60717,-0.11798,0.1814,0.19871,0.06061,0.25521,0.27686,0.19463,0.80844,0.73549,1.23657,0.55036,0.53464,0.37442,0.39058,0.23181,0.49293,0.27784,-0.03672,-0.37766,-0.59884,-0.86605,-0.39548,0.28611,-0.28356,-0.5212,-0.53855,0.06508,-0.09055,-0.00484,0.25044,0.22221,0.34759,0.34186,0.55636,0.25343,-0.12045,-0.16844,-0.03339,0.10974,0.08074,0.27636,0.46621,0.50128,0.04367,0.21949,0.03248,-0.08959,-0.22871,-0.2776,-0.40015,-0.58258,0.11948,-0.49889,0.02882,-0.37891,-0.60088,-0.20805,-0.05928,-0.13346,0.10165,-0.13552,0.01249,-0.17009,-0.08767,0.07493,-0.0982,0.14499],"pred_ret_C":[-0.00451,0.13503,0.3472,0.26768,0.17064,-0.05977,-0.325,-0.5372,-0.35064,-0.15832,-0.13253,0.20516,-0.58117,-0.49478,-0.1557,-0.59902,-0.47983,-0.44353,-0.80923,-1.00854,-0.9914,-0.51009,-0.55721,-0.55416,-0.7315,-0.31709,-0.33683,-0.05065,-0.10391,-0.01609,-0.06261,0.07958,0.21113,0.39471,0.5226,-0.16515,0.17079,0.26179,0.4925,0.15516,0.13091,0.06097,-0.05091,-0.1183,0.18212,0.20354,0.33908,0.21793,0.57184,0.4942,0.48256,0.12288,0.05271,0.18347,0.54575,0.28476,0.08921,0.26915,0.10367,0.18727,0.05635,0.1214,0.35008,0.13623,0.13707,0.27207,0.27899,0.27234,0.22348,0.08816,0.19857,0.45808,0.64153,0.16244,0.49406,0.32113,0.5231,0.39975,0.09786,0.38617,0.3213,0.01285,0.32312,-0.11815,-0.00331,0.52554,0.48648,0.09525,0.28219,0.54932,0.41123,-0.20403,0.57026,0.11425,0.93817,0.0758,0.21195,-0.61474,-0.14901,0.16667,0.25109,0.06107,0.26375,0.28112,0.17484,0.8256,0.76342,1.202,0.55126,0.51655,0.35218,0.33976,0.00942,0.58019,0.16376,0.02274,-0.27252,-0.20309,-0.56351,-0.85347,0.33352,-0.64857,-0.75555,-0.54551,-0.08749,-0.34254,-0.157,0.30462,0.19628,0.33634,0.34951,0.56498,0.22708,-0.10649,-0.18259,-0.03248,0.17439,0.24556,0.76943,0.945,0.45221,0.56368,0.318,0.20134,-0.37403,-0.25633,-0.20629,-0.3984,-0.48861,0.37408,-0.52999,0.2471,-0.39843,-0.33079,-0.1185,-0.09984,-0.06392,0.09745,-0.17199,-0.1039,-0.18226,-0.17981,0.09254,-0.13045,0.14497],"headlines":{"2023-10-31":{"n":250,"mean":-0.0319,"top":[[0.953,"AGCO Stock Is Rising. Earnings Crushed Estimates.","marketwatch.com"],[0.951,"Markets Today: Strong Corporate Earnings Results Support Stocks","biztoc.com"],[-0.969,"Stock market today: Asian shares mostly fall as investors look ahead to economic data","bozemandailychronicle.com"],[-0.969,"Stock market today: Asian shares mostly fall as investors look ahead to economic data","idahopress.com"]]},"2023-11-01":{"n":250,"mean":0.095,"top":[[0.949,"Advanced Micro Devices Up Over 7%, Best Performer in the Nasdaq 100 So Far Today Data Talk","morningstar.com"],[0.932,"LONDON MARKET CLOSE: Stocks prosper ahead of central bank rate calls","lse.co.uk"],[-0.97,"Tesla Erases $145 Billion in Valuation on Demand Woes","finance.yahoo.com"],[-0.97,"Tesla erases $145 billion in valuation on demand woes","economictimes.indiatimes.com"]]},"2023-11-02":{"n":250,"mean":0.2943,"top":[[0.95,"UBS Group (UBS) Continued to Rebound in Q3","insidermonkey.com"],[0.947,"Palantir Earnings Top Estimates Thanks to AI Boost","marketwatch.com"],[-0.969,"Moderna posts wider - than - expected loss, reins in full - year outlook","marketwatch.com"],[-0.969,"EV products maker BorgWarner stock tumbles after downbeat sales outlook","marketwatch.com"]]},"2023-11-05":{"n":91,"mean":0.0776,"top":[[0.952,"Berkshire Hathaway Reports 40% Surge in Operating Earnings and Record Cash Reserves","thedailyguardian.net"],[0.949,"Berkshire Hathaway posts 40% surge in operating earnings and record cash","cnn.com"],[-0.967,"Markaz: GCC and Global Markets ended negative as geopolitical pressures rise","albawaba.com"],[-0.949,"Following Dismal U. S. Jobs Statistics, Global Equities Rise And The Currency Falls","texasredzonereport.com"]]},"2023-11-06":{"n":250,"mean":0.0754,"top":[[0.954,"Adobe (ADBE) Continued its Consistent Double - Digit Growth","insidermonkey.com"],[0.949,"Newmont completes acquisition of Newcrest, solidifies its top gold producer status","kitco.com"],[-0.97,"Stock market today: Wall Street drifts lower after last week big swings","couriernews.com"],[-0.97,"Stock market today: Wall Street drifts lower after last week big swings","mankatofreepress.com"]]},"2023-11-07":{"n":246,"mean":-0.1028,"top":[[0.955,"GoPro stock up 5% on earnings, revenue beats","marketwatch.com"],[0.935,"U. S. Indexes Moved Upward Tuesday; Datadog Climbed Highest","biztoc.com"],[-0.974,"Solar Stocks crashed in the last quarter too, down 40% around the world « JoNova","joannenova.com.au"],[-0.974,"JoNova » Solar Stocks crashed in the last quarter too, down 40% around the world » Print","joannenova.com.au"]]},"2023-11-08":{"n":250,"mean":-0.1448,"top":[[0.951,"Asia markets open higher; Japan business sentiment improves","nbcchicago.com"],[0.951,"Asia markets open higher; Japan business sentiment improves","nbcconnecticut.com"],[-0.973,"Beyond Meat reports narrowing loss but declining sales","marketwatch.com"],[-0.973,"Under Armour tops fiscal second - quarter estimates but lowers full - year revenue outlook","marketwatch.com"]]},"2023-11-09":{"n":250,"mean":-0.2729,"top":[[0.94,"Markets Today: Stocks Higher on Positive Corporate News","biztoc.com"],[0.926,"Better AI Stock: Palantir Technologies vs. SoundHound AI","fool.com"],[-0.973,"U. S. Markets Dropped Thursday; Veeva Systems Posted Biggest Loss","biztoc.com"],[-0.973,"U. S. Markets Dropped Thursday; Veeva Systems Posted Biggest Loss","barrons.com"]]},"2023-11-12":{"n":93,"mean":0.0629,"top":[[0.853,"Wall Street rally: ASX set for positive open as US stocks surge","brisbanetimes.com.au"],[0.853,"Wall Street rally: ASX set for positive open as US stocks surge","smh.com.au"],[-0.973,"ABS data reveals businesses are struggling in a tight labour market, leading to an increase in wages.","vervetimes.com"],[-0.948,"Growing geopolitical conflicts have some investors feeling guilty about buying defense stocks","nbcnewyork.com"]]},"2023-11-14":{"n":250,"mean":0.1047,"top":[[0.951,"EXCLUSIVE: SPX Options Volume Is 2. 5X From 2008 Levels, ETF Options Up 60% YoY, OCC Mat Cashman On Volume Explosion, 0DTE","benzinga.com"],[0.95,"DAT Truckload Volume Index: Freight volumes rose in October","eagletribune.com"],[-0.972,"Consumer price inflation fell to 3. 2% last month, in welcome news for US households and the Fed","ktvz.com"],[-0.972,"Consumer price inflation fell to 3. 2% last month, in welcome news for US households and the Fed","localnews8.com"]]},"2023-11-15":{"n":243,"mean":0.0901,"top":[[0.956,"This performance chasing basket of stocks is up 21% in 3 weeks, Wolfe Research says","cnbc.com"],[0.953,"Active Growth ETF TGRT Off to Strong Start","etftrends.com"],[-0.971,"Retail sales fall for first time in seven months","marketwatch.com"],[-0.97,"U. S. retail sales fall for first time in 7 months","marketwatch.com"]]},"2023-11-16":{"n":250,"mean":-0.351,"top":[[0.954,"U. S. Global Investors Announces Solid Financial Results for Fiscal Year 2023, with Net Income Per Share of $0. 22, 23% Operating Margin and Increa...","marketscreener.com"],[0.948,"Gold Gains 1%; Williams - Sonoma Posts Upbeat Earnings - Homology Medicines (NASDAQ: FIXX), Children Place (NASDAQ: PLCE)","benzinga.com"],[-0.975,"Business Highlights: GM workers vote on contract; retail sales slip in October","qz.com"],[-0.974,"Applied Material stock is falling despite earnings, sales beats","marketwatch.com"]]},"2023-11-19":{"n":96,"mean":0.0715,"top":[[0.954,"Enel: Strong 9M Results With Outlook Improved (OTCMKTS: ENLAY)","seekingalpha.com"],[0.927,"Earnings Watch: Nvidia is expected to be the biggest contributor to Q3 corporate profits. The bar is very high, analyst says","forextv.com"],[-0.971,"The Stock Market Rally Is Likely To Vanish As Earnings Estimates Deteriorate","seekingalpha.com"],[-0.934,"Dividend stocks have had a rough year. Where pros see opportunity","cnbc.com"]]},"2023-11-20":{"n":250,"mean":0.111,"top":[[0.947,"S & P 500 Forecast: Looks Higher","dailyforex.com"],[0.947,"15 overlooked U. S. mid - caps excelling in free cash flow generation","theglobeandmail.com"],[-0.976,"account balance fell in the third quarter","biztoc.com"],[-0.972,"Stock Market Today: Stock Futures Slip to Start the Week","wsj.com"]]},"2023-11-21":{"n":250,"mean":-0.3273,"top":[[0.953,"Malaysia fund industry assets up 5. 54% in January - September","asiaasset.com"],[0.941,"Goldman calls for modest gains in U. S. stocks next year","investmentexecutive.com"],[-0.972,"U. S. Indexes Closed Down Tuesday; Jacobs Solutions Posted Biggest Loss","barrons.com"],[-0.97,"Stock market today: Wall Street opens lower after a weekslong rally","chronicleonline.com"]]},"2023-11-26":{"n":104,"mean":0.2149,"top":[[0.943,"Consumer price data expected to show welcome progress","cowraguardian.com.au"],[0.943,"Consumer price data expected to show welcome progress","hepburnadvocate.com.au"],[-0.916,"Housing out of reach for middle - class Americans as mortgages skyrocket","thestatesman.com"],[-0.903,"MORNING BID ASIA - VIX slump to put spring in Asia step","marketscreener.com"]]},"2023-11-27":{"n":250,"mean":-0.347,"top":[[0.953,"Zoom (ZM) Stock: An Inline Performer In The Near - To - Mid Term","seekingalpha.com"],[0.95,"Carnival Stock Is Up Over 80% in 2023. This Analyst Expects More Gains.","barrons.com"],[-0.972,"Stock Market Today: Stocks Close Lower on Cyber Monday","kiplinger.com"],[-0.972,"S & P / TSX composite closes down moderately along with U. S. stock markets","thompsoncitizen.net"]]},"2023-11-29":{"n":250,"mean":-0.0347,"top":[[0.948,"Baystreet. ca - Strong Gain for TSX","baystreet.ca"],[0.944,"Stock market today: Wall Street edges higher after encouraging updates from GM and other companies","joplinglobe.com"],[-0.971,"JPMorgan counters Wall Street general optimism for next year by predicting the S & P 500 will tumble 8% due to a challenging economy","biztoc.com"],[-0.969,"Stock market today: Wall Street drifts to a mixed close, weighed down by Big Tech","thereminder.ca"]]},"2023-11-30":{"n":250,"mean":0.0683,"top":[[0.953,"Ulta stock up on better - than - expected earnings amid healthy traffic trends","marketwatch.com"],[0.952,"Intuit Robust Q1 Performance, Powered By Data And AI (NASDAQ: INTU)","seekingalpha.com"],[-0.972,"American Express Company (AXP) Fell Due to Fear of a Recession","insidermonkey.com"],[-0.966,"ASX 200 LIVE: ASX to fall, S & P 500 slips as US bond yields rise","afr.com"]]},"2023-12-04":{"n":250,"mean":-0.1751,"top":[[0.955,"GitLab stock shoots up 15% on earnings, sales beats","marketwatch.com"],[0.941,"GitLab shares soar as developer - tools company posts first adjusted operating profit","nbcconnecticut.com"],[-0.974,"Gold Down Over 2%; US Factory Orders Fall In October - Alaska Air Gr (NYSE: ALK), EyePoint Pharmaceuticals (NASDAQ: EYPT)","benzinga.com"],[-0.974,"Stock market today: Wall Street opens lower following its best month in more than a year","kstp.com"]]},"2023-12-05":{"n":250,"mean":-0.3547,"top":[[0.952,"Investor Sentiment Improves Further; Fear & Greed Index Remains In Greed Zone","markets.businessinsider.com"],[0.951,"GitLab Shares Surge As It Achieves Initial Operating Profit Milestone.","chiangraitimes.com"],[-0.974,"Wall Street is cutting Q4 earnings forecasts by more than usual","finance.yahoo.com"],[-0.973,"Charter Communications Down Nearly 9%, Worst Performer in the S & P 500 and the Nasdaq 100 So Far Today Data Talk","morningstar.com"]]},"2023-12-06":{"n":250,"mean":-0.1726,"top":[[0.94,"Pharvaris shares surge as treatment for severe swelling meets clinical trial goal","marketwatch.com"],[0.936,"Stock market today: Wall Street opens higher following more signs of easing pressure on inflation","mynorthwest.com"],[-0.973,"ADP jobs report shows just 103, 000 new hires in November, pointing to weakening labor market","marketwatch.com"],[-0.971,"Stock market today: Wall Street slips as tumbling crude oil prices drag down energy stocks","chronicleonline.com"]]},"2023-12-10":{"n":95,"mean":0.0227,"top":[[0.932,"Wall Street: ASX set to rise as US market hits 2023 high","theage.com.au"],[0.932,"Wall Street: ASX set to rise as US market hits 2023 high","smh.com.au"],[-0.97,"1 Stock Down 80% That Wall Street Expects to Rise 23% in 2024","fool.com"],[-0.969,"Bitcoin bull run toward $45K could produce tailwinds for UNI, OP, TIA and STX","cointelegraph.com"]]},"2023-12-11":{"n":250,"mean":0.0886,"top":[[0.946,"XP Stock Sets Up with Brighter Outlook And 53% Gain | Investor Business Daily","investors.com"],[0.945,"WM Announces Plan to Increase its Dividend Rate and a Refreshed $1. 5 Billion Share Repurchase Authorization","streetinsider.com"],[-0.972,"Stock market today: Wall Street inches quietly lower after hitting its 2023 peak last week","theglobeandmail.com"],[-0.972,"Stock market today: Wall Street inches quietly lower after hitting its 2023 peak last week","somerset-kentucky.com"]]},"2023-12-12":{"n":250,"mean":0.0127,"top":[[0.954,"TLT ETF stock is rising: long - term risks outweigh potential rewards","invezz.com"],[0.942,"The 60 / 40 Portfolio Is Back, Vanguard Says. Bonds Expected to Shine.","marketwatch.com"],[-0.974,"Oracle Down Over 10%, on Pace for Largest Percent Decrease Since September Data Talk","morningstar.com"],[-0.972,"Hasbro says headwinds to persist into 2024 as it announces layoff","invezz.com"]]},"2023-12-13":{"n":250,"mean":-0.0962,"top":[[0.949,"HSBC sees S & P 500 gaining 8% by 2024 - end, helped by rate cuts","marketscreener.com"],[0.949,"HSBC sees S & P 500 gaining 8% by 2024 - end, helped by rate cuts","kitco.com"],[-0.967,"Stock market today: Dow hits a record high and Treasury yields drop after the Fed signals rate cuts","thedailystar.com"],[-0.967,"Stock market today: Dow hits a record high and Treasury yields drop after the Fed signals rate cuts","news-gazette.com"]]},"2023-12-17":{"n":198,"mean":0.0357,"top":[[0.948,"Aprio Wealth Management LLC Boosts Position in Vanguard S & P 500 ETF (NYSEARCA: VOO)","wkrb13.com"],[0.945,"Centennial Wealth Advisory LLC Boosts Stock Position in Vanguard S & P 500 ETF (NYSEARCA: VOO)","tickerreport.com"],[-0.969,"Enduring pain: 90% of China equity funds suffer as market loses US$1 trillion of value","scmp.com"],[-0.966,"1 Stock Down 75% that Wall Street Expects to Soar 70%","fool.com"]]},"2023-12-18":{"n":250,"mean":0.1624,"top":[[0.953,"U. S. Stocks May Continue To Benefit From Recent Upward Momentum","rttnews.com"],[0.952,"An influx of deal activity strengthens our investment case for bank stock Morgan Stanley","cnbc.com"],[-0.966,"CAC40: down slightly despite record S & P500 and Nasdaq - 100 figures - December 18, 2023 at 10: 32 am EST","marketscreener.com"],[-0.957,"Premarket: Global shares dip, while U. S. dollar steadies; eyes on BOJ","theglobeandmail.com"]]},"2023-12-19":{"n":250,"mean":0.2298,"top":[[0.955,"Saylor: Bitcoin Price (BTC) Headed Higher in 2024 Thanks to Spot ETF","coindesk.com"],[0.951,"U. S. Stocks Continue To Benefit From Interest Rate Optimism","markets.businessinsider.com"],[-0.97,"Accenture forecasts Q2 revenue below estimates on cautious IT spending by clients","businesstoday.in"],[-0.966,"Citi warns of profit taking as futures positioning is extended and one - sided By","biztoc.com"]]},"2023-12-20":{"n":250,"mean":-0.2359,"top":[[0.951,"Vanguard S & P 500 ETF (NYSEARCA: VOO) Position Boosted by Gleason Group Inc.","tickerreport.com"],[0.939,"Better AI Stock: Palantir Technologies vs. SentinelOne","finance.yahoo.com"],[-0.973,"Markets Today: Stocks Slip as Weak FedEx Profits Spark Economic Concerns","biztoc.com"],[-0.972,"Stock market today: Wall Street drifts following strong economic data, disappointing profit reports","postregister.com"]]},"2023-12-21":{"n":250,"mean":-0.0188,"top":[[0.957,"ETFGI Reports Assets Invested In Thematic ETFs Listed Globally Have Increased 21% In The First 11 Months Of 2023","mondovisione.com"],[0.947,"Carnival stock surges after results beat expectations and outlook was upbeat, as demand keeps strengthening","marketwatch.com"],[-0.973,"Paychex Stock Slumps as Pressures on Businesses Affect Its Revenue","investopedia.com"],[-0.973,"US economic growth revised down to 4. 9% in third quarter","foxbusiness.com"]]},"2023-12-25":{"n":76,"mean":0.1004,"top":[[0.946,"Brookfield Shares Surged Above A 1 - Year High From Peak Pessimism (NYSE: BN)","seekingalpha.com"],[0.93,"What to Expect From Magnificent 7 in 2024: More Gains From AI, Experts Say","investopedia.com"],[-0.971,"Ongoing Headwinds Affected Sally Beauty Holdings (SBH) in Q3","insidermonkey.com"],[-0.942,"Stock market today: Asian shares are mixed, with most markets shut, after Wall St 8th winning week","journal-news.com"]]},"2023-12-26":{"n":250,"mean":0.3979,"top":[[0.951,"Consumers Showed Up for the Holidays. Spending Rose 3. 1%, Mastercard Says.","marketwatch.com"],[0.948,"U. S. Markets Moved Upward Tuesday; Unity Software Climbed Highest","biztoc.com"],[-0.946,"GLOBAL MARKETS - Global stocks edge up, dollar stalks 5 - month low","devdiscourse.com"],[-0.935,"Global stocks edge up, dollar stalks 5 - month low","marketscreener.com"]]},"2023-12-27":{"n":250,"mean":0.0817,"top":[[0.954,"EOS: Solid Performance From This Covered Call Fund With An Attractive Discount","seekingalpha.com"],[0.941,"S & P / TSX composite closes with gains of more than 100 points; U. S. markets also up","airdriecityview.com"],[-0.971,"Life Time stock sinks as sudden CFO departure overshadows affirmed revenue outlook","marketwatch.com"],[-0.969,"Wall St wavers heading into year end due to lack of catalysts","streetinsider.com"]]},"2023-12-28":{"n":250,"mean":0.0525,"top":[[0.949,"Some Positive ESG Trends Emerged in 2023","etftrends.com"],[0.947,"SPY ETF On Track For $500B Milestone, Boosted By S & P 500 Peak Performance, Record Inflows In 2023 - iShares Core S & P 500 ETF (ARCA: IVV), Inves...","benzinga.com"],[-0.975,"Crude Oil Down 1%; US Wholesale Inventories Fall In November - Cingulate (NASDAQ: CING), Bluejay Diagnostics (NASDAQ: BJDX)","benzinga.com"],[-0.971,"Gold Moves Lower; US Crude Stocks Decline Last Week - Cingulate (NASDAQ: CING), Bluejay Diagnostics (NASDAQ: BJDX)","benzinga.com"]]},"2024-01-01":{"n":125,"mean":-0.0472,"top":[[0.948,"Resilient economy energizes investors, as financial markets end 2023 up 24%","khmertimeskh.com"],[0.943,"International Business: Strong 2023 could keep stocks on path for gains","gdnonline.com"],[-0.975,"ChargePoint Reports Widening Loss, Revenue Miss in Wake of","globenewswire.com"],[-0.971,"XLE: S & P 500 Energy ETF slips 3. 3% in 2023, CVX and XOM among top losers (NYSEARCA: XLE)","seekingalpha.com"]]},"2024-01-02":{"n":250,"mean":-0.2059,"top":[[0.951,"US profit growth to accelerate in 2024 despite economy risks","aol.com"],[0.951,"US profit growth to accelerate in 2024 despite economy risks","biztoc.com"],[-0.974,"Stock market today: Wall Street heads lower on the first trading day of 2024","dailyindependent.com"],[-0.974,"Stock market today: Wall Street heads lower on the first trading day of 2024","yakimaherald.com"]]},"2024-01-03":{"n":250,"mean":-0.2895,"top":[[0.947,"Mogo Digital Payments Subsidiary, Carta Worldwide, Reports 36% Increase in Payments Volume in 2023 to $9. 9 Billion","financialpost.com"],[0.944,"Mogo Digital Payments Subsidiary, Carta Worldwide, Reports 36% Increase in Payments Volume in 2023 to $9. 9 Billion - January 03, 2024 at 08: 14 am...","marketscreener.com"],[-0.972,"Stock market today: Wall Street edges lower as its weak start to 2024 carries into another day","startribune.com"],[-0.972,"Stock market today: Wall Street edges lower as its weak start to 2024 carries into another day","meridianstar.com"]]},"2024-01-04":{"n":250,"mean":-0.0748,"top":[[0.954,"Cliff Asnes AQR Absolute Return fund returns 18. 5% in 2023, boosted by value picks","nbcconnecticut.com"],[0.952,"Cliff Asnes AQR Absolute Return fund gains 18. 5% in 2023, boosted by value picks","nbcsandiego.com"],[-0.974,"Jobless claims drop to nearly three - month low of 202, 000","marketwatch.com"],[-0.974,"Jobless claims drop to nearly three - month low of 202, 000","marketwatch.com"]]},"2024-01-07":{"n":171,"mean":-0.1215,"top":[[0.946,"Oak Harvest Investment Services Boosts Position in iShares Core S & P 500 ETF (NYSEARCA: IVV)","theenterpriseleader.com"],[0.931,"A Bull Market Is Coming: 2 Unstoppable Artificial Intelligence (AI) Stocks Up 114% and 219% in 2023 to Buy in 2024","fool.com"],[-0.964,"WealthShield Partners LLC Decreases Position in iShares S & P 500 Value ETF (NYSEARCA: IVE)","theenterpriseleader.com"],[-0.962,"iShares Core S & P 500 ETF (NYSEARCA: IVV) Holdings Cut by Pachira Investments Inc.","theenterpriseleader.com"]]},"2024-01-08":{"n":250,"mean":-0.0735,"top":[[0.947,"Why Block Stock Moved 22% Higher in December","finance.yahoo.com"],[0.944,"REITs End 2023 on a High Note Amid Favorable Interest Rate Outlook","wealthmanagement.com"],[-0.974,"Boeing Down Nearly 9%, on Pace for Largest Percent Decrease Since May 2022 Data Talk","morningstar.com"],[-0.973,"Stock market today: Asian stocks decline after Wall Street logs its worst week in the last 10","wvnews.com"]]},"2024-01-09":{"n":250,"mean":-0.1193,"top":[[0.955,"U. S. Middle Market Performance Remains Strong, Defying Consensus","streetinsider.com"],[0.943,"Why Lyft Stock Soared 28% in December","finance.yahoo.com"],[-0.972,"TSX recap: Index finishes lower amid losses in financial stocks","bnnbloomberg.ca"],[-0.97,"S & P / TSX moves down more than 100 points, led by financials; U. S. markets mixed","prpeak.com"]]},"2024-01-10":{"n":250,"mean":-0.0396,"top":[[0.953,"CME Group International Average Daily Volume Reaches Record 6. 8 Million Contracts in 2023, Up 8% from 2022","marketscreener.com"],[0.943,"World markets today: US stocks edge up on inflation data, NVIDIA up more than 2%","independantexpress.com"],[-0.969,"U. S. stocks ended mixed, with the S & P 500 and Dow industrials losing 0. 1% and 0. 4%, respectively, and the Nasdaq gaining 0. 1%","biztoc.com"],[-0.969,"1 Spectacular Dividend Stock Down 47% to Buy Hand Over Fist for Passive Income Investors","finance.yahoo.com"]]},"2024-01-11":{"n":250,"mean":-0.0636,"top":[[0.952,"US Stocks Higher; Inflation Rate Increases To 3. 4% In December - 180 Life Sciences (NASDAQ: ATNF), Atreca (NASDAQ: BCEL)","benzinga.com"],[0.945,"ASX: Australian shares to inch up after Wall Street caution","theage.com.au"],[-0.974,"U. S. Weekly Jobless Claims Unexpectedly Edge Down To 202, 000","rttnews.com"],[-0.974,"Why Plug Power Stock Dropped 10% This Morning","finance.yahoo.com"]]},"2024-01-15":{"n":198,"mean":0.0187,"top":[[0.954,"Humana sees healthy growth in US healthcare","moneyweek.com"],[0.947,"EMD: Strong Emerging Market Debt CEF, 11. 0% Yield, 12. 5% Discount","seekingalpha.com"],[-0.971,"Markets today: European stocks slip as traders weigh rate outlook","bnnbloomberg.ca"],[-0.97,"Why Enbridge Stock Slumped Almost 8% in 2023","finance.yahoo.com"]]},"2024-01-16":{"n":247,"mean":-0.3378,"top":[[0.946,"S & P 500 earnings seen climbing 1. 3% for Q4","seekingalpha.com"],[0.943,"CEOs Believe Generative AI Can Boost Profitability, Study Suggests","econotimes.com"],[-0.972,"Stock market today: Wall Street slips to edge further from its all - time high","yakimaherald.com"],[-0.972,"Stock market today: Wall Street slips to edge further from its all - time high","woonsocketcall.com"]]},"2024-01-17":{"n":242,"mean":-0.3873,"top":[[0.949,"Anheuser - Busch InBev S. A. ADR outperforms competitors despite losses on the day","marketwatch.com"],[0.944,"TBH Global Asset Management LLC Boosts Stock Holdings in iShares Core S & P 500 ETF (NYSEARCA: IVV)","dailypolitical.com"],[-0.97,"Markets today: Stocks drop as solid retail sales lift bond yields","bnnbloomberg.ca"],[-0.969,"Markets Today: Stocks Fall as Central Bankers Push Back on Rate Cut Expectations","biztoc.com"]]},"2024-01-18":{"n":248,"mean":-0.1577,"top":[[0.944,"Apple gets a big upgrade from Bank of America, which calls for more than 20% upside ahead","cnbc.com"],[0.941,"Gaining 50% Over The Last 12 Months, Will Intel Stock Rally Further After Q4 Results?","forbes.com"],[-0.972,"U. S. stocks retreated, with the S & P 500 and Nasdaq both falling 0. 6% and the Dow slipping 0. 3%","biztoc.com"],[-0.972,"Stock Market Today: Stocks Fall After Strong Retail Sales Data","kiplinger.com"]]},"2024-01-21":{"n":124,"mean":-0.0424,"top":[[0.922,"Markets today: Wall Street hits record high, ASX set to rise","smh.com.au"],[0.922,"Markets today: Wall Street hits record high, ASX set to rise","brisbanetimes.com.au"],[-0.968,"1 Super Growth Stock Down 83% to Buy Hand Over Fist for 2024 (and Beyond)","finance.yahoo.com"],[-0.964,"U. S. and World stock markets close lower Wednesday","tucsonpost.com"]]},"2024-01-22":{"n":250,"mean":0.1359,"top":[[0.948,"Renewed Support Anticipated For South Korea Shares","rttnews.com"],[0.947,"Goldman says these stocks with increasing profitability will beat the market this year","cnbc.com"],[-0.969,"Chinese stocks are having their worst start to a year since 2016","ktvz.com"],[-0.969,"Chinese stocks are having their worst start to a year since 2016","kitv.com"]]},"2024-01-23":{"n":250,"mean":-0.0442,"top":[[0.936,"Amazon. com Inc. stock outperforms competitors on strong trading day","marketwatch.com"],[0.935,"Stock market today: Chinese shares lead gains in Asia on report of market rescue plan","yoursourceone.com"],[-0.971,"Mixed Earnings News Contributing To Lackluster Performance On Wall Street","rttnews.com"],[-0.969,"Mixed Earnings News May Lead To Choppy Trading On Wall Street","rttnews.com"]]},"2024-01-24":{"n":250,"mean":0.1044,"top":[[0.95,"AT & T reports strong 2023 financial results, off the back of 5G and fibre growth | Invezz AT & T reports strong 2023 financial results","invezz.com"],[0.944,"Stock market today: Wall Street opens higher, joining a worldwide rally","pentictonherald.ca"],[-0.972,"Tesla stock drops on Q4 earnings miss, warns production growth rate will be notably lower than 2023","autoblog.com"],[-0.968,"Abbott Laboratories Stock Is Down. Earnings, Sales Arent the Problem.","marketwatch.com"]]},"2024-01-25":{"n":250,"mean":0.1149,"top":[[0.952,"Growing Spend in Cybersecurity, Strong Fundamentals Will Drive Upside for CrowdStrike","finance.yahoo.com"],[0.95,"Blackstone fourth - quarter earnings rise 4% as asset sales pick up","marketscreener.com"],[-0.973,"Western Digital stock dips nearly 4% on revenue decline","marketwatch.com"],[-0.969,"Stock market today: European shares slip after Chinese markets led gains in Asia","santamariatimes.com"]]},"2024-01-28":{"n":236,"mean":-0.0797,"top":[[0.949,"Sfmg LLC Boosts Position in iShares Core S & P 500 ETF (NYSEARCA: IVV)","themarketsdaily.com"],[0.948,"This 10%- Plus Yielding Dividend Stock Continues to Push its Payout Higher","finance.yahoo.com"],[-0.972,"4 Top S & P 500 Dividend Growth Stocks Down Between 10% and 42% to Buy in 2024 and Hold Forever","finance.yahoo.com"],[-0.968,"Tesla stock down 30% in a month, but one fund manager thinks (hopes?) itll hit $1, 200","autoblog.com"]]},"2024-01-29":{"n":250,"mean":0.0806,"top":[[0.952,"Vanguard S & P 500 ETF (NYSEARCA: VOO) Position Boosted by Security Financial Services INC.","themarketsdaily.com"],[0.95,"CBRE Group, Inc.: CBRE Marks Decade of Top Performance in Support of LGBTQ+ Workplace Equality","finanznachrichten.de"],[-0.971,"B. Riley Financial (RILY) Fell on Short - Selling Arguments","insidermonkey.com"],[-0.97,"iRobot to cut 350 jobs in restructuring after Amazon acquisition deal scrapped","marketwatch.com"]]},"2024-01-30":{"n":250,"mean":-0.1239,"top":[[0.951,"Chubb Reports Record Fourth Quarter Per Share Net Income and Core Operating Income of $8. 03 and $8. 30, Up 156. 5% and 107. 5%, Respectively; Cons...","marketscreener.com"],[0.939,"Stocks on pace to end January higher. That could be good news for 2024","cnbc.com"],[-0.972,"3 Growth Stocks Down Between 18. 4% and 36. 2% So Far This Year That Could Recover","finance.yahoo.com"],[-0.972,"Stock market today: Asian shares are mixed, with Chinese shares falling, ahead of Fed rate decision","yoursourceone.com"]]},"2024-01-31":{"n":250,"mean":-0.2399,"top":[[0.944,"Boeing Up Over 6%, on Pace for Largest Percent Increase Since July 2023 Data Talk","morningstar.com"],[0.936,"Team Asset Management: Resilient US Equity Markets, S & P 500 and Dow Industrials Continue to Advance","directorstalkinterviews.com"],[-0.972,"Stock market today: Tech slumps as Alphabet and others feel the pain of high expectations","richmondregister.com"],[-0.972,"Stock market today: Tech slumps as Alphabet and others feel the pain of high expectations","thedailystar.com"]]},"2024-02-01":{"n":250,"mean":0.0397,"top":[[0.947,"Monolithic Power Systems (MPWR) Beat Expectations in Q4","finance.yahoo.com"],[0.947,"Monolithic Power Systems (MPWR) Beat Expectations in Q4","insidermonkey.com"],[-0.972,"Camden Property Trust (CPT) Reports Mixed Year - End Results and Provides 2024 Outlook","finance.yahoo.com"],[-0.971,"BIDENOMICS: UPS cuts 12, 000 jobs due to decreased shipping volume, tense union negotiations – NaturalNews. com","naturalnews.com"]]},"2024-02-04":{"n":248,"mean":-0.0009,"top":[[0.946,"RNP: Consistent 8% Income Yield And Potentially Market Matching Returns","seekingalpha.com"],[0.941,"3 Takeaways From Alphabet Fourth Quarter That Bode Well for Its Stock","finance.yahoo.com"],[-0.964,"Why Shares in Whirlpool Tumbled in January","finance.yahoo.com"],[-0.963,"COLUMN: Wheat strong, while cattle lowest since 1951","enidnews.com"]]},"2024-02-05":{"n":250,"mean":-0.2166,"top":[[0.951,"Ken Griffin Citadel hedge fund rose 1. 9% in January as volatility ramped up","nbcchicago.com"],[0.951,"Ken Griffin Citadel hedge fund rose 1. 9% in January as volatility ramped up","nbcconnecticut.com"],[-0.974,"Why Upstart Stock Dropped 22% in January","finance.yahoo.com"],[-0.973,"Stock market today: Global stocks decline as Chinese shares fluctuate despite moves to help markets","newspressnow.com"]]},"2024-02-06":{"n":250,"mean":0.0195,"top":[[0.953,"Microsoft valuation has increased 10x in the past 10 years under Satya Nadella","techspot.com"],[0.953,"Will A Lower Cost EV Line Up Help Drive Nio Stock Higher After 33% Fall Last Month?","forbes.com"],[-0.974,"Why Crown Holding Stock Dropped 21. 2% on Tuesday","finance.yahoo.com"],[-0.974,"Hertz stock slides 6% after posting wider - than - expected loss amid continued headwinds from EVs","marketwatch.com"]]},"2024-02-07":{"n":250,"mean":0.1535,"top":[[0.957,"Paypal (PYPL) Surpasses Q4 Earnings and Revenue Estimates","finance.yahoo.com"],[0.956,"Molina (MOH) Surpasses Q4 Earnings and Revenue Estimates","finance.yahoo.com"],[-0.972,"CNBC Daily Open: Tech layoffs continue to hit","nbcphiladelphia.com"],[-0.972,"CV stock slips after earnings beat by a wide margin but full - year outlook was cut due to higher medical costs","marketwatch.com"]]},"2024-02-08":{"n":250,"mean":0.1002,"top":[[0.951,"Ralph Lauren Stock Is Soaring. Earnings Got a Strong Holiday Boost.","marketwatch.com"],[0.946,"🔒 Uber exceeds Q4 expectations with $37. 6bn gross bookings","biznews.com"],[-0.97,"Markets today: Bonds fall after US$25 billion sale as U. S. stocks churn","bnnbloomberg.ca"],[-0.969,"Stock Market News Today: Markets falter just below historic 5, 000 points mark (SP500)","seekingalpha.com"]]},"2024-02-11":{"n":178,"mean":0.0169,"top":[[0.942,"This Passive - Income Powerhouse Just Raised Its Dividend for the 37th Consecutive Year to an All - Time High","finance.yahoo.com"],[0.942,"This Passive - Income Powerhouse Just Raised Its Dividend for the 37th Consecutive Year to an All - Time High","fool.com"],[-0.963,"Stock futures tick lower on Sunday night after a record week for the S & P 500: Live updates","nbcconnecticut.com"],[-0.963,"Stock futures tick lower on Sunday night after a record week for the S & P 500: Live updates","nbcchicago.com"]]},"2024-02-12":{"n":250,"mean":-0.0195,"top":[[0.945,"First Heartland Consultants Inc. Boosts Stock Holdings in iShares S & P 500 Growth ETF (NYSEARCA: IVW)","themarketsdaily.com"],[0.935,"Uber Beats Analyst Estimates, Tips the Scale From Growth Mode to Its First Annual Profit as a Public Company","finance.yahoo.com"],[-0.969,"Robert Kiyosaki warns S & P to fall 70% in biggest crash in history","biztoc.com"],[-0.958,"Plot thickens for Big Lots stock price as it slips from $66 to $4","invezz.com"]]},"2024-02-13":{"n":250,"mean":-0.3805,"top":[[0.948,"Do You Think Ecolab (ECL) Will See a 15% Gain in Earnings?","insidermonkey.com"],[0.947,"Qualcomm Chip Share Inside iPhones Is Still Strong, Says Analyst","marketwatch.com"],[-0.974,"Tesla leads 11% annual drop in EV prices as demand slowdown continues","marketwatch.com"],[-0.973,"Stock market today: Wall Street falls sharply after disappointing inflation data, with Dow down 500","beloitdailynews.com"]]},"2024-02-14":{"n":250,"mean":0.1905,"top":[[0.96,"DaVita Stock Gains. Volumes Are Improving After Covid - 19.","marketwatch.com"],[0.952,"Lyft Stock News: LYFT adds 35% despite margin expansion flub","fxstreet.com"],[-0.967,"Seasonality trends show equities could dip toward the end of February: analyst","bnnbloomberg.ca"],[-0.966,"These companies have laid off Canadian workers in 2024","financialpost.com"]]},"2024-02-15":{"n":250,"mean":-0.1072,"top":[[0.956,"Baystreet. ca - Stocks Continue to Improve","baystreet.ca"],[0.948,"Anheuser - Busch InBev S. A. ADR outperforms competitors on strong trading day","marketwatch.com"],[-0.976,"US retail sales declined in January by much more than expected","wxow.com"],[-0.974,"Retail sales fall 0. 8% in January: Spending splurge nears end","nypost.com"]]},"2024-02-19":{"n":250,"mean":-0.0232,"top":[[0.948,"Doordash Surpasses Expectations: Q4 Revenue Soars To $2. 3 Billion, Outperforming Analyst Forecasts","menafn.com"],[0.948,"Crocs Stock Is Up 27% This Year and Is Still Incredibly Cheap","finance.yahoo.com"],[-0.964,"European markets head for negative start to the new trading week","nbcnewyork.com"],[-0.964,"Nvidia earnings report could kill the momentum driving U. S. stocks higher","marketwatch.com"]]},"2024-02-20":{"n":250,"mean":-0.2141,"top":[[0.951,"Bonds Should Climb Nicely in 2024, WTW Predicts | Chief Investment Officer","ai-cio.com"],[0.946,"Goldman Sachs now sees the S & P 500 climbing another 4% this year on mega - cap earnings strength","aol.com"],[-0.975,"Applied Materials Down Over 6%, on Track for Largest Percent Decrease Since December 2022 Data Talk","morningstar.com"],[-0.974,"Stock Market Today: Stocks slip on new inflation worries; earnings in focus","jacksonprogress-argus.com"]]},"2024-02-21":{"n":250,"mean":-0.2665,"top":[[0.95,"AI boom drove Nvidia profits up 580% last year","erienewsnow.com"],[0.947,"Mystic Asset Management Inc. Boosts Position in Vanguard S & P 500 ETF (NYSEARCA: VOO)","themarketsdaily.com"],[-0.973,"Etsy stock is dropping on earnings miss, slow start to fiscal year","marketwatch.com"],[-0.972,"Matterport Stock Sinks 17% on Revenue Miss and Lighter - Than - Expected Q1 Guidance","finance.yahoo.com"]]},"2024-02-22":{"n":250,"mean":0.2855,"top":[[0.946,"Economy grew steadily in February, S & P finds, led by U. S. manufacturers","marketwatch.com"],[0.942,"Income Investors, Rejoice! Walmart Dividend Increase Is Its Biggest in Over a Decade.","fool.com"],[-0.971,"1 Growth Stock Down 70% Youll Wish Youd Bought at Today Near - All - Time - Low Valuation","finance.yahoo.com"],[-0.969,"Dow Gains Over 400 Points; Keurig Dr Pepper Shares Fall After Q4 Results - Greenbrook TMS (NASDAQ: GBNH), Draganfly (NASDAQ: DPRO)","benzinga.com"]]},"2024-02-25":{"n":195,"mean":0.0278,"top":[[0.942,"TrueShares Structured Outcome (January) ETF (BATS: JANZ) Trading Up 1. 6%","theenterpriseleader.com"],[0.939,"This Magnificent Dividend Stock Continues to Outperform the S & P 500 While Sporting a Higher Yield and a Cheaper Valuation","finance.yahoo.com"],[-0.97,"5 S & P 500 Stocks Down By 10% Or More Just This Month","forbes.com"],[-0.964,"These High - Flying Artificial Intelligence (AI) Stocks Could Sink 20% or More Over the Next 12 Months, According to Wall Street","finance.yahoo.com"]]},"2024-02-26":{"n":250,"mean":-0.2089,"top":[[0.95,"Camden Property Trust (NYSE: CPT) Price Target Increased to $98. 00 by Analysts at Morgan Stanley","tickerreport.com"],[0.947,"Tesla Stock Is Rising. Its EV Rivals BYD, Li Auto Gain After Updates.","marketwatch.com"],[-0.973,"Stock market today: Wall Street drifts lower from record highs reached last week","antigojournal.com"],[-0.972,"Stock market today: futures slip after Nvidia earnings blowout fuels bumper week","finance.yahoo.com"]]},"2024-02-27":{"n":250,"mean":0.0748,"top":[[0.952,"Beyond Meat stock is sizzling, up 103% on growing gross margins","marketwatch.com"],[0.951,"Lowe Earnings Beat Expectations. The Stock Is Rising.","marketwatch.com"],[-0.974,"Lowe beats earnings estimates as sales fall and the company expects revenue to slide again this year","nbcmiami.com"],[-0.972,"Macy posts another quarter of falling sales as it unveils strategy to get back to growth","nbcdfw.com"]]},"2024-02-28":{"n":250,"mean":-0.2762,"top":[[0.948,"Envestnet Asset Management Inc. Boosts Stock Holdings in Invesco S & P 500 Top 50 ETF (NYSEARCA: XLG)","defenseworld.net"],[0.945,"Cape Cod Five Cents Savings Bank Boosts Position in Vanguard S & P 500 ETF (NYSEARCA: VOO)","tickerreport.com"],[-0.972,"Markets today: U. S. stocks decline in run - up to key inflation report","bnnbloomberg.ca"],[-0.972,"Stock market today: Wall Street opens lower, pulling further below its recent record high","airdriecityview.com"]]},"2024-02-29":{"n":250,"mean":0.0509,"top":[[0.951,"Celsius Continues to Impress With Incredible 95% Growth Rate","finance.yahoo.com"],[0.949,"Monster Beverage Up Over 5%, On Pace for Largest Percent Increase Since August 2023 Data Talk","morningstar.com"],[-0.97,"Tesla Stock Is Falling. It Been Having a Good Run.","marketwatch.com"],[-0.969,"Stock market today: Wall Street inches down ahead of inflation report closely watched by Fed","sfgate.com"]]},"2024-03-03":{"n":160,"mean":0.0439,"top":[[0.943,"UK boards and investors push for higher CEO pay to bridge gap with US","thenews.com.pk"],[0.942,"Better Blockbuster - Drug Stock: Novo Nordisk vs. Eli Lilly","finance.yahoo.com"],[-0.961,"1 Magnificent S & P 500 Dividend Stock Down 56% to Buy and Hold Forever","fool.com"],[-0.952,"These Are The Best And Worst Performing Assets Of February And YTD 2024","biztoc.com"]]},"2024-03-04":{"n":250,"mean":-0.0908,"top":[[0.946,"Ford: US sales up 10. 5% in February - March 04, 2024 at 09: 48 am EST","marketscreener.com"],[0.946,"Super Micro Computer stock shot up 25% after snagging a coveted S & P 500 slot","biztoc.com"],[-0.972,"Stock market today: Wall Street edges lower at the start of a busy week","idahostatejournal.com"],[-0.972,"Stock market today: Wall Street edges lower at the start of a busy week","thebusinessjournal.com"]]},"2024-03-05":{"n":250,"mean":-0.2734,"top":[[0.943,"7 Stocks Analysts Are Predicting Will Grow 30% This Year","biztoc.com"],[0.942,"Netflix Inc. stock outperforms competitors despite losses on the day","marketwatch.com"],[-0.972,"Stock market today: Wall Street slips further from its record highs","2news.com"],[-0.972,"Stock market today: Wall Street slips further from its record highs","register-herald.com"]]},"2024-03-06":{"n":250,"mean":0.0931,"top":[[0.95,"Growth And Strong Margins Push Up Federal Signal Earnings And Price","seekingalpha.com"],[0.946,"Twilio Moves Up Profitability Goal as Growth Era Comes to an End","finance.yahoo.com"],[-0.977,"BILL Holdings (BILL) Fell on Management Weaker - Than - Expected Outlook","insidermonkey.com"],[-0.97,"1 Critical Reason Snowflake Stock Has Declined by 56%","finance.yahoo.com"]]},"2024-03-07":{"n":250,"mean":0.0605,"top":[[0.942,"Invesco S & P 500 Pure Value ETF (NYSEARCA: RPV) Sees Unusually - High Trading Volume","modernreaders.com"],[0.939,"Why Cava Stock Jumped 25% in February","finance.yahoo.com"],[-0.974,"Costco Q2 earnings thump estimates as revenue comes in slightly lower than expected","finance.yahoo.com"],[-0.973,"Why Peloton Stock Dropped 19% in February","finance.yahoo.com"]]},"2024-03-10":{"n":240,"mean":-0.1141,"top":[[0.95,"SPDR Portfolio S & P 500 Growth ETF (NYSEARCA: SPYG) Position Increased by OLD National Bancorp IN","themarketsdaily.com"],[0.948,"Granite Harbor Advisors Inc. Boosts Stock Position in iShares Core S & P 500 ETF (NYSEARCA: IVV)","themarketsdaily.com"],[-0.967,"Markets today: Wall Street stumbles, ASX set to fall","brisbanetimes.com.au"],[-0.967,"Markets today: Wall Street stumbles, ASX set to fall","watoday.com.au"]]},"2024-03-11":{"n":250,"mean":-0.2512,"top":[[0.941,"Oracle shares soar 13% on better - than - expected quarterly earnings","nbcmiami.com"],[0.941,"Oracle shares soar 13% on better - than - expected quarterly earnings","nbcphiladelphia.com"],[-0.972,"Why Meta Platforms, Taiwan Semiconductor, Advanced Micro Devices, and Other Artificial Intelligence (AI) Stocks Tumbled on Monday","finance.yahoo.com"],[-0.97,"Stock market today: Wall Street slips some more ahead of this week inflation report","columbian.com"]]},"2024-03-12":{"n":250,"mean":0.1368,"top":[[0.939,"Stock market today: futures edge higher ahead of key inflation report","finance.yahoo.com"],[0.936,"Inflation climbed 3. 2% in February | Crain New York Business","crainsnewyork.com"],[-0.964,"Solar names slide as Biden subsidies seen insufficient against China - report","seekingalpha.com"],[-0.962,"Nasdaq Surges Over 1%; Blade Air Mobility Shares Plummet","markets.businessinsider.com"]]},"2024-03-13":{"n":250,"mean":-0.1497,"top":[[0.944,"Could united kingdom GDP uptick finally improve sentiment on united kingdom equities?","portfolio-adviser.com"],[0.941,"TSX recap: Index climbs 0. 64% on strength in energy","bnnbloomberg.ca"],[-0.972,"Inspire Corporate Bond ETF (NYSEARCA: IBD) Trading Down 0%","modernreaders.com"],[-0.972,"Inspire Corporate Bond ETF (NYSEARCA: IBD) Trading Down 0%","modernreaders.com"]]},"2024-03-14":{"n":250,"mean":-0.1744,"top":[[0.949,"Crude Oil Moves Higher; Dollar General Posts Upbeat Earnings - Build - A - Bear Workshop (NYSE: BBW), Better Therapeutics (NASDAQ: BTTX)","benzinga.com"],[0.943,"Is Palantir Technologies Stock Set to Soar Higher After Securing a Huge Government Contract?","finance.yahoo.com"],[-0.974,"Tesla is the worst performing stock in the S & P 500. Analysts say it has further to fall","erienewsnow.com"],[-0.974,"Tesla is the worst performing stock in the S & P 500. Analysts say it has further to fall","wsiltv.com"]]},"2024-03-17":{"n":232,"mean":-0.0663,"top":[[0.952,"Baystreet. ca - Stocks Marginally Higher by Noon","baystreet.ca"],[0.951,"These Catalysts Could Lift Apple Stock to $220, Says Top Analyst Amit Daryanani","biztoc.com"],[-0.961,"1 Dividend Growth Stock Down 35% to Buy Right Now","finance.yahoo.com"],[-0.961,"1 Dividend Growth Stock Down 35% to Buy Right Now","fool.com"]]},"2024-03-18":{"n":250,"mean":0.1733,"top":[[0.94,"Stock market today: Wall Street opens higher ahead of a big week of central bank meetings","ajc.com"],[0.939,"KMG Fiduciary Partners LLC Increases Position in SPDR Portfolio S & P 500 ETF (NYSEARCA: SPLG)","dailypolitical.com"],[-0.968,"S & P / TSX composite down in late - morning trading, U. S. stock markets trade higher","piquenewsmagazine.com"],[-0.968,"S & P / TSX composite down in late - morning trading, U. S. stock markets trade higher","globalnews.ca"]]},"2024-03-19":{"n":250,"mean":-0.1354,"top":[[0.951,"Singapore shares saw only slight movement on Tuesday STI slightly increased 0. 01%","theindependent.sg"],[0.948,"Renewed Support Anticipated For South Korea Shares","markets.businessinsider.com"],[-0.97,"Stock market today: Wall Street opens lower as some of the market AI mania cools","journal-news.com"],[-0.97,"Stock market today: Wall Street opens lower as some of the market AI mania cools","idahostatejournal.com"]]},"2024-03-20":{"n":250,"mean":0.2173,"top":[[0.945,"iShares Core S & P 500 ETF (NYSEARCA: IVV) Stock Position Boosted by West Coast Financial LLC","tickerreport.com"],[0.944,"Ferguson Wellman Capital Management Inc. Boosts Stock Holdings in iShares Core S & P 500 ETF (NYSEARCA: IVV)","dailypolitical.com"],[-0.954,"Why Nasdaq Stock Sank on Wednesday","finance.yahoo.com"],[-0.938,"Stocks Will Lose Steam Even as Fed Signals Rate Cuts, Survey Shows","bnnbloomberg.ca"]]},"2024-03-21":{"n":250,"mean":0.1595,"top":[[0.942,"Public Storage (NYSE: PSA) PT Raised to $270. 00 at Scotiabank","themarketsdaily.com"],[0.941,"Markets today: Asian stocks to gain on Fed, gold at record high","bnnbloomberg.ca"],[-0.974,"Accenture Down Over 7%, on Pace for Largest Percent Decrease Since March 2020 Data Talk","morningstar.com"],[-0.974,"Lululemon slumps on slower - than - expected sales outlook","bnnbloomberg.ca"]]},"2024-03-24":{"n":209,"mean":-0.0606,"top":[[0.946,"Herbst Group LLC Boosts Stock Position in Vanguard S & P 500 ETF (NYSEARCA: VOO)","dailypolitical.com"],[0.943,"CoreCap Advisors LLC Boosts Stock Position in Innovator U. S. Equity Power Buffer ETF – June (BATS: PJUN)","themarketsdaily.com"],[-0.958,"GPS Wealth Strategies Group LLC Decreases Stock Position in SPDR Portfolio S & P 500 Value ETF (NYSEARCA: SPYV)","dailypolitical.com"],[-0.958,"GPS Wealth Strategies Group LLC Decreases Stock Position in SPDR Portfolio S & P 500 Value ETF (NYSEARCA: SPYV)","themarketsdaily.com"]]},"2024-03-25":{"n":250,"mean":-0.2069,"top":[[0.954,"TradeVille: Our energy exports increased by 42%, in 2023","bursa.ro"],[0.953,"SPDR Portfolio S & P 500 ETF (NYSEARCA: SPLG) Position Boosted by Armstrong Advisory Group Inc.","tickerreport.com"],[-0.974,"Crude Oil Moves Higher; US New Home Sales Fall In February - Akanda (NASDAQ: AKAN), AbbVie (NYSE: ABBV)","benzinga.com"],[-0.972,"Crude Oil Moves Higher; US New Home Sales Fall In February","markets.businessinsider.com"]]},"2024-03-26":{"n":250,"mean":0.031,"top":[[0.949,"FTSE 100 to Benefit from Improved Commodity Appetite","actionforex.com"],[0.949,"Global X S & P 500 Catholic Values ETF (NASDAQ: CATH) Sees Strong Trading Volume","dailypolitical.com"],[-0.972,"1 Magnificent S & P 500 Dividend Stock That Down 63% and Trading at a Once - in - a - Decade Valuation","fool.com"],[-0.971,"sensex news today: Financials, IT stocks drag Sensex 362 points lower; Nifty holds 22K","economictimes.indiatimes.com"]]},"2024-03-27":{"n":250,"mean":0.0341,"top":[[0.952,"First Trust Large Cap Core AlphaDEX Fund (NASDAQ: FEX) Sees Strong Trading Volume","wkrb13.com"],[0.943,"Medical Properties Trust: MPW continues gaining afterhours after Steward sells doctor network to UnitedHealth","fxstreet.com"],[-0.973,"Tesla Stock: Analysts Keep Cutting Price Targets As EPS Estimates Fall 24%","investors.com"],[-0.966,"Bitcoin price falters as macroeconomic and regulatory headwinds mount","cointelegraph.com"]]},"2024-03-31":{"n":210,"mean":0.0046,"top":[[0.947,"Woodmont Investment Counsel LLC Boosts Position in iShares Core S & P 500 ETF (NYSEARCA: IVV)","wkrb13.com"],[0.937,"iShares Core S & P 500 ETF (NYSEARCA: IVV) Stock Holdings Boosted by PFG Advisors","theenterpriseleader.com"],[-0.971,"S & P 500 real estate stocks earn negative returns in Q1; Simon Property in gainers","seekingalpha.com"],[-0.96,"Teamwork Financial Advisors LLC Reduces Stock Position in iShares Core S & P 500 ETF (NYSEARCA: IVV)","wkrb13.com"]]},"2024-04-01":{"n":250,"mean":-0.1014,"top":[[0.948,"Baystreet. ca - TSX Points up on Opening Day of Q2","baystreet.ca"],[0.948,"Baystreet. ca - TSX Points up on Opening Day of Q2","baystreet.ca"],[-0.975,"Even Tesla is struggling to sell EVs - analysts predict Elon Musk market - leader faces first sales decline since the start of the pandemic","dailymail.co.uk"],[-0.969,"S & P / TSX composite down in late - morning trading, U. S. stock markets also lower","globalnews.ca"]]},"2024-04-02":{"n":250,"mean":-0.3121,"top":[[0.951,"Farmer sentiment improves as interest rate expectations shift","prnewswire.com"],[0.946,"Citadel flagship fund rose 5. 75% in Q1 - source","933thedrive.com"],[-0.975,"Spain Unemployment Declines Sharply In March","rttnews.com"],[-0.974,"UnitedHealth Down Over 7%, Worst Performer in the DJIA So Far Today Data Talk","morningstar.com"]]},"2024-04-03":{"n":250,"mean":-0.0484,"top":[[0.952,"These 3 REITs Have Delivered Better Returns Than the S & P 500 Over the Last Decade","fool.com"],[0.949,"MSA Safety (MSA) Is Up 3. 26% in One Week: What You Should Know - MSA Safety (NYSE: MSA)","benzinga.com"],[-0.974,"Sphere Entertainment Co. (SPHR) Fell Due to Concerns Over Its High Fixed Costs and Leverage","insidermonkey.com"],[-0.973,"Tesla nightmare quarter: Slowing sales, plunging production, a sinking stock","qz.com"]]},"2024-04-04":{"n":250,"mean":0.0216,"top":[[0.946,"Why Krispy Kreme Stock Saw Sweet Gains in March","finance.yahoo.com"],[0.94,"Newmont Completes $20 Million Global Community Support Fund, Partnering with Communities for Greater Resilience Post - Pandemic","marketscreener.com"],[-0.973,"Why Shift4 Payments Stock Dropped Another 20% Last Month","finance.yahoo.com"],[-0.969,"Dow Dips Over 200 Points; RPM International Shares Fall After Q3 Results - Allurion Technologies (NYSE: ALUR), Achilles Therapeutics (NASDAQ: ACHL)","benzinga.com"]]},"2024-04-07":{"n":250,"mean":-0.0657,"top":[[0.952,"Peoples Bank OH Boosts Stock Position in iShares S & P 500 Value ETF (NYSEARCA: IVE)","wkrb13.com"],[0.947,"International Assets Investment Management LLC Boosts Position in iShares Core S & P 500 ETF (NYSEARCA: IVV)","defenseworld.net"],[-0.972,"2024 Bull Market: 2 Beaten - Down Growth Stocks Down 40% and 60% to Buy on the Dip","finance.yahoo.com"],[-0.97,"What Bull Market? Wall Street Says the S & P 500 Will Fall 2% Over the Rest of 2024","fool.com"]]},"2024-04-08":{"n":250,"mean":-0.009,"top":[[0.95,"Drewry LNG Shipping Equity Index Rose By 14. 6% in March | Hellenic Shipping News Worldwide","hellenicshippingnews.com"],[0.947,"iShares Core S & P 500 ETF (NYSEARCA: IVV) Stock Holdings Increased by Mirae Asset Global Investments Co. Ltd.","etfdailynews.com"],[-0.97,"Crude Oil Moves Lower; Perion Network Shares Tumble - Agenus (NASDAQ: AGEN), Auddia (NASDAQ: AUUD)","benzinga.com"],[-0.97,"S & P / TSX composite edges lower Monday morning as U. S. stock markets rise","thereminder.ca"]]},"2024-04-09":{"n":250,"mean":-0.1058,"top":[[0.953,"Invesco S & P 500 Equal Weight Industrials ETF (NYSEARCA: RSPN) Sees Strong Trading Volume","wkrb13.com"],[0.947,"BlackBerry gains on partnership with AMD for robotics systems","aol.com"],[-0.974,"GovCon Index, Major US Indexes Ended With Losses on Weak April Start","govconwire.com"],[-0.971,"Stock market today: Wall Street slips as bond yields ease ahead of inflation report","journal-news.com"]]},"2024-04-10":{"n":250,"mean":-0.2762,"top":[[0.953,"Inflation Increased In March At Higher Rate Than Economist Expectations","newsradio967.iheart.com"],[0.953,"Inflation Increased In March At Higher Rate Than Economist Expectations","wmanfm.iheart.com"],[-0.972,"Why Deckers Outdoor Stock Dropped 7% Today","finance.yahoo.com"],[-0.97,"Stock market today: Wall Street falls after hot inflation report burns hopes for a June...","article.wn.com"]]},"2024-04-11":{"n":250,"mean":-0.34,"top":[[0.937,"U. S. stocks soar above global markets, giving investors solid path for growth","apnews.com"],[0.937,"U. S. stocks soar above global markets, giving investors solid path for growth","seattletimes.com"],[-0.969,"Stock market today: Stocks wobble as wholesale inflation rises less than expected","biztoc.com"],[-0.968,"3 Severely Undervalued Packaged - Food Stocks Due to Pop Soon","biztoc.com"]]},"2024-04-14":{"n":194,"mean":0.0359,"top":[[0.948,"Healthpeak Properties (NYSE: DOC) Price Target Increased to $22. 00 by Analysts at Royal Bank of Canada","theenterpriseleader.com"],[0.946,"Carnegie Capital Asset Management LLC Boosts Position in SPDR Portfolio S & P 500 ETF (NYSEARCA: SPLG)","themarketsdaily.com"],[-0.97,"1 Magnificent Dividend Stock Down 27% to Buy Right Now Near a Once - in - a - Decade Valuation","finance.yahoo.com"],[-0.966,"Baystreet. ca - Stocks Struggle by Midday","baystreet.ca"]]},"2024-04-15":{"n":250,"mean":-0.2851,"top":[[0.951,"S & P 500: These 2 Stock Profit Growth Will Outshine Nvidia, Analysts Say","investors.com"],[0.947,"Up 14% This Year, Will IBM Gains Continue Following Q1 Results?","forbes.com"],[-0.974,"Elon Musk Cut 14, 000 Tesla Staff After Weak Sale and Revenue Numbers","observer.com"],[-0.974,"Global iPhone shipments are down nearly 10% as Apple 2024 woes continue","thelabradorian.ca"]]},"2024-04-16":{"n":250,"mean":-0.1889,"top":[[0.952,"ProShares Ultra S & P500 (NYSEARCA: SSO) Sees Strong Trading Volume","wkrb13.com"],[0.947,"Canadian ETFs: Latest trends point to continued interest in U. S. equities","theglobeandmail.com"],[-0.974,"DAT Truckload Volume Index: March spot rates drop on modest volumes","marketscreener.com"],[-0.971,"Tesla stock continues slide as market cap falls below $500 billion","qz.com"]]},"2024-04-17":{"n":250,"mean":-0.1166,"top":[[0.947,"DecisionPoint Financial LLC Boosts Stock Position in Vanguard S & P 500 ETF (NYSEARCA: VOO)","wkrb13.com"],[0.942,"Forget the US Magnificent 7 - Europe has its own version which has delivered better growth so far in 2024","thisismoney.co.uk"],[-0.974,"Interest Rates & Inflation: united kingdom Inflation Falls By Less Than Expected To 3. 2% In March","forbes.com"],[-0.972,"Stock market today: US stocks slip to deepen weekly losses following mixed earnings reports","ivpressonline.com"]]},"2024-04-18":{"n":250,"mean":-0.0418,"top":[[0.954,"The Progressive Corporation (PGR) Rose on Increased Underwriting Profits","insidermonkey.com"],[0.947,"Blackstone reports 1% rise in first - quarter earnings","marketscreener.com"],[-0.974,"The Conference Board Leading Economic Index® (LEI) for the U. S. Fell in March","streetinsider.com"],[-0.974,"The Conference Board Leading Economic Index® (LEI) for the U. S. Fell in March","prnewswire.com"]]},"2024-04-21":{"n":169,"mean":-0.0019,"top":[[0.936,"Japan historic stock market rally expected to continue despite current pullback","businesstimes.com.sg"],[0.936,"Can Magnificent 7 Help Script Market Turnaround? Earnings Pick Up Pace With Microsoft, Meta, Alphabet And Tesla Expected This Week - Invesco QQQ Tr...","benzinga.com"],[-0.971,"₹20, 000 In 4 Days: FIIs Shed In Volumes Amid Election And Global Uncertainties","freepressjournal.in"],[-0.947,"Aldebaran Financial Inc. Lowers Stock Position in SPDR Portfolio S & P 500 ETF (NYSEARCA: SPLG)","dailypolitical.com"]]},"2024-04-22":{"n":250,"mean":0.0759,"top":[[0.953,"Baystreet. ca - TSX Boasts Respectable Gains","baystreet.ca"],[0.953,"Baystreet. ca - TSX Boasts Respectable Gains","baystreet.ca"],[-0.974,"2 Artificial Intelligence (AI) Stocks That Could Fall 19% and 65%, According to a Pair of Wall Street Analysts","finance.yahoo.com"],[-0.974,"S & P / TSX composite down in late - morning trading amid losses in base metal stocks","piquenewsmagazine.com"]]},"2024-04-23":{"n":250,"mean":0.0063,"top":[[0.956,"Baystreet. ca - TSX Benefits from Positive Performance in All Sectors","baystreet.ca"],[0.953,"Chubb Reports First Quarter Per Share Net Income and Core Operating Income of $5. 23 and $5. 41, Up 15. 5% and 22. 7%, Respectively; Consolidated N...","marketscreener.com"],[-0.975,"Tesla first - quarter net income tumbles 55% as falling global sales and price cuts reduce profits","theglobeandmail.com"],[-0.975,"Tesla first - quarter net income tumbles 55% as falling global sales and price cuts reduce profits","gazette.com"]]},"2024-04-24":{"n":250,"mean":0.0442,"top":[[0.956,"Baystreet. ca - TSX Benefits from Positive Performance in All Sectors","baystreet.ca"],[0.952,"Ventas Closes Extended and Improved $2. 75 Billion Unsecured Credit Facility","streetinsider.com"],[-0.976,"Tesla Reports That Profit Fell by 55 Percent Last Quarter","robbreport.com"],[-0.975,"Tesla Q1 net income falls 55% as sales drop and price cuts reduce profits","canadianmanufacturing.com"]]},"2024-04-25":{"n":250,"mean":-0.3911,"top":[[0.946,"Among Security Companies, Napco Easily Outperforms S & P 500 | Investor Business Daily","investors.com"],[0.94,"Newmont surges to top of S & P 500 after Q1 beat, strong asset sale interest (NYSE: NEM)","seekingalpha.com"],[-0.973,"U. S. Stocks May Fall Sharply On Disappointing Earnings, GDP Data","rttnews.com"],[-0.972,"Crude Oil Moves Higher; Bristol Myers Squibb Shares Fall After Q1 Results - ATN International (NASDAQ: ATNI), Bristol - Myers Squibb (NYSE: BMY)","benzinga.com"]]},"2024-04-28":{"n":186,"mean":0.0851,"top":[[0.934,"Artificial Intelligence Could Propel This Magnificent Seven Stock 33% Higher, a Wall Street Analyst Says","fool.com"],[0.934,"Artificial Intelligence Could Propel This Magnificent Seven Stock 33% Higher, a Wall Street Analyst Says","finance.yahoo.com"],[-0.97,"Drewry Dry Bulk Equity Index Down 3. 9% Last Month | Hellenic Shipping News Worldwide","hellenicshippingnews.com"],[-0.958,"Magnus Financial Group LLC Cuts Position in iShares S & P 500 Value ETF (NYSEARCA: IVE)","modernreaders.com"]]},"2024-04-29":{"n":250,"mean":0.0312,"top":[[0.947,"HCA stock looks to bounce back after Friday dip","nashvillepost.com"],[0.942,"Stock market today: Stocks edge higher to start big week, Tesla surges 15%","biztoc.com"],[-0.97,"Multi - strategy hedge fund launches tumble in first quarter, says Preqin","marketscreener.com"],[-0.97,"Multi - strategy hedge fund launches tumble in first quarter, says Preqin","finance.yahoo.com"]]},"2024-04-30":{"n":243,"mean":-0.2163,"top":[[0.949,"Super Micro pushes up full - year revenue forecast as it points to strong AI demand","nbclosangeles.com"],[0.947,"American pay gains rose faster than expected so far this year","us.cnn.com"],[-0.972,"Why MicroStrategy Stock Plummeted by Nearly 18% on Tuesday","finance.yahoo.com"],[-0.971,"Stock market today: Wall Street opens lower after latest hotter - than - expected economic report","santamariatimes.com"]]},"2024-05-01":{"n":249,"mean":-0.2927,"top":[[0.941,"Northern Trust Pension Universe Data: Canadian Pension Plan Returns Concluded the First Quarter With an Upbeat Tone Buoyed by Rising Stock Markets","tmcnet.com"],[0.919,"Amazon ETFs Cheer Tech Giant Strong Earnings","finance.yahoo.com"],[-0.974,"Starbucks Down Nearly 16%, on Pace for Largest Percent Decrease Since March 2020 Data Talk","morningstar.com"],[-0.972,"US markets fall ahead of Fed rate decision, extend yesterday loss; S & P falls 0. 23%","moneycontrol.com"]]},"2024-05-02":{"n":250,"mean":0.1202,"top":[[0.958,"Crocs (CROX) Rose Meaningfully in Q1 - Insider Monkey","insidermonkey.com"],[0.952,"Citadel flagship fund rose 2% in April, defying market turmoil","marketscreener.com"],[-0.976,"Fossil Group (FOSL) Fell Due to Near - Term Revenue Headwinds","insidermonkey.com"],[-0.973,"Military shipbuilder Huntington beats Q1 estimates, shares down 12% on weak profit margins","marketscreener.com"]]},"2024-05-05":{"n":140,"mean":-0.0536,"top":[[0.936,"This Is Great News for Medical Properties Trust and Its 16%- Yielding Dividend","finance.yahoo.com"],[0.916,"Wall Street rallies after hiring shows welcome signs of cooling","borneobulletin.com.bn"],[-0.969,"Lagging real estate stocks have dipped too far, analysts say","afr.com"],[-0.954,"M & T Bank Corp Lowers Stock Position in iShares S & P 500 Growth ETF (NYSEARCA: IVW)","theenterpriseleader.com"]]},"2024-05-06":{"n":234,"mean":0.1631,"top":[[0.949,"Stock market today: Wall Street opens higher, adding to last week gains","exbulletin.com"],[0.949,"Stock market today: Wall Street opens higher, adding to last week gains","chroniclejournal.com"],[-0.962,"1 Magnificent S & P 500 Dividend Stock Down 41% to Buy and Hold Forever","finance.yahoo.com"],[-0.941,"We deserve more: US worker share of the pie dwindles | US income inequality","theguardian.com"]]},"2024-05-07":{"n":250,"mean":-0.0262,"top":[[0.948,"Lyft Stock Jumps On Strong Q1, Better - Than - Expected Demand Forecast","investors.com"],[0.945,"U. S. Stocks Seeing Modest Strength, Extending Recent Upward Trend","rttnews.com"],[-0.971,"Global Stock Markets Show Mixed Performance on Tuesday","northkoreatimes.com"],[-0.971,"Global Stock Markets Show Mixed Performance on Tuesday","newzealandstar.com"]]},"2024-05-08":{"n":250,"mean":-0.1427,"top":[[0.95,"First quarter 2024: High activity and continued momentum for growth","marketscreener.com"],[0.942,"Miami International Holdings Reports Trading Results for April 2024; YTD Options and Equities Volumes Reach Record Levels while MGEX Futures Volume...","finanznachrichten.de"],[-0.971,"Stock market today: Wall Street opens lower, threatening to end a 4 - day winning streak","chroniclejournal.com"],[-0.969,"Stock market today: BSE Sensex slips 250 points; Nifty50 near 22, 200","timesofindia.indiatimes.com"]]},"2024-05-09":{"n":250,"mean":-0.0459,"top":[[0.947,"Baystreet. ca - Strong Gains for TSX","baystreet.ca"],[0.947,"Baystreet. ca - Strong Gains for TSX","baystreet.ca"],[-0.972,"Investors lose Rs 7. 3 lakh crore as Sensex plunges over 1000 points, Nifty at 21, 957. 50","timesofindia.indiatimes.com"],[-0.971,"S & P 500 Gains and Losses Today: Epam Systems Shares Plunge Amid Demand Challenges","investopedia.com"]]},"2024-05-12":{"n":217,"mean":-0.0249,"top":[[0.949,"VisionPoint Advisory Group LLC Boosts Stock Position in Vanguard S & P 500 ETF (NYSEARCA: VOO)","tickerreport.com"],[0.942,"Welltower (NYSE: WELL) Price Target Raised to $105. 00 at Mizuho","theenterpriseleader.com"],[-0.973,"1 Spectacular Growth Stock Down 67% to Buy Hand Over Fist, According to Wall Street","finance.yahoo.com"],[-0.968,"This Magnificent Nasdaq Growth Stock Is Down More Than 40% and Trading at a Once - in - a - Decade Valuation. If It Gets This 1 Thing Right, the St...","finance.yahoo.com"]]},"2024-05-13":{"n":250,"mean":-0.1336,"top":[[0.95,"Stock market today: Wall Street opens higher and adds to what been a solid May...","article.wn.com"],[0.944,"GovCon Index Posted Highest Weekly Gain in 2024; A Winning Week for Wall Street too","govconwire.com"],[-0.969,"Stock market today: Asian stocks drift lower after Wall St closes another winning week","abcnews.go.com"],[-0.969,"Stock market today: Asian stocks drift lower after Wall St closes another winning week","smdailyjournal.com"]]},"2024-05-14":{"n":250,"mean":0.0656,"top":[[0.947,"Stock market today: Stocks edge higher on Wall Street, adding to gains for May","athensreview.com"],[0.947,"Stock market today: Stocks edge higher on Wall Street, adding to gains for May","springfieldnewssun.com"],[-0.969,"Grocery Stores and Restaurants Are Dropping Beyond Meat","finance.yahoo.com"],[-0.968,"Forward Air Books Big Loss in Post - Merger Q1; Stock Drops 30% Premarket - Forward Air (NASDAQ: FWRD)","benzinga.com"]]},"2024-05-15":{"n":250,"mean":0.1371,"top":[[0.949,"U. S. Stocks May See Initial Strength As Consumer Prices Rise Less Than Expected","finanznachrichten.de"],[0.949,"Better Telecom Stock: AT & T vs. T - Mobile","finance.yahoo.com"],[-0.97,"Citi Sees Oil Prices Falling To $70 Range In Q3 2024","menafn.com"],[-0.969,"Bitfarms Ltd. Reports Q1 Loss, Lags Revenue Estimates - Bitfarms (NASDAQ: BITF), Sprinklr (NYSE: CXM)","benzinga.com"]]},"2024-05-16":{"n":250,"mean":-0.0091,"top":[[0.947,"Stock market today: Dow Jones Industrial Average hits 40, 000 for the 1st time, up 6% so far this year","abc30.com"],[0.936,"Peconic Hedge Fund Winning Streak Persists With 18% Gain in 2024","finance.yahoo.com"],[-0.972,"Stock market today: Indexes slip after Dow crosses 40, 000 for the first time","biztoc.com"],[-0.971,"US close: Stocks fall as markets retreat from record highs","hl.co.uk"]]},"2024-05-19":{"n":114,"mean":0.007,"top":[[0.927,"Main Street Financial Solutions LLC Raises Position in Vanguard S & P 500 ETF (NYSEARCA: VOO)","themarketsdaily.com"],[0.893,"The Blue - Chip Bounce Back: 3 Stocks Ready to Rebound in 2024","investorplace.com"],[-0.958,"Nvidia Q1 downbeat outlook would spread pain beyond AI chipmaker stock - IBKR","seekingalpha.com"],[-0.912,"This Beaten - Down Stock Has Crushed the Market Over the Past 10 Years, and It Could Head 71% Higher This Year, According to 1 Wall Street Analyst","finance.yahoo.com"]]},"2024-05-20":{"n":250,"mean":0.1804,"top":[[0.946,"BRF Is Up 6. 18% in One Week: What You Should Know - BRF (NYSE: BRFS)","benzinga.com"],[0.945,"U. S. Stocks May Add To Last Week Strong Gains In Early Trading","rttnews.com"],[-0.964,"Gold price retreats after hitting record high at $2, 450","fxstreet.com"],[-0.961,"ASX 200 LIVE: Australian shares to open modestly lower, RBA latest meeting minutes awaited","afr.com"]]},"2024-05-21":{"n":250,"mean":0.0197,"top":[[0.946,"Bitcoin, Ethereum, Dogecoin Shoot Up On One Of The Best Days For Crypto In 2024 Amid Ether ETF Approval Buzz: Analyst Flags Robust US Investor Dema...","benzinga.com"],[0.944,"Keystone Financial Group Boosts Stock Position in Vanguard S & P 500 Growth ETF (NYSEARCA: VOOG)","tickerreport.com"],[-0.972,"Stock Market Live: GIFT Nifty indicates a negative start for domestic indices - Market News","financialexpress.com"],[-0.971,"Stock market today: Global shares mostly decline after Nasdaq ticks to a record high","news-gazette.com"]]},"2024-05-22":{"n":250,"mean":-0.2694,"top":[[0.94,"Markets today: Wall Street edges up, ASX set to rise","watoday.com.au"],[0.936,"The Dow is set to surge 50% by 2030 as the roaring 20 are alive and well for stocks, market vet says","biztoc.com"],[-0.972,"S & P 500 Gains and Losses Today: Target Falls Amid Constrained Consumer Spending","investopedia.com"],[-0.969,"S & P / TSX composite down as energy and base metal stocks fall, U. S. markets also lower","coastreporter.net"]]},"2024-05-23":{"n":250,"mean":-0.1749,"top":[[0.953,"Analysis: Nvidia split of soaring stock could boost retail investor appeal, Dow chances","channelnewsasia.com"],[0.952,"Nvidia split of soaring stock could boost retail investor appeal, Dow chances","theglobeandmail.com"],[-0.968,"Markets today: Wall Street falls on rates worries, ASX set to slump","smh.com.au"],[-0.968,"Markets today: Wall Street falls on rates worries, ASX set to slump","brisbanetimes.com.au"]]},"2024-05-27":{"n":250,"mean":0.1669,"top":[[0.955,"Nu Holdings Ltd. (NU) Rose on Strong Balance Sheet Growth and Robust Improvement in Profitability","insidermonkey.com"],[0.954,"The Progressive Corporation (PGR) Shares Rose in Q1 as It Reported Strong Quarterly Results","insidermonkey.com"],[-0.967,"European Shares Seen Tad Lower At Open","rttnews.com"],[-0.967,"European Shares Seen Tad Lower At Open","finanznachrichten.de"]]},"2024-05-28":{"n":250,"mean":-0.0424,"top":[[0.955,"Robust Q4 Results Drove Meta Platforms (META) Up 37. 3% in Q1","insidermonkey.com"],[0.953,"Amazon. com (AMZN) Exceeded Expectations in Q1","insidermonkey.com"],[-0.969,"S & P / TSX composite down in late - morning trading, U. S. stock markets mixed","pentictonherald.ca"],[-0.967,"Major Averages Continue To Turn In Mixed Performance In Afternoon Trading","finanznachrichten.de"]]},"2024-05-29":{"n":250,"mean":-0.3566,"top":[[0.95,"This stock has rallied more than Nvidia this month","investing.com"],[0.95,"Stock Market Outlook: a 4% Gain in June Possible on These 5 Catalysts","markets.businessinsider.com"],[-0.973,"ASX 200 LIVE: Australian shares are poised to fall, tracking losses on Wall Street","afr.com"],[-0.973,"Stock market today (May 29, 2024): Asian shares decline after a mixed post - holiday session on Wall Street","businessmirror.com.ph"]]},"2024-05-30":{"n":250,"mean":-0.3173,"top":[[0.949,"Best Buy Profit Increases Even as It Extends Sales Slump","bnnbloomberg.ca"],[0.947,"This Pharma Stock Is Poised to Keep Outperforming the S & P 500","finance.yahoo.com"],[-0.973,"Big market movers fall and pull Wall St. lower; Q1 economic growth is revised down to 1. 3%","postandcourier.com"],[-0.972,"Stock Market News Today: Markets slip on Salesforce drag, Q1 GDP revision","seekingalpha.com"]]},"2024-06-02":{"n":212,"mean":-0.1253,"top":[[0.939,"UDR (NYSE: UDR) Price Target Raised to $38. 00","dailypolitical.com"],[0.927,"ASX 200 LIVE: Australian shares poised to open higher, Wall Street rally intact","afr.com"],[-0.965,"3 Magnificent S & P 500 Dividend Stocks Down 15% to Buy and Hold Forever","biztoc.com"],[-0.954,"Worried About a Stock Market Correction With the S & P 500 and Nasdaq Composite at an All - Time High? 2 ETFs and 1 Dividend King to Buy Now","fool.com"]]},"2024-06-03":{"n":250,"mean":-0.0401,"top":[[0.95,"UDR, Inc. (NYSE: UDR) Short Interest Up 17. 2% in May","defenseworld.net"],[0.946,"Autodesk Up Over 9%, on Pace for Largest Percent Increase Since November 2022 Data Talk","morningstar.com"],[-0.973,"Tesla (TSLA) Shares Fell 29. 3% in Q1 - Insider Monkey","insidermonkey.com"],[-0.973,"Markets today: Stocks fall and bonds rise amid weak manufacturing","bnnbloomberg.ca"]]},"2024-06-04":{"n":250,"mean":-0.3342,"top":[[0.936,"FTSE 100 opens red; united kingdom retail sales inch up in May","marketscreener.com"],[0.93,"Farmer sentiment recovers in May; interest in solar leasing rising","marketscreener.com"],[-0.975,"June Historically A Weak Month For Stocks With Negative Average Returns Over Last 20 Years","biztoc.com"],[-0.973,"Stock market today: Asian shares decline after report shows US manufacturing contracted in May","startribune.com"]]},"2024-06-05":{"n":250,"mean":0.1518,"top":[[0.945,"Why iRobot Stock Was Up 12% Last Month","finance.yahoo.com"],[0.945,"Why iRobot Stock Was Up 12% Last Month","biztoc.com"],[-0.975,"One of Wall Street top strategists sees stocks dropping 10% due to a moderate form of stagflation","biztoc.com"],[-0.974,"Stock market outlook: A top Wall Street strategist sees stocks dropping 10% due to a moderate form of stagflation","fortune.com"]]},"2024-06-06":{"n":250,"mean":-0.0288,"top":[[0.953,"iShares Core S & P 500 ETF (NYSEARCA: IVV) Position Boosted by Vawter Financial Ltd.","wkrb13.com"],[0.943,"Morgan Stanley Lisa Shalett Sees Further Gains Ahead for US Stocks","bnnbloomberg.ca"],[-0.971,"Realty Income (NYSE: O) Trading Down 0. 1%","themarketsdaily.com"],[-0.968,"Ulta Beauty Lowers Guidance, but Is There a Buying Opportunity With the Stock Down Nearly 25% off Its Highs?","finance.yahoo.com"]]},"2024-06-09":{"n":170,"mean":-0.2056,"top":[[0.948,"Connectus Wealth LLC Boosts Stock Position in Invesco S & P 500 Quality ETF (NYSEARCA: SPHQ)","dailypolitical.com"],[0.945,"Korean net purchase of US shares up 42 - fold over past week on Nvidia stock split","koreatimes.co.kr"],[-0.972,"Amidst Unexpected Rise In US Jobs, Weak Employment In 16 - 24 Age Group Remains A Concern","freepressjournal.in"],[-0.972,"Stock market today: Stocks slip and bond yields jump following a hotter - than - expected jobs report","biztoc.com"]]},"2024-06-10":{"n":250,"mean":-0.1736,"top":[[0.953,"Good News: Earnings Log Best Growth Rate Since Post - Pandemic Surge","ai-cio.com"],[0.948,"CET: Very Attractive 18% Discount, Variable Income, And Excellent Past Performance","seekingalpha.com"],[-0.972,"Global markets mostly tumbled following a hotter - than - expected US jobs report","hantsjournal.ca"],[-0.972,"Global markets mostly tumbled following a hotter - than - expected US jobs report","cbncompass.ca"]]},"2024-06-11":{"n":250,"mean":-0.2802,"top":[[0.944,"AlphaSense to Join Forces with Tegus; Increases Latest Valuation to $4B","finanznachrichten.de"],[0.931,"Corporate Pension Plan Funding Stays Strong On Stock Gains","plansponsor.com"],[-0.971,"S & P / TSX composite index down nearly 150 points in broad - based decline","thompsoncitizen.net"],[-0.971,"S & P / TSX composite index down nearly 150 points in broad - based decline","fitzhugh.ca"]]},"2024-06-12":{"n":250,"mean":0.0989,"top":[[0.952,"Phinia (PHIN) Stock Surged in Q1 on Solid Earnings Results and Positive 2024 Outlook","insidermonkey.com"],[0.951,"Nifty, Sensex Continue Upward Trend, Mid And Small Caps Surged 1%","freepressjournal.in"],[-0.968,"Adobe Stock Down 23% YTD; Can Q2 Results Reverse The Trend?","forbes.com"],[-0.964,"Markets today: U. S. stocks climb and bond yields fall as Powell speaks","bnnbloomberg.ca"]]},"2024-06-13":{"n":250,"mean":-0.1114,"top":[[0.949,"Adobe shares soar 15% on better - than - expected results","nbcphiladelphia.com"],[0.949,"Adobe shares soar 17% on better - than - expected results","nbcdfw.com"],[-0.971,"Lovesac Reports Q1 Loss, Tops Revenue Estimates","markets.businessinsider.com"],[-0.971,"S & P / TSX composite down 1. 2 per cent Thursday, U. S. stock markets mixed","thespec.com"]]},"2024-06-16":{"n":199,"mean":-0.1149,"top":[[0.95,"Short Interest in Equity Residential (NYSE: EQR) Expands By 28. 5%","dailypolitical.com"],[0.949,"Equity Residential (NYSE: EQR) Short Interest Up 28. 5% in May","wkrb13.com"],[-0.971,"Nuveen S & P 500 Buy - Write Income Fund (NYSE: BXMX) Short Interest Down 34. 8% in May","wkrb13.com"],[-0.969,"3 High - Yield S & P 500 Dividend Stocks Down More Than 25% to Buy Now and Hold for at Least a Decade","biztoc.com"]]},"2024-06-17":{"n":250,"mean":-0.103,"top":[[0.947,"Up 14% This Year As Travel Demand Holds Up, Will Hyatt Stock See Further Gains?","forbes.com"],[0.946,"US markets end higher for the week; Nasdaq closes up 3. 2% for the week on June 14","financialexpress.com"],[-0.974,"S & P / TSX composite down more than 100 points in late - morning trading","thereminder.ca"],[-0.974,"S & P / TSX composite down more than 100 points in late - morning trading","prpeak.com"]]},"2024-06-19":{"n":250,"mean":-0.0089,"top":[[0.955,"Mib better in Europe; Stellantis good on Mib.","marketscreener.com"],[0.952,"Vanguard S & P 500 ETF (NYSEARCA: VOO) Position Boosted by Lam Group Inc.","wkrb13.com"],[-0.968,"US Markets May Be Closed But Tech Stocks Continue To Melt Up","zerohedge.com"],[-0.966,"Tech Stocks Drive a Rebound In Japan Indexes, Yen Faces Persistent Downward Pressure","ticker.com"]]},"2024-06-20":{"n":250,"mean":0.0155,"top":[[0.956,"Baystreet. ca - TSX Enjoys Healthy Gains","baystreet.ca"],[0.95,"Nasdaq 100: Bullish acceleration in play supported by improved market breadth conditions","marketpulse.com"],[-0.971,"Qualcomm Worst Performer in the Nasdaq 100 So Far Today Data Talk","morningstar.com"],[-0.971,"2 Glorious Growth Stocks Down 55% and 85% to Buy on the Dip","finance.yahoo.com"]]},"2024-06-23":{"n":139,"mean":-0.0158,"top":[[0.911,"2 Magnificent Growth Stocks That Have Outperformed the Nasdaq in 2024 and Can Keep Soaring","finance.yahoo.com"],[0.898,"VICI Properties Inc. (NYSE: VICI) Receives Consensus Rating of Moderate Buy from Analysts","theenterpriseleader.com"],[-0.972,"1 Artificial Intelligence (AI) Stock Down 67% That Could Get Slashed In Half Again","finance.yahoo.com"],[-0.968,"Real estate stocks edge down, while major market averages gain marginally (NYSEARCA: XLRE)","seekingalpha.com"]]},"2024-06-24":{"n":250,"mean":-0.1099,"top":[[0.946,"SOXL ETF is overvalued but technicals point to a 25% upside","invezz.com"],[0.946,"Sensex up 170 pts; European mrkt advance","business-standard.com"],[-0.972,"Nvidia (NVDA) Stock Is Falling and It Dragging the Nasdaq Down with It","investorplace.com"],[-0.97,"Nvidia stock is now in a correction as market cap dips below $3 trillion","fortune.com"]]},"2024-06-25":{"n":250,"mean":-0.1096,"top":[[0.945,"Web3MediaBreaks – Pinterest Inc. (NYSE: PINS) Gains Investor Attention Amid Promising Financial Outlook","streetinsider.com"],[0.944,"Markets today: Magnificent Seven drive gains with Nvidia up 5%","bnnbloomberg.ca"],[-0.975,"Walgreens Likely To Post A 25% Drop In Q3 Earnings","forbes.com"],[-0.97,"S & P 500 Outlook: Index down for three straight sessions heading into Tuesday","fxstreet.com"]]},"2024-06-26":{"n":250,"mean":-0.1216,"top":[[0.952,"UDR (NYSE: UDR) Price Target Increased to $44. 00 by Analysts at Truist Financial","dailypolitical.com"],[0.947,"(LEAD) Seoul shares end higher driven by tech gains","en.yna.co.kr"],[-0.971,"S & P 500 Snaps 3 - Session Decline On The Back Of Nvidia Rebound: Fear & Greed Index Remains In Negative Zone - NVIDIA (NASDAQ: NVDA)","benzinga.com"],[-0.969,"Stock Market Today: Dow Jones Falls; Tesla Rival Rivian Soars 30% On Volkswagen Investment","investors.com"]]},"2024-06-27":{"n":250,"mean":-0.2014,"top":[[0.944,"Baystreet. ca - Strong Finish for TSX","baystreet.ca"],[0.944,"NVIDIA Corporation (NVDA) Jumped on Booming Demand for AI Products","insidermonkey.com"],[-0.975,"Micron Down Over 7%, On Track for Largest Percent Decrease Since September 2022 Data Talk","morningstar.com"],[-0.974,"Nike stock sank after the company projected a bigger - than - expected sales decline in 2025","gulfnews.ca"]]}},"test_summary":{"metrics":{"A0":{"rmse":33.65609889299469,"mae":26.509518542921686,"directional_accuracy":null,"n_directional":0,"always_up_accuracy":0.5421686746987951},"A1":{"rmse":33.99761212595815,"mae":26.84630787809037,"directional_accuracy":0.5421686746987951,"n_directional":83,"always_up_accuracy":0.5421686746987951},"B":{"rmse":40.634224948077524,"mae":31.5330249451751,"directional_accuracy":0.4819277108433735,"n_directional":83,"always_up_accuracy":0.5421686746987951},"C":{"rmse":40.962850435171454,"mae":32.13786203966769,"directional_accuracy":0.4939759036144578,"n_directional":83,"always_up_accuracy":0.5421686746987951}},"dm":{"C_vs_B (question principale)":{"statistic":0.30860016655030553,"p_value":0.7576256941518469},"B_vs_A0":{"statistic":2.7278383266156485,"p_value":0.006375084493558392},"C_vs_A0":{"statistic":2.9707120362803416,"p_value":0.0029711022579042012}},"pt":{"A1":{"statistic":null,"p_value":null,"n":83,"accuracy":0.5421686746987951},"B":{"statistic":-0.502017626688199,"p_value":0.6921724390137413,"n":83,"accuracy":0.4819277108433735},"C":{"statistic":-0.2552310284065353,"p_value":0.6007276663648621,"n":83,"accuracy":0.4939759036144578}},"finals":{"Buy-and-hold":10714.65985817407,"B (seuil 0.20%)":10203.598876719174,"C (seuil 0.20%)":10204.893507349567}}};
+const OFFICIAL = { threshold: 0.20, cost: 5 };
+const START = 10000;
+const state = {
+  model: "C", period: "test", threshold: OFFICIAL.threshold, cost: OFFICIAL.cost,
+  ctype: "candles", ind: { sma: true, volume: true, capital: true, sentiment: true, rsi: false, returns: false },
+  view: null, hover: null, selTrade: null,
+};
+let sim = null;
+
+// ---------- Formats ----------
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = d => new Intl.NumberFormat("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const nf0 = fmt(0), nf2 = fmt(2);
+const pct = (x, d = 2) => (x > 0 ? "+" : x < 0 ? "−" : "") + fmt(d).format(Math.abs(x * 100)) + " %";
+const sgn = x => x > 0 ? "up" : x < 0 ? "down" : "";
+const fdate = s => { const [y, m, d] = s.split("-"); return `${d}/${m}/${y.slice(2)}`; };
+const MONTHS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const vol = v => v >= 1e9 ? nf2.format(v / 1e9) + " Md" : nf0.format(v / 1e6) + " M";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const tidy = s => s.replace(/([a-z]) - ([a-z])/g, "$1-$2").replace(/\. (com|ca|net|org|co)\b/g, ".$1")
+  .replace(/\bS & P\b/g, "S&P").replace(/(\d)\. (\d)/g, "$1.$2").replace(/(\d) %/g, "$1%");
+const prevDay = s => { const d = new Date(s + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); };
+
+// ---------- Simulation ----------
+function simulate() {
+  const idx = DATA.dates.map((_, i) => i).filter(i => DATA.period[i] === state.period);
+  const pred = DATA["pred_ret_" + state.model];
+  const th = state.threshold / 100, cost = state.cost / 10000;
+  let prevPos = 1, cap = START, bh = START, fees = 0, hits = 0, nDir = 0, up = 0, nUp = 0, cashDays = 0;
+  const rows = [];
+  for (const i of idx) {
+    const close = DATA.close[i], prev = DATA.prev_close[i], p = pred[i];
+    const r = close / prev - 1, predChange = Math.exp(p / 100) - 1;
+    const pos = predChange > -th ? 1 : 0, changed = pos !== prevPos;
+    const capBefore = cap;
+    if (changed) fees += cap * cost;
+    cap *= 1 + r * pos - (changed ? cost : 0);
+    bh *= 1 + r;
+    if (!pos) cashDays++;
+    const td = Math.sign(close - prev), pd = Math.sign(predChange);
+    if (td !== 0 && pd !== 0) { nDir++; if (td === pd) hits++; }
+    if (td !== 0) { nUp++; if (td > 0) up++; }
+    rows.push({ i, date: DATA.dates[i], open: DATA.open[i], high: DATA.high[i], low: DATA.low[i], close, prev,
+                volume: DATA.volume[i], sma: DATA.sma_20[i], rsi: DATA.rsi_14[i],
+                sent: DATA.sentiment_lag1[i], sentOk: DATA.sentiment_available[i] === 1,
+                r, pred: p, pos, changed, entered: changed && pos === 1, exited: changed && pos === 0,
+                cap, bh, stratRet: cap / capBefore - 1 });
+    prevPos = pos;
+  }
+  const trades = []; let open = { entryDate: "début", entryIdx: 0, entryPrice: rows[0].prev };
+  rows.forEach((row, k) => {
+    if (row.exited && open) {
+      trades.push({ ...open, exitDate: k > 0 ? rows[k - 1].date : rows[0].date, exitIdx: Math.max(k - 1, 0), exitPrice: row.prev, days: k - open.entryIdx, status: "Clôturée" });
+      open = null;
+    }
+    if (row.entered) open = { entryDate: k > 0 ? rows[k - 1].date : "début", entryIdx: k, entryPrice: row.prev };
+  });
+  if (open) trades.push({ ...open, exitDate: rows[rows.length - 1].date, exitIdx: rows.length - 1,
+                          exitPrice: rows[rows.length - 1].close, days: rows.length - open.entryIdx, status: "Ouverte" });
+  trades.forEach(t => t.ret = t.exitPrice / t.entryPrice - 1);
+
+  const maxDD = key => { let peak = START, dd = 0; rows.forEach(r => { peak = Math.max(peak, r[key]); dd = Math.min(dd, r[key] / peak - 1); }); return dd; };
+  const sharpe = arr => { const m = arr.reduce((a, b) => a + b, 0) / arr.length;
+    const sd = Math.sqrt(arr.reduce((a, b) => a + (b - m) ** 2, 0) / (arr.length - 1)); return sd ? m / sd * Math.sqrt(252) : NaN; };
+  const gains = trades.filter(t => t.ret > 0).reduce((a, t) => a + t.ret, 0);
+  const losses = -trades.filter(t => t.ret < 0).reduce((a, t) => a + t.ret, 0);
+  return { rows, trades, cap, bh, fees, cashDays, dirAcc: nDir ? hits / nDir : NaN, upAcc: nUp ? up / nUp : NaN,
+           ddStrat: maxDD("cap"), ddBH: maxDD("bh"), sharpeStrat: sharpe(rows.map(r => r.stratRet)),
+           sharpeBH: sharpe(rows.map(r => r.r)), profitFactor: losses ? gains / losses : Infinity };
+}
+
+// ---------- Graphique ----------
+const NS = "http://www.w3.org/2000/svg";
+const W = 1000, SCALE_W = 76, LEFT = 8, PLOT_R = W - SCALE_W, GAP = 10, AXIS_H = 26;
+const PANE_H = { price: 330, capital: 110, sentiment: 96, rsi: 96, returns: 96 };
+const PANE_ORDER = ["price", "capital", "sentiment", "rsi", "returns"];
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function text(parent, x, y, str, attrs = {}) { const t = el("text", { x, y, ...attrs }, parent); t.textContent = str; return t; }
+function ticks(min, max, count) {
+  const raw = (max - min) / count, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw);
+  const out = []; for (let v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+function tag(parent, y, label, bg, fg = "#ffffff") {
+  const g = el("g", {}, parent);
+  el("rect", { x: PLOT_R + 1, y: y - 9, width: SCALE_W - 3, height: 18, rx: 2, fill: bg }, g);
+  text(g, PLOT_R + 7, y + 4, label, { fill: fg });
+}
+
+function clampView(i0, i1, n) {
+  let len = Math.max(10, Math.min(n, i1 - i0 + 1));
+  i0 = Math.round(i0); i0 = Math.max(0, Math.min(n - len, i0));
+  return [i0, i0 + len - 1];
+}
+
+function draw() {
+  const svg = document.getElementById("chart"); svg.innerHTML = "";
+  const rows = sim.rows, n = rows.length;
+  if (!state.view) state.view = [0, n - 1];
+  const [i0, i1] = state.view, nv = i1 - i0 + 1, vis = rows.slice(i0, i1 + 1);
+  const plotW = PLOT_R - LEFT - 4;
+  const x = k => LEFT + plotW * (k - i0 + 0.5) / nv;
+  const bw = plotW / nv;
+
+  // Disposition des panneaux actifs
+  const panes = {}; let top = 8;
+  PANE_ORDER.filter(p => p === "price" || state.ind[p]).forEach(p => { panes[p] = { top, bottom: top + PANE_H[p] }; top += PANE_H[p] + GAP; });
+  const bottomAll = top - GAP, axisY = bottomAll + 18, H = bottomAll + AXIS_H;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const clip = el("clipPath", { id: "plotclip" }, el("defs", {}, svg));
+  el("rect", { x: LEFT, y: 0, width: PLOT_R - LEFT, height: H }, clip);
+
+  const yOf = (p, lo, hi) => v => panes[p].top + (panes[p].bottom - panes[p].top) * (1 - (v - lo) / (hi - lo));
+  function frame(p, lo, hi, f, count) {
+    const y = yOf(p, lo, hi);
+    ticks(lo, hi, count).forEach(v => {
+      el("line", { x1: LEFT, x2: PLOT_R, y1: y(v), y2: y(v), stroke: css("--grid") }, svg);
+      text(svg, PLOT_R + 8, y(v) + 4, f(v), { fill: css("--muted") });
+    });
+    el("line", { x1: PLOT_R, x2: PLOT_R, y1: panes[p].top, y2: panes[p].bottom, stroke: css("--line") }, svg);
+    el("line", { x1: LEFT, x2: W, y1: panes[p].bottom + GAP / 2, y2: panes[p].bottom + GAP / 2, stroke: css("--line") }, svg);
+    return y;
+  }
+  const plot = el("g", { "clip-path": "url(#plotclip)" }, svg);
+
+  // Mois (axe) et verticales
+  let lastM = "";
+  vis.forEach((r, j) => {
+    const k = i0 + j, m = r.date.slice(0, 7);
+    if (m !== lastM) {
+      lastM = m;
+      el("line", { x1: x(k), x2: x(k), y1: 8, y2: bottomAll, stroke: css("--grid") }, plot);
+      text(svg, Math.max(x(k), LEFT + 24), axisY, MONTHS[+m.slice(5) - 1] + " " + m.slice(2, 4), { fill: css("--muted"), "text-anchor": "middle" });
+    }
+  });
+  // Hors du marché et transaction sélectionnée
+  vis.forEach((r, j) => { if (!r.pos) el("rect", { x: x(i0 + j) - bw / 2, y: 8, width: bw, height: bottomAll - 8, fill: css("--cash") }, plot); });
+  if (state.selTrade !== null) {
+    const t = sim.trades[state.selTrade];
+    el("rect", { x: x(t.entryIdx) - bw / 2, y: 8, width: x(t.exitIdx) - x(t.entryIdx) + bw, height: bottomAll - 8, fill: css("--sel") }, plot);
+  }
+
+  // --- Prix
+  const pv = vis.flatMap(r => state.ctype === "candles" ? [r.high, r.low] : [r.close, r.prev]).concat(state.ind.sma ? vis.map(r => r.sma) : []);
+  let plo = Math.min(...pv), phi = Math.max(...pv), pm = (phi - plo) * 0.14;
+  if (state.ind.volume) plo -= (phi - plo) * 0.22;
+  plo -= pm; phi += pm;
+  const yP = frame("price", plo, phi, v => nf0.format(v), 7);
+
+  if (state.ind.volume) {
+    const vmax = Math.max(...vis.map(r => r.volume)), vb = panes.price.bottom, vh = PANE_H.price * 0.18;
+    vis.forEach((r, j) => el("rect", { x: x(i0 + j) - bw * 0.35, y: vb - vh * r.volume / vmax, width: bw * 0.7, height: vh * r.volume / vmax,
+                                       fill: r.close >= r.open ? css("--up") : css("--down"), opacity: 0.28 }, plot));
+  }
+  if (state.ctype === "candles") {
+    vis.forEach((r, j) => {
+      const k = i0 + j, c = r.close >= r.open ? css("--up") : css("--down");
+      el("line", { x1: x(k), x2: x(k), y1: yP(r.high), y2: yP(r.low), stroke: c, "stroke-width": 1 }, plot);
+      const yt = yP(Math.max(r.open, r.close)), yb = yP(Math.min(r.open, r.close));
+      el("rect", { x: x(k) - Math.max(1.5, bw * 0.32), y: yt, width: Math.max(3, bw * 0.64), height: Math.max(1, yb - yt), fill: c }, plot);
+    });
+  } else {
+    const pts = vis.map((r, j) => [x(i0 + j), yP(r.close)]);
+    const d = pts.map((p, j) => (j ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+    el("path", { d: `${d} L${pts[pts.length - 1][0]} ${panes.price.bottom} L${pts[0][0]} ${panes.price.bottom} Z`, fill: css("--area") }, plot);
+    el("path", { d, fill: "none", stroke: css("--accent"), "stroke-width": 1.6 }, plot);
+  }
+  if (state.ind.sma) el("path", { d: vis.map((r, j) => (j ? "L" : "M") + x(i0 + j).toFixed(1) + " " + yP(r.sma).toFixed(1)).join(" "),
+                                  fill: "none", stroke: css("--sma"), "stroke-width": 1.3 }, plot);
+
+  // Signaux
+  const lastLabel = { buy: -1e9, sell: -1e9 };
+  vis.forEach((r, j) => {
+    if (!r.changed) return;
+    const k = i0 + j, xx = x(Math.max(k - 1, 0)), yy = yP(r.prev);
+    const type = r.entered ? "buy" : "sell", show = xx - lastLabel[type] > 46;
+    if (show) lastLabel[type] = xx;
+    const col = r.entered ? css("--up") : css("--down");
+    let anchor = r.entered ? Math.max(yy, yP(rows[Math.max(k - 1, 0)].low)) + 6 : Math.min(yy, yP(rows[Math.max(k - 1, 0)].high)) - 6;
+    if (!r.entered) anchor = Math.max(anchor, panes.price.top + 44);
+    if (r.entered) {
+      el("path", { d: `M${xx} ${anchor} l-6 10 l12 0 z`, fill: col }, plot);
+      if (show) text(plot, xx, anchor + 23, "Achat", { fill: col, "text-anchor": "middle" });
+    } else {
+      el("path", { d: `M${xx} ${anchor} l-6 -10 l12 0 z`, fill: col }, plot);
+      if (show) text(plot, xx, anchor - 15, "Vente", { fill: col, "text-anchor": "middle" });
+    }
+  });
+  const lastVis = vis[vis.length - 1];
+  tag(svg, yP(lastVis.close), nf2.format(lastVis.close), lastVis.close >= lastVis.prev ? css("--up") : css("--down"));
+  const legendP = el("text", { x: LEFT + 6, y: panes.price.top + 14, class: "ptitle" }, svg);
+
+  // --- Capital
+  let yC = null, legendC = null;
+  if (state.ind.capital) {
+    const cv = vis.flatMap(r => [r.cap, r.bh]).concat([START]);
+    let lo = Math.min(...cv), hi = Math.max(...cv), m = (hi - lo) * 0.15 || 50;
+    yC = frame("capital", lo - m, hi + m, v => nf0.format(v), 3);
+    el("line", { x1: LEFT, x2: PLOT_R, y1: yC(START), y2: yC(START), stroke: css("--muted"), "stroke-dasharray": "2 3" }, plot);
+    const pth = key => vis.map((r, j) => (j ? "L" : "M") + x(i0 + j).toFixed(1) + " " + yC(r[key]).toFixed(1)).join(" ");
+    el("path", { d: pth("bh"), fill: "none", stroke: css("--bh"), "stroke-width": 1.3 }, plot);
+    el("path", { d: pth("cap"), fill: "none", stroke: css("--accent"), "stroke-width": 1.8 }, plot);
+    tag(svg, yC(lastVis.cap), nf0.format(lastVis.cap), css("--accent"));
+    legendC = el("text", { x: LEFT + 6, y: panes.capital.top + 13, class: "ptitle" }, svg);
+    Object.assign(yC, { lo: lo - m, hi: hi + m });
+  }
+  // --- Sentiment
+  let legendS = null, yS = null;
+  if (state.ind.sentiment) {
+    const mx = Math.max(0.15, ...vis.map(r => Math.abs(r.sent))) * 1.15;
+    yS = frame("sentiment", -mx, mx, v => nf2.format(v), 4);
+    vis.forEach((r, j) => {
+      const y0 = yS(0), y1 = yS(r.sent);
+      el("rect", { x: x(i0 + j) - bw * 0.35, y: Math.min(y0, y1), width: bw * 0.7, height: Math.max(1, Math.abs(y1 - y0)),
+                   fill: !r.sentOk ? css("--neutral") : r.sent >= 0 ? css("--up") : css("--down"), opacity: r.sentOk ? 0.75 : 0.5 }, plot);
+    });
+    el("line", { x1: LEFT, x2: PLOT_R, y1: yS(0), y2: yS(0), stroke: css("--muted") }, plot);
+    legendS = el("text", { x: LEFT + 6, y: panes.sentiment.top + 13, class: "ptitle" }, svg);
+    Object.assign(yS, { lo: -mx, hi: mx });
+  }
+  // --- RSI
+  let legendR = null, yR = null;
+  if (state.ind.rsi) {
+    yR = frame("rsi", 0, 100, v => nf0.format(v), 4);
+    el("rect", { x: LEFT, y: yR(70), width: PLOT_R - LEFT, height: yR(30) - yR(70), fill: css("--rsi"), opacity: 0.07 }, plot);
+    [30, 70].forEach(v => el("line", { x1: LEFT, x2: PLOT_R, y1: yR(v), y2: yR(v), stroke: css("--rsi"), "stroke-dasharray": "4 4", opacity: 0.7 }, plot));
+    el("path", { d: vis.map((r, j) => (j ? "L" : "M") + x(i0 + j).toFixed(1) + " " + yR(r.rsi).toFixed(1)).join(" "),
+                 fill: "none", stroke: css("--rsi"), "stroke-width": 1.4 }, plot);
+    legendR = el("text", { x: LEFT + 6, y: panes.rsi.top + 13, class: "ptitle" }, svg);
+    Object.assign(yR, { lo: 0, hi: 100 });
+  }
+  // --- Rendements
+  let legendT = null, yT = null;
+  if (state.ind.returns) {
+    const mx = Math.max(...vis.flatMap(r => [Math.abs(r.r * 100), Math.abs(r.pred)])) * 1.12;
+    yT = frame("returns", -mx, mx, v => nf2.format(v), 4);
+    vis.forEach((r, j) => {
+      const y0 = yT(0), y1 = yT(r.r * 100);
+      el("rect", { x: x(i0 + j) - bw * 0.35, y: Math.min(y0, y1), width: bw * 0.7, height: Math.max(1, Math.abs(y1 - y0)),
+                   fill: r.r >= 0 ? css("--up") : css("--down"), opacity: 0.5 }, plot);
+    });
+    el("path", { d: vis.map((r, j) => (j ? "L" : "M") + x(i0 + j).toFixed(1) + " " + yT(r.pred).toFixed(1)).join(" "),
+                 fill: "none", stroke: css("--accent"), "stroke-width": 1.4 }, plot);
+    legendT = el("text", { x: LEFT + 6, y: panes.returns.top + 13, class: "ptitle" }, svg);
+    Object.assign(yT, { lo: -mx, hi: mx });
+  }
+
+  // Légendes (valeurs du jour pointé)
+  function legends(k) {
+    const r = rows[k];
+    const span = (c, s) => `<tspan fill="${c}">${esc(s)}</tspan>`;
+    legendP.innerHTML = span(css("--muted"), "SPX · 1J   ") +
+      (state.ind.sma ? span(css("--sma"), `MM 20  ${nf2.format(r.sma)}   `) : "") +
+      (state.ind.volume ? span(css("--muted"), `Vol  ${vol(r.volume)}`) : "");
+    if (legendC) legendC.innerHTML = span(css("--muted"), "Capital   ") + span(css("--accent"), `Stratégie ${state.model}  ${nf0.format(r.cap)}   `) + span(css("--bh"), `Buy & hold  ${nf0.format(r.bh)}`);
+    if (legendS) legendS.innerHTML = span(css("--muted"), "Sentiment de la veille (FinBERT)   ") +
+      span(r.sentOk ? (r.sent >= 0 ? css("--up") : css("--down")) : css("--neutral"), (r.sent >= 0 ? "+" : "−") + nf2.format(Math.abs(r.sent)) + (r.sentOk ? "" : "  propagé, aucun article"));
+    if (legendR) legendR.innerHTML = span(css("--muted"), "RSI 14   ") + span(css("--rsi"), nf2.format(r.rsi));
+    if (legendT) legendT.innerHTML = span(css("--muted"), "Rendement   ") + span(r.r >= 0 ? css("--up") : css("--down"), `réel ${pct(r.r)}   `) + span(css("--accent"), `prévu ${pct(r.pred / 100)}`);
+  }
+
+  // Réticule
+  const cross = el("g", { opacity: 0, "pointer-events": "none" }, svg);
+  const vline = el("line", { y1: 8, y2: bottomAll, stroke: css("--cross"), "stroke-dasharray": "4 4" }, cross);
+  const hline = el("line", { x1: LEFT, x2: PLOT_R, stroke: css("--cross"), "stroke-dasharray": "4 4" }, cross);
+  const yTagG = el("g", {}, cross), xTagG = el("g", {}, cross);
+  const scalesByPane = { price: Object.assign(yP, { lo: plo, hi: phi }), capital: yC, sentiment: yS, rsi: yR, returns: yT };
+  const labelFmt = { price: v => nf2.format(v), capital: v => nf0.format(v), sentiment: v => nf2.format(v), rsi: v => nf2.format(v), returns: v => nf2.format(v) + "%" };
+
+  function showCross(k, yMouse) {
+    state.hover = k;
+    cross.setAttribute("opacity", 1);
+    vline.setAttribute("x1", x(k)); vline.setAttribute("x2", x(k));
+    yTagG.innerHTML = ""; xTagG.innerHTML = "";
+    if (yMouse !== null) {
+      hline.setAttribute("opacity", 1); hline.setAttribute("y1", yMouse); hline.setAttribute("y2", yMouse);
+      const p = Object.keys(panes).find(p => yMouse >= panes[p].top && yMouse <= panes[p].bottom);
+      if (p && scalesByPane[p]) {
+        const s = scalesByPane[p], v = s.lo + (s.hi - s.lo) * (panes[p].bottom - yMouse) / (panes[p].bottom - panes[p].top);
+        tag(yTagG, yMouse, labelFmt[p](v), css("--panel-2"), css("--text"));
+      }
+    } else hline.setAttribute("opacity", 0);
+    el("rect", { x: x(k) - 40, y: axisY - 13, width: 80, height: 18, rx: 2, fill: css("--panel-2") }, xTagG);
+    text(xTagG, x(k), axisY, fdate(rows[k].date), { fill: css("--text"), "text-anchor": "middle" });
+    legends(k); renderReadout(); renderNews();
+  }
+  function hideCross() { cross.setAttribute("opacity", 0); state.hover = null; legends(i1); renderReadout(); renderNews(); }
+  legends(state.hover ?? i1);
+  if (state.hover !== null && state.hover >= i0 && state.hover <= i1) showCross(state.hover, null);
+
+  G = { i0, i1, nv, plotW, n, bottomAll, showCross, hideCross };
+}
+
+// ---------- Interactions (enregistrées une seule fois) ----------
+let G = null, drag = null;
+const chartSvg = document.getElementById("chart");
+const toLocal = evt => { const pt = chartSvg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY; return pt.matrixTransform(chartSvg.getScreenCTM().inverse()); };
+const inPlot = loc => loc.x >= LEFT && loc.x <= PLOT_R && loc.y >= 8 && loc.y <= G.bottomAll;
+const idxAt = lx => Math.max(G.i0, Math.min(G.i1, G.i0 + Math.floor((lx - LEFT) / G.plotW * G.nv)));
+chartSvg.addEventListener("pointerdown", evt => {
+  const loc = toLocal(evt); if (!inPlot(loc)) return;
+  if (evt.pointerType === "mouse") { drag = { x0: loc.x, view: [...state.view] }; chartSvg.setPointerCapture(evt.pointerId); chartSvg.style.cursor = "grabbing"; }
+  G.showCross(idxAt(loc.x), loc.y);
+});
+chartSvg.addEventListener("pointermove", evt => {
+  const loc = toLocal(evt);
+  if (drag) {
+    const shift = Math.round((drag.x0 - loc.x) / G.plotW * G.nv);
+    const v = clampView(drag.view[0] + shift, drag.view[1] + shift, G.n);
+    if (v[0] !== state.view[0]) { state.view = v; setRangeButtons(null); draw(); }
+    G.showCross(idxAt(Math.max(LEFT, Math.min(PLOT_R, loc.x))), null);
+    return;
+  }
+  if (inPlot(loc)) { chartSvg.style.cursor = "crosshair"; G.showCross(idxAt(loc.x), loc.y); }
+  else { chartSvg.style.cursor = "default"; G.hideCross(); }
+});
+const endDrag = () => { drag = null; chartSvg.style.cursor = "crosshair"; };
+chartSvg.addEventListener("pointerup", endDrag);
+chartSvg.addEventListener("pointercancel", endDrag);
+chartSvg.addEventListener("pointerleave", () => { if (!drag) G.hideCross(); });
+chartSvg.addEventListener("wheel", evt => {
+  const loc = toLocal(evt); if (!inPlot(loc)) return;
+  evt.preventDefault();
+  const center = idxAt(loc.x), factor = evt.deltaY > 0 ? 1.2 : 1 / 1.2;
+  const len = Math.round(Math.max(10, Math.min(G.n, G.nv * factor))), frac = (center - G.i0) / G.nv;
+  state.view = clampView(center - frac * len, center - frac * len + len - 1, G.n);
+  setRangeButtons(null); draw();
+  G.showCross(idxAt(loc.x), loc.y);
+}, { passive: false });
+
+// ---------- Panneaux de texte ----------
+function renderReadout() {
+  const rows = sim.rows, r = rows[state.hover ?? state.view[1]];
+  const chg = r.r, c = r.close >= r.open ? "up" : "down";
+  document.getElementById("readout").innerHTML =
+    `<span><b>Date</b>${fdate(r.date)}</span>` +
+    `<span><b>O</b><span class="${c}">${nf2.format(r.open)}</span></span>` +
+    `<span><b>H</b><span class="${c}">${nf2.format(r.high)}</span></span>` +
+    `<span><b>B</b><span class="${c}">${nf2.format(r.low)}</span></span>` +
+    `<span><b>C</b><span class="${c}">${nf2.format(r.close)}</span></span>` +
+    `<span><b>Var.</b><span class="${sgn(chg)}">${pct(chg)}</span></span>` +
+    `<span><b>Prévu ${state.model}</b><span class="${sgn(r.pred)}">${pct(r.pred / 100)}</span></span>` +
+    `<span><b>Position</b>${r.pos ? "investi" : "liquidités"}</span>`;
+}
+
+function renderNews() {
+  const r = sim.rows[state.hover ?? state.view[1]], day = prevDay(r.date), h = DATA.headlines[day];
+  document.getElementById("news-sub").textContent =
+    `Articles du ${fdate(day)}, utilisés pour la séance du ${fdate(r.date)}` + (state.model === "B" ? " (le modèle B ne les utilise pas)" : "");
+  const box = document.getElementById("news");
+  if (!h) {
+    box.innerHTML = `<p class="note">Aucun article collecté ce jour-là. Le modèle C a repris le dernier sentiment connu (${(r.sent >= 0 ? "+" : "−") + nf2.format(Math.abs(r.sent))}).</p>`;
+    return;
+  }
+  box.innerHTML =
+    `<div class="news-meta"><span>${h.n} article${h.n > 1 ? "s" : ""} lus${h.n >= 250 ? " (plafond GDELT)" : ""}</span>` +
+    `<span>moyenne <b class="mono ${sgn(h.mean)}">${(h.mean >= 0 ? "+" : "−") + nf2.format(Math.abs(h.mean))}</b></span></div>` +
+    h.top.filter(([, t], k, arr) => arr.findIndex(([, u]) => tidy(u).toLowerCase() === tidy(t).toLowerCase()) === k).map(([s, title, src]) =>
+      `<div class="headline"><span class="score ${sgn(s)}">${(s >= 0 ? "+" : "−") + nf2.format(Math.abs(s))}</span>` +
+      `<span>${esc(tidy(title))}<span class="src">${esc(src)}</span></span></div>`).join("");
+}
+
+function renderTester() {
+  const rows = sim.rows, ret = sim.cap / START - 1, bhRet = sim.bh / START - 1, gap = ret - bhRet, net = sim.cap - START;
+  document.getElementById("tester-sub").textContent =
+    `Modèle ${state.model}, ${state.period === "test" ? "période de test" : "période de validation"}, du ${fdate(rows[0].date)} au ${fdate(rows[rows.length - 1].date)}`;
+  document.getElementById("net").innerHTML = `<span class="${sgn(net)}">${net >= 0 ? "+" : "−"}${nf0.format(Math.abs(net))}</span> <span class="${sgn(ret)}" style="font-size:15px">${pct(ret)}</span>`;
+  document.getElementById("vs").innerHTML = `Résultat net. Buy &amp; hold : <span class="${sgn(bhRet)}">${pct(bhRet)}</span>, écart <span class="${sgn(gap)}">${pct(gap)}</span>`;
+  const T = sim.trades, wins = T.filter(t => t.ret > 0).length;
+  const item = (k, v) => `<dt>${k}</dt><dd>${v}</dd>`;
+  document.getElementById("kv").innerHTML =
+    item("Transactions", T.length) +
+    item("Gagnantes", T.length ? `${wins} (${nf0.format(100 * wins / T.length)} %)` : "—") +
+    item("Facteur de profit", isFinite(sim.profitFactor) ? nf2.format(sim.profitFactor) : "—") +
+    item("Exposition au marché", `${nf0.format(100 * (rows.length - sim.cashDays) / rows.length)} %`) +
+    item("Sharpe : stratégie / B&amp;H", `${nf2.format(sim.sharpeStrat)} / ${nf2.format(sim.sharpeBH)}`) +
+    item("Drawdown max : stratégie", `<span class="down">${pct(sim.ddStrat)}</span>`) +
+    item("Drawdown max : buy &amp; hold", `<span class="down">${pct(sim.ddBH)}</span>`) +
+    item("Frais payés", nf0.format(sim.fees)) +
+    item("Direction prévue correcte", isNaN(sim.dirAcc) ? "—" : nf2.format(sim.dirAcc * 100) + " %") +
+    item("« Ça monte toujours »", nf2.format(sim.upAcc * 100) + " %");
+  const exploratory = state.period === "test" && (Math.abs(state.threshold - OFFICIAL.threshold) > 1e-9 || state.cost !== OFFICIAL.cost);
+  document.getElementById("warnbox").hidden = !exploratory;
+  document.getElementById("flag").hidden = !exploratory;
+
+  document.getElementById("trades").innerHTML = T.map((t, k) =>
+    `<tr tabindex="0" data-trade="${k}" aria-selected="${state.selTrade === k}"><td>${k + 1}</td><td>${t.status}</td>` +
+    `<td>${t.entryDate === "début" ? "début" : fdate(t.entryDate)}</td><td>${nf2.format(t.entryPrice)}</td>` +
+    `<td>${fdate(t.exitDate)}</td><td>${nf2.format(t.exitPrice)}</td><td>${t.days}</td><td class="${sgn(t.ret)}">${pct(t.ret)}</td></tr>`).join("");
+  document.querySelectorAll("#trades tr").forEach(tr => {
+    const pick = () => selectTrade(+tr.dataset.trade);
+    tr.addEventListener("click", pick);
+    tr.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+  });
+}
+
+function selectTrade(k) {
+  state.selTrade = state.selTrade === k ? null : k;
+  if (state.selTrade !== null) {
+    const t = sim.trades[k], n = sim.rows.length, margin = Math.max(5, Math.round((t.exitIdx - t.entryIdx) * 0.6));
+    state.view = clampView(t.entryIdx - margin, t.exitIdx + margin, n);
+    state.hover = t.entryIdx; setRangeButtons(null);
+  }
+  draw(); renderTester();
+}
+
+function setRangeButtons(active) {
+  document.querySelectorAll("[data-range]").forEach(b => b.setAttribute("aria-pressed", b.dataset.range === active));
+}
+
+function update(resetView = false) {
+  document.getElementById("threshold").value = state.threshold;
+  document.getElementById("threshold-out").textContent = nf2.format(state.threshold) + " %";
+  document.getElementById("cost").value = state.cost;
+  document.getElementById("cost-out").textContent = state.cost + " pb";
+  sim = simulate();
+  if (resetView || !state.view || state.view[1] >= sim.rows.length) { state.view = [0, sim.rows.length - 1]; setRangeButtons("all"); }
+  if (state.selTrade !== null && state.selTrade >= sim.trades.length) state.selTrade = null;
+  if (state.hover !== null && state.hover >= sim.rows.length) state.hover = null;
+  draw(); renderTester(); renderReadout(); renderNews();
+}
+
+// ---------- Événements ----------
+const bindSeg = (attr, key, reset) => document.querySelectorAll(`[data-${attr}]`).forEach(b => b.addEventListener("click", () => {
+  state[key] = b.dataset[attr];
+  document.querySelectorAll(`[data-${attr}]`).forEach(o => o.setAttribute("aria-pressed", o === b));
+  if (reset) { state.selTrade = null; state.hover = null; }
+  update(reset);
+}));
+bindSeg("model", "model", false);
+bindSeg("period", "period", true);
+bindSeg("ctype", "ctype", false);
+document.querySelectorAll("[data-ind]").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.ind; state.ind[k] = !state.ind[k]; b.setAttribute("aria-pressed", state.ind[k]); draw();
+}));
+document.querySelectorAll("[data-range]").forEach(b => b.addEventListener("click", () => {
+  const n = sim.rows.length, len = b.dataset.range === "all" ? n : Math.min(n, +b.dataset.range);
+  state.view = [n - len, n - 1]; setRangeButtons(b.dataset.range); draw();
+}));
+document.getElementById("threshold").addEventListener("input", e => { state.threshold = parseFloat(e.target.value); state.selTrade = null; update(); });
+document.getElementById("cost").addEventListener("input", e => { state.cost = parseInt(e.target.value, 10); update(); });
+document.getElementById("reset-btn").addEventListener("click", () => { state.threshold = OFFICIAL.threshold; state.cost = OFFICIAL.cost; state.selTrade = null; update(); });
+document.getElementById("theme-btn").addEventListener("click", e => {
+  const root = document.documentElement, dark = root.dataset.theme === "dark";
+  root.dataset.theme = dark ? "light" : "dark"; e.target.textContent = dark ? "Thème sombre" : "Thème clair"; draw(); renderNews();
+});
+document.querySelectorAll('[role="tab"]').forEach(tab => tab.addEventListener("click", () => {
+  document.querySelectorAll('[role="tab"]').forEach(t => { const on = t === tab; t.setAttribute("aria-selected", on);
+    document.getElementById(t.getAttribute("aria-controls")).hidden = !on; });
+}));
+document.getElementById("chart-focus").addEventListener("keydown", e => {
+  const n = sim.rows.length, [i0, i1] = state.view;
+  if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+    e.preventDefault();
+    let k = (state.hover ?? i1) + (e.key === "ArrowRight" ? 1 : -1); k = Math.max(0, Math.min(n - 1, k));
+    if (k < i0 || k > i1) state.view = clampView(i0 + (k < i0 ? -1 : 1), i1 + (k < i0 ? -1 : 1), n);
+    state.hover = k; draw();
+  } else if (e.key === "+" || e.key === "-") {
+    const len = Math.round((i1 - i0 + 1) * (e.key === "+" ? 1 / 1.25 : 1.25)), c = state.hover ?? Math.round((i0 + i1) / 2);
+    state.view = clampView(c - len / 2, c - len / 2 + len - 1, n); setRangeButtons(null); draw();
+  }
+});
+document.getElementById("csv-btn").addEventListener("click", () => {
+  const head = ["numero", "statut", "entree", "prix_entree", "sortie", "prix_sortie", "jours", "resultat_hors_frais_pct"];
+  const lines = sim.trades.map((t, k) => [k + 1, t.status, t.entryDate, t.entryPrice.toFixed(2), t.exitDate, t.exitPrice.toFixed(2), t.days, (t.ret * 100).toFixed(4)].join(";"));
+  const blob = new Blob(["\ufeff" + [head.join(";"), ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `transactions_modele${state.model}_${state.period}_seuil${state.threshold.toFixed(2)}_frais${state.cost}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+update(true);
+
+// Intégration dans une page : transmettre la hauteur réelle au cadre parent
+if (EMBEDDED) {
+  const app = document.querySelector(".app");
+  const post = () => window.parent.postMessage({ type: "sp500-terminal-height", height: Math.ceil(app.getBoundingClientRect().height) }, "*");
+  if ("ResizeObserver" in window) new ResizeObserver(post).observe(app);
+  window.addEventListener("load", post);
+  post();
+}
+</script>
+</body>
+</html>
