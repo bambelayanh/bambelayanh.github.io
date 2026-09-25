@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quand faire le plein pour payer moins cher ? — Yanh Bambela</title>
+<meta name="description" content="Projet personnel en cours de conception — Quand faire le plein pour payer moins cher ?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --creme: #F7F5F0;
+    --encre: #1C1B19;
+    --gris: #6B6862;
+    --ligne: #E2DED5;
+    --accent: #9A6B1F;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--creme); color: var(--encre);
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  .topbar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.4rem clamp(1.25rem, 5vw, 4rem);
+    color: #fff; font-size: 0.9rem;
+  }
+  .topbar a { text-decoration: none; opacity: 0.9; }
+  .topbar a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
+  .topbar .logo { font-family: 'Fraunces', Georgia, serif; font-size: 1.1rem; font-weight: 600; opacity: 1; }
+
+  .hero {
+    position: relative; min-height: 62vh; display: flex; align-items: flex-end;
+    padding: 7rem clamp(1.25rem, 5vw, 4rem) 3.5rem;
+    background-color: var(--accent);
+    background-image: linear-gradient(180deg, rgba(20,19,17,0.35) 0%, rgba(20,19,17,0.72) 100%), url('assets/hero-bg-carburant.jpg');
+    background-size: cover; background-position: center;
+    color: #fff;
+  }
+  .hero-inner { max-width: 60rem; }
+  .kicker { font-size: 0.95rem; opacity: 0.85; margin-bottom: 1rem; }
+  .hero h1 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 600;
+    font-size: clamp(2.2rem, 5.5vw, 4.2rem); line-height: 1.08; letter-spacing: -0.01em;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.6rem; }
+  .tags span {
+    font-size: 0.82rem; padding: 0.35rem 0.85rem; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.45); background: rgba(255,255,255,0.1);
+  }
+
+  main { flex: 1; padding: clamp(3.5rem, 8vw, 6rem) clamp(1.25rem, 5vw, 4rem); }
+  .wip { max-width: 40rem; margin: 0 auto; text-align: center; }
+  .wip svg { width: min(100%, 300px); height: auto; color: var(--accent); margin-bottom: 2.25rem; }
+  .wip h2 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
+    font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin-bottom: 1rem;
+  }
+  .wip .lead { color: var(--gris); font-size: 1.05rem; max-width: 34rem; margin: 0 auto; }
+  .wip .brief {
+    margin: 2.5rem auto 0; padding-top: 2rem; border-top: 1px solid var(--ligne);
+    text-align: left; max-width: 34rem;
+  }
+  .wip .brief h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .wip .brief p { color: var(--gris); font-size: 0.98rem; }
+  .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 2.75rem; }
+  .btn {
+    display: inline-block; padding: 0.8rem 1.4rem; border-radius: 999px;
+    font-size: 0.92rem; font-weight: 500; text-decoration: none;
+    border: 1px solid var(--encre); transition: background-color .2s, color .2s;
+  }
+  .btn.primary { background: var(--encre); color: var(--creme); }
+  .btn.primary:hover { background: var(--accent); border-color: var(--accent); }
+  .btn.ghost:hover { background: var(--encre); color: var(--creme); }
+
+  footer { padding: 2rem; text-align: center; color: var(--gris); font-size: 0.82rem; border-top: 1px solid var(--ligne); }
+
+  /* La partie en pointillé de la courbe avance doucement, comme un tracé en cours */
+  .draw { stroke-dasharray: 5 6; animation: dash 2.4s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -22; } }
+  @media (prefers-reduced-motion: reduce) { .draw { animation: none; } }
+  @media (max-width: 600px) { .hero { min-height: 52vh; padding-bottom: 2.5rem; } .topbar .back-list { display: none; } }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">Yanh Bambela</a>
+    <a class="back-list" href="projets-personnels.html">Tous les projets personnels</a>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="kicker">Projet personnel</p>
+      <h1>Quand faire le plein pour payer moins cher ?</h1>
+      <div class="tags"><span>Python</span><span>Power BI</span></div>
+    </div>
+  </section>
+
+  <main>
+    <div class="wip">
+      <svg viewBox="0 0 320 220" fill="none" role="img" aria-label="Esquisse d'un graphique en cours de tracé">
+        <!-- feuille -->
+        <rect x="30" y="18" width="220" height="176" rx="6" fill="#fff" stroke="#1C1B19" stroke-opacity=".18"/>
+        <!-- quadrillage -->
+        <g stroke="#1C1B19" stroke-opacity=".07">
+          <path d="M60 50H230M60 80H230M60 110H230M60 140H230"/>
+          <path d="M90 40V166M120 40V166M150 40V166M180 40V166M210 40V166"/>
+        </g>
+        <!-- axes -->
+        <path d="M60 40V166H232" stroke="#1C1B19" stroke-opacity=".55" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- barres : tracées puis esquissées -->
+        <rect x="72" y="118" width="16" height="48" rx="2" fill="currentColor" fill-opacity=".85"/>
+        <rect x="100" y="98" width="16" height="68" rx="2" fill="currentColor" fill-opacity=".85"/>
+        <rect x="128" y="108" width="16" height="58" rx="2" fill="currentColor" fill-opacity=".85"/>
+        <rect x="156" y="84" width="16" height="82" rx="2" stroke="currentColor" stroke-width="1.4" stroke-dasharray="4 4"/>
+        <rect x="184" y="72" width="16" height="94" rx="2" stroke="currentColor" stroke-width="1.4" stroke-dasharray="4 4" stroke-opacity=".6"/>
+        <!-- courbe : réalisée puis en cours -->
+        <path d="M68 128C88 112 100 92 118 96S140 104 150 86" stroke="#1C1B19" stroke-width="2" stroke-linecap="round"/>
+        <path class="draw" d="M150 86C164 64 180 70 194 58S214 50 224 46" stroke="#1C1B19" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="150" cy="86" r="3.5" fill="#1C1B19"/>
+        <!-- crayon -->
+        <g transform="translate(236 118) rotate(38)">
+          <rect x="0" y="-6" width="64" height="12" rx="2" fill="#fff" stroke="#1C1B19" stroke-width="1.4"/>
+          <path d="M0 -6L-14 0L0 6Z" fill="#F7F5F0" stroke="#1C1B19" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M-9 -2L-14 0L-9 2Z" fill="#1C1B19"/>
+          <rect x="50" y="-6" width="14" height="12" fill="currentColor" stroke="#1C1B19" stroke-width="1.4"/>
+        </g>
+        <!-- règle -->
+        <g transform="translate(22 196) rotate(-4)">
+          <rect x="0" y="0" width="150" height="14" rx="2" fill="#fff" stroke="#1C1B19" stroke-opacity=".5"/>
+          <path d="M12 0v5M24 0v8M36 0v5M48 0v8M60 0v5M72 0v8M84 0v5M96 0v8M108 0v5M120 0v8M132 0v5" stroke="#1C1B19" stroke-opacity=".45"/>
+        </g>
+      </svg>
+
+      <h2>Projet en cours de conception</h2>
+      <p class="lead">Les données sont en cours de collecte et d'analyse. Cette page présentera bientôt la démarche, les résultats et les visualisations du projet.</p>
+
+      <div class="brief">
+        <h3>Ce que le projet va étudier</h3>
+        <p>L'historique des prix des carburants sur toute la France entre 2023 et 2026 : trouver le jour le moins cher, comparer autoroutes, supermarchés et stations indépendantes, et chiffrer l'économie annuelle possible.</p>
+      </div>
+
+      <div class="actions">
+        <a class="btn primary" href="projets-personnels.html">Voir les autres projets</a>
+        <a class="btn ghost" href="index.html">Retour à l'accueil</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>&copy; 2026 Yanh Bambela Mouanda — BUT Science des Données, IUT Grand Ouest Normandie</footer>
+</body>
+</html>
