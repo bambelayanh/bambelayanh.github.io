@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superstore Orders — Analyse Exploratoire · Portfolio Data Analyst</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #211d17;
+            --ink-soft: #4a4338;
+            --cream: #f7f2e6;
+            --cream-deep: #efe4cf;
+            --paper: #fbf8f1;
+            --gold: #8a6a3f;
+            --gold-deep: #5c452a;
+            --line: rgba(33, 29, 23, 0.14);
+            --line-soft: rgba(33, 29, 23, 0.08);
+            --negative: #96432f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .serif {
+            font-family: 'Fraunces', serif;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 1.4rem 4rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: rgba(247, 242, 230, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .back-button {
+            display: flex; align-items: center; gap: 0.5rem;
+            text-decoration: none; color: var(--gold-deep);
+            font-weight: 500; font-size: 0.92rem;
+            transition: opacity 0.3s ease;
+        }
+        .back-button:hover { opacity: 0.7; }
+
+        .nav-title {
+            font-size: 0.8rem; letter-spacing: 1.5px;
+            text-transform: uppercase; color: var(--ink-soft);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 78vh;
+            display: flex; align-items: flex-end;
+            position: relative;
+            padding: 10rem 4rem 5rem;
+            background-image:
+                linear-gradient(180deg, rgba(33,29,23,0.55) 0%, rgba(33,29,23,0.72) 65%, rgba(33,29,23,0.88) 100%),
+                url('assets/hero-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--paper);
+        }
+        .hero-content { max-width: 900px; width: 100%; }
+
+        .project-meta {
+            display: flex; gap: 0.6rem; flex-wrap: wrap;
+            margin-bottom: 1.8rem;
+            font-size: 0.85rem;
+            color: rgba(251, 248, 241, 0.75);
+        }
+        .project-meta span:not(:last-child)::after { content: '·'; margin-left: 0.6rem; color: rgba(251,248,241,0.4); }
+
+        h1 {
+            font-size: clamp(2.4rem, 5.5vw, 4rem);
+            font-weight: 500;
+            line-height: 1.1;
+            margin-bottom: 1.4rem;
+            letter-spacing: -0.5px;
+            color: var(--paper);
+        }
+
+        .hero-description {
+            font-size: 1.15rem; color: rgba(251, 248, 241, 0.82);
+            line-height: 1.8; max-width: 720px; margin-bottom: 2rem;
+            font-weight: 300;
+        }
+        .hero-description strong { color: var(--paper); font-weight: 500; }
+
+        .tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .tag {
+            padding: 0.4rem 1rem;
+            border: 1px solid rgba(251, 248, 241, 0.35);
+            border-radius: 3px;
+            font-size: 0.78rem; letter-spacing: 0.3px;
+            color: rgba(251, 248, 241, 0.85);
+        }
+
+        .download-btn {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            margin-top: 1.8rem;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(251, 248, 241, 0.5);
+            border-radius: 3px;
+            color: var(--paper);
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover { background: rgba(251, 248, 241, 0.1); border-color: var(--paper); }
+        .download-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+        /* ===== STATS BANNER ===== */
+        .stats-banner {
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            padding: 3rem 4rem;
+            margin: 0 auto;
+        }
+        .stats-grid {
+            max-width: 1200px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 2.5rem;
+        }
+        .stat-item { text-align: left; border-left: 1px solid var(--line); padding-left: 1.2rem; }
+        .stat-value {
+            font-family: 'Fraunces', serif;
+            font-size: 2.2rem; font-weight: 500;
+            color: var(--gold-deep);
+            margin-bottom: 0.3rem;
+            line-height: 1;
+        }
+        .stat-label { color: var(--ink-soft); font-size: 0.85rem; }
+
+        /* ===== CONTENT SECTIONS ===== */
+        .content-section {
+            max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem;
+        }
+        .content-section.textured {
+            position: relative;
+            max-width: none;
+            overflow: hidden;
+        }
+        .content-section.textured::before {
+            content: '';
+            position: absolute;
+            inset: -60px;
+            background-image: url('assets/texture-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(22px) grayscale(20%);
+            opacity: 0.18;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .content-section.textured > .section-header,
+        .content-section.textured > .section-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .section-header {
+            display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2.2rem;
+        }
+        .section-number {
+            font-family: 'Fraunces', serif;
+            font-size: 1.1rem; color: var(--gold);
+            font-weight: 400;
+        }
+        h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 500; }
+
+        .section-content p {
+            font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 1.4rem;
+            max-width: 780px;
+        }
+        .section-content p:last-child { margin-bottom: 0; }
+        .section-content code {
+            font-family: 'Fraunces', serif; font-style: italic;
+            color: var(--gold-deep); background: var(--cream-deep);
+            padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.95em;
+        }
+
+        .highlight-box {
+            border-left: 2px solid var(--gold);
+            padding: 0.3rem 0 0.3rem 1.5rem; margin: 2rem 0;
+        }
+        .highlight-box strong {
+            display: block; margin-bottom: 0.5rem;
+            font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500;
+            color: var(--ink);
+        }
+        .highlight-box p { margin-bottom: 0 !important; }
+
+        /* ===== PROBLÉMATIQUES — liste compacte ===== */
+        .q-list { list-style: none; border-top: 1px solid var(--line); margin-top: 1.6rem; }
+        .q-list li {
+            display: grid; grid-template-columns: 17rem 1fr; gap: 2rem;
+            padding: 1rem 0; border-bottom: 1px solid var(--line-soft); align-items: baseline;
+        }
+        .q-list .q { font-family: 'Fraunces', serif; font-size: 1.05rem; color: var(--ink); }
+        .q-list .m { color: var(--ink-soft); font-size: 0.95rem; line-height: 1.65; }
+
+        /* ===== DÉMARCHE — 3 étapes en ligne ===== */
+        .steps-row {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+            margin-top: 1.8rem;
+        }
+        .step-col { padding: 1.6rem 1.5rem 1.6rem 0; }
+        .step-col + .step-col { padding-left: 1.5rem; border-left: 1px solid var(--line); }
+        .step-col .n { font-family: 'Fraunces', serif; color: var(--gold); font-size: 1.6rem; line-height: 1; margin-bottom: 0.7rem; }
+        .step-col h3 { font-size: 1.08rem; margin-bottom: 0.55rem; }
+        .step-col p { color: var(--ink-soft); font-size: 0.92rem; line-height: 1.7; }
+        .step-col code {
+            font-family: 'Fraunces', serif; font-style: italic;
+            color: var(--gold-deep); background: var(--cream-deep);
+            padding: 0.05rem 0.35rem; border-radius: 3px; font-size: 0.95em;
+        }
+
+        /* ===== RÉSULTATS & INSIGHTS — figure + lecture ===== */
+        .figure-frame {
+            width: 100%; aspect-ratio: 4 / 3;
+            border: 1px solid var(--line); background: var(--paper);
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+        .figure-frame.wide { aspect-ratio: 16 / 8; }
+        .figure-frame img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 0.5rem; box-sizing: border-box; }
+        .figure-placeholder-text {
+            font-family: 'Fraunces', serif; font-style: italic;
+            color: rgba(33,29,23,0.3); font-size: 0.95rem; text-align: center; padding: 1rem;
+        }
+        .finding {
+            display: grid; grid-template-columns: 1.1fr 1fr; gap: 3rem; align-items: center;
+            padding: 2.6rem 0; border-top: 1px solid var(--line);
+        }
+        .finding.stacked { grid-template-columns: 1fr; gap: 1.8rem; }
+        .finding:last-of-type { border-bottom: 1px solid var(--line); }
+        .finding-num { font-family: 'Fraunces', serif; color: var(--gold); font-size: 0.95rem; margin-bottom: 0.4rem; }
+        .finding h3 { font-size: 1.35rem; line-height: 1.3; margin-bottom: 1rem; }
+        .read { margin-bottom: 0.9rem; }
+        .read:last-child { margin-bottom: 0; }
+        .read-label {
+            display: block; font-size: 0.68rem; letter-spacing: 0.7px; text-transform: uppercase;
+            color: rgba(74,67,56,0.6); margin-bottom: 0.2rem;
+        }
+        .read p { color: var(--ink-soft); font-size: 0.96rem; line-height: 1.7; }
+        .read strong { color: var(--gold-deep); font-weight: 600; }
+        .read .neg { color: var(--negative); font-weight: 600; }
+        .read.insight { border-left: 2px solid var(--gold); padding-left: 1rem; }
+        .read.insight p { color: var(--ink); }
+        .figure-note {
+            display: inline-block; margin-top: 0.7rem;
+            font-size: 0.78rem; color: var(--gold-deep); border-bottom: 1px dotted var(--gold);
+        }
+        .geo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .geo-card { border-top: 1px solid var(--line-soft); padding-top: 1rem; }
+        .geo-value { font-family: 'Fraunces', serif; font-size: 1.9rem; color: var(--gold-deep); line-height: 1; margin-bottom: 0.4rem; }
+        .geo-value.neg { color: var(--negative); }
+        .geo-card p { color: var(--ink-soft); font-size: 0.9rem; line-height: 1.6; }
+
+        /* ===== TECH GRID ===== */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px; margin-top: 2rem;
+            background: var(--line);
+            border: 1px solid var(--line);
+        }
+        .tech-item { background: var(--paper); padding: 1.6rem; }
+        .tech-item h4 { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); margin-bottom: 0.5rem; font-size: 1.05rem; }
+        .tech-item p { color: var(--ink-soft); font-size: 0.88rem; line-height: 1.6; }
+
+        /* ===== CTA ===== */
+        .cta-section {
+            border-top: 1px solid var(--line);
+            padding: 5rem 4rem; text-align: center;
+        }
+        .cta-section h2 { margin-bottom: 0.8rem; }
+        .cta-section p { color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 2.2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.9rem 2.2rem;
+            background: var(--ink);
+            color: var(--paper); text-decoration: none; font-weight: 500;
+            border-radius: 2px; transition: all 0.3s ease;
+            font-size: 0.92rem;
+            border: 1px solid var(--ink);
+        }
+        .cta-button:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+        .cta-secondary {
+            background: transparent; color: var(--ink);
+        }
+        .cta-secondary:hover { background: var(--ink); color: var(--paper); }
+
+        /* ===== QUOTE BANNER (Option A) ===== */
+        .quote-banner {
+            position: relative;
+            min-height: 42vh;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center;
+            padding: 4rem;
+            background-image:
+                linear-gradient(rgba(33,29,23,0.62), rgba(33,29,23,0.78)),
+                url('assets/quote-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--paper);
+        }
+        .quote-banner blockquote {
+            font-family: 'Fraunces', serif;
+            font-weight: 500;
+            font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+            line-height: 1.35;
+            max-width: 780px;
+            letter-spacing: -0.3px;
+        }
+        .quote-banner cite {
+            display: block; margin-top: 1.4rem;
+            font-style: normal;
+            font-size: 0.82rem; letter-spacing: 0.5px;
+            color: rgba(251, 248, 241, 0.7);
+        }
+
+        footer {
+            padding: 3rem 4rem;
+            text-align: center;
+            border-top: 1px solid var(--line);
+        }
+        footer p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        .reveal {
+            opacity: 0; transform: translateY(30px);
+            transition: all 0.7s ease;
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 968px) {
+            nav { padding: 1.2rem 1.6rem; }
+            .hero, .content-section, .cta-section { padding-left: 1.6rem; padding-right: 1.6rem; }
+            .tech-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-banner { padding: 2.5rem 1.6rem; }
+            .q-list li { grid-template-columns: 1fr; gap: 0.3rem; }
+            .steps-row { grid-template-columns: 1fr; }
+            .step-col, .step-col + .step-col { padding-left: 0; border-left: none; }
+            .step-col + .step-col { border-top: 1px solid var(--line); }
+            .finding { grid-template-columns: 1fr; gap: 1.6rem; }
+            .geo-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+        }
+
+        @media (max-width: 600px) {
+            .tech-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="projets-academiques.html" class="back-button">
+            <span>←</span>
+            <span>Projets académiques</span>
+        </a>
+        <div class="nav-title">SAE 1.03 · Projet 01</div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span>SAE 1.03 — Compétence 2 · Traiter les données</span>
+                <span>2025–2026</span>
+                <span>IUT Grand Ouest Normandie</span>
+            </div>
+
+            <h1>Analyse exploratoire<br>Superstore Orders</h1>
+
+            <p class="hero-description">
+                Analyse du carnet de commandes de l'entreprise américaine <strong>Superstore</strong> sur la période 2019–2022 : préparation des données sous R, construction de 14 visualisations univariées et bivariées, calcul d'indicateurs statistiques, et restitution dans un rapport LaTeX à destination des responsables commerciaux.
+            </p>
+
+            <div class="tags">
+                <span class="tag">R</span>
+                <span class="tag">RStudio</span>
+                <span class="tag">LaTeX</span>
+                <span class="tag">Marp</span>
+                <span class="tag">Statistiques descriptives</span>
+                <span class="tag">Visualisation</span>
+            </div>
+
+            <a href="rapport_SAE.pdf" download="Rapport_SAE_Superstore.pdf" class="download-btn">
+                <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Télécharger le rapport PDF</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Stats Banner -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">9 994</div>
+                <div class="stat-label">Transactions analysées</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">2019–22</div>
+                <div class="stat-label">Période couverte</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">14</div>
+                <div class="stat-label">Visualisations produites</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">r = 0,98</div>
+                <div class="stat-label">Corrélation commandes / CA</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">49</div>
+                <div class="stat-label">États américains couverts</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 01 Contexte -->
+    <section class="content-section textured reveal">
+        <div class="section-header">
+            <span class="section-number">01</span>
+            <h2>Contexte</h2>
+        </div>
+        <div class="section-content">
+            <p>Superstore, entreprise américaine de vente par correspondance (meubles, fournitures de bureau, produits technologiques), a fourni ses <strong style="color:var(--ink);font-weight:600;">9 994 commandes de 2019 à 2022</strong>, réparties sur 49 États. Chaque commande indique : dates de commande et d'expédition, mode de livraison, segment client, lieu, produit, prix unitaire, quantité, remise et profit.</p>
+            <div class="highlight-box">
+                <strong>Objectif</strong>
+                <p>Explorer ces données sous R pour dire aux responsables commerciaux ce qui performe — par segment client, par catégorie de produits et par État.</p>
+            </div>
+            <p><strong style="color:var(--ink);font-weight:600;">Livrables :</strong> un rapport LaTeX de 10 pages, un script R documenté et une soutenance appuyée sur des slides Marp.</p>
+        </div>
+    </section>
+
+    <!-- 02 Problématiques -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <span class="section-number">02</span>
+            <h2>Les questions posées</h2>
+        </div>
+        <div class="section-content">
+            <p>Dix questions métier, regroupées en six thèmes : d'abord chaque indicateur pris seul, puis les liens entre variables.</p>
+        </div>
+        <ul class="q-list">
+            <li><span class="q">Qui sont les clients ?</span><span class="m">Transactions par segment : Consumer, Corporate, Home Office.</span></li>
+            <li><span class="q">Quels produits performent ?</span><span class="m">Chiffre d'affaires et bénéfice par catégorie et sous-catégorie, avec un zoom sur les fournitures de bureau.</span></li>
+            <li><span class="q">Comment se répartit le profit ?</span><span class="m">Moyenne, médiane, quartiles, valeurs extrêmes et asymétrie du profit par transaction.</span></li>
+            <li><span class="q">Où gagne-t-on, où perd-on ?</span><span class="m">Bénéfices par État : marchés rentables et zones déficitaires.</span></li>
+            <li><span class="q">Quelles variables sont liées ?</span><span class="m">Catégorie × segment, État × profit, sous-catégorie × bénéfice, mesurés par corrélations et V de Cramér.</span></li>
+            <li><span class="q">Vendre plus, est-ce gagner plus ?</span><span class="m">Relation entre le chiffre d'affaires d'une transaction et son profit : nuage de points et droite de régression.</span></li>
+        </ul>
+    </section>
+
+    <!-- 03 Démarche -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <span class="section-number">03</span>
+            <h2>Démarche</h2>
+        </div>
+        <div class="steps-row">
+            <div class="step-col">
+                <div class="n">1</div>
+                <h3>Importer</h3>
+                <p>Projet RStudio organisé en <code>/data</code> et <code>/scripts</code>, script avec en-tête (thème, auteurs, source). Import par <code>read.csv()</code> avec gestion de l'encodage, contrôle par <code>str()</code>, <code>summary()</code> et <code>head()</code>.</p>
+            </div>
+            <div class="step-col">
+                <div class="n">2</div>
+                <h3>Préparer</h3>
+                <p>Dates de commande et d'expédition en <em>Date</em> ; Segment, Category, Sub.Category, State en <em>factor</em> ; Sales, Profit, Discount, Quantity en <em>numeric</em>. Ajout d'une variable <code>Signe_Benefice</code> (positif / négatif) avec <code>ifelse()</code>.</p>
+            </div>
+            <div class="step-col">
+                <div class="n">3</div>
+                <h3>Explorer</h3>
+                <p>14 graphiques en R de base (barplot, pie, boxplot, plot, hist), accompagnés de trois indicateurs de liaison : corrélation de Pearson (r), rapport de corrélation (η²) et V de Cramér.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bandeau citation -->
+    <section class="quote-banner reveal">
+        <blockquote>
+            « Le volume est le premier moteur de croissance »
+            <cite>r = 0,983 — corrélation entre nombre de commandes et chiffre d'affaires par État</cite>
+        </blockquote>
+    </section>
+
+    <!-- 04 Résultats & insights -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <span class="section-number">04</span>
+            <h2>Résultats &amp; insights</h2>
+        </div>
+        <div class="section-content">
+            <p>Chaque graphique, produit sous R, est accompagné de ce qu'il montre et de ce qu'il faut en retenir.</p>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-segments.png" alt="Répartition par segment client" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : plot R exporté</span></div>
+            <div>
+                <div class="finding-num">Clients</div>
+                <h3>Consumer domine, mais tous les segments achètent pareil</h3>
+                <div class="read">
+                    <span class="read-label">Résultat</span>
+                    <p>Consumer représente <strong>51,94 %</strong> des transactions, devant Corporate (30,22 %) et Home Office (17,84 %).</p>
+                </div>
+                <div class="read insight">
+                    <span class="read-label">À retenir</span>
+                    <p>V de Cramér catégorie × segment : <strong>0,66 %</strong>, liaison négligeable. Les trois segments achètent dans les mêmes proportions : pas besoin d'une stratégie produit par segment.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-ca-categorie.png" alt="Chiffre d'affaires par catégorie" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : plot R exporté</span></div>
+            <div>
+                <div class="finding-num">Produits</div>
+                <h3>Technology en tête des ventes</h3>
+                <div class="read">
+                    <span class="read-label">Résultat</span>
+                    <p>Technology génère le plus gros chiffre d'affaires (<strong>836 154 $</strong>), devant Furniture (742 k$) et Office Supplies (719 k$).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-profits-office-supplies.png" alt="Profits — Fournitures de bureau" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : plot R exporté</span></div>
+            <div>
+                <div class="finding-num">Fournitures de bureau</div>
+                <h3>Beaucoup de petits achats, deux piliers</h3>
+                <div class="read">
+                    <span class="read-label">Résultat</span>
+                    <p>Paper (<strong>34 k$</strong>) et Binders (<strong>30 k$</strong>) sont les sous-catégories les plus rentables ; Supplies est en perte (<span class="neg">−1 190 $</span>).</p>
+                </div>
+                <div class="read insight">
+                    <span class="read-label">À retenir</span>
+                    <p>C'est la catégorie la plus fragmentée (neuf sous-catégories), avec un flux constant de petits achats. Binders et Paper font près de la moitié du volume : une base de revenus stable et récurrente.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="finding">
+            <div class="figure-frame"><img src="assets/fig-profit-median-souscategorie.png" alt="Profit médian par sous-catégorie" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : plot R exporté</span></div>
+            <div>
+                <div class="finding-num">Profit</div>
+                <h3>Un profit typique faible, tiré par quelques extrêmes</h3>
+                <div class="read">
+                    <span class="read-label">Résultat</span>
+                    <p>Profit moyen <strong>28,66 $</strong>, médiane 8,67 $, Q3 29,36 $. Distribution très asymétrique : de <span class="neg">−6 600 $</span> à +8 400 $.</p>
+                </div>
+                <div class="read insight">
+                    <span class="read-label">À retenir</span>
+                    <p>La sous-catégorie n'explique que <strong>8,15 %</strong> des variations de profit (η²) : la liaison est faible.</p>
+                </div>
+                <span class="figure-note">Top 10 des sous-catégories · médiane et écart interquartile</span>
+            </div>
+        </div>
+
+        <div class="finding stacked">
+            <div class="figure-frame wide"><img src="assets/fig-scatter-profit-ca.png" alt="Profit en fonction du chiffre d'affaires" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : nuage de points R avec droite de régression</span></div>
+            <div>
+                <div class="finding-num">Ventes et profit</div>
+                <h3>Vendre plus ne veut pas dire gagner plus</h3>
+                <div class="read">
+                    <span class="read-label">Résultat</span>
+                    <p>Le profit d'une transaction n'est que modérément lié à son chiffre d'affaires (<strong>r = 0,479</strong>). En Furniture, certaines commandes de plus de 20 000 $ sont même déficitaires.</p>
+                </div>
+                <div class="read insight">
+                    <span class="read-label">À retenir</span>
+                    <p>Les remises érodent les marges : une grande partie des pertes vient de transactions fortement remisées. Technology et Furniture sont les plus exposés à cet effet de ciseau.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="finding stacked">
+            <div>
+                <div class="finding-num">Géographie</div>
+                <h3>Le volume fait le chiffre d'affaires, pas forcément la rentabilité</h3>
+            </div>
+            <div class="geo-grid">
+                <div class="geo-card">
+                    <div class="geo-value">r = 0,983</div>
+                    <p>entre nombre de commandes et chiffre d'affaires par État : le volume est le premier moteur de croissance.</p>
+                </div>
+                <div class="geo-card">
+                    <div class="geo-value">96 $</div>
+                    <p>de profit moyen par transaction dans le Michigan, l'État le plus rentable. California et New York dégagent les plus gros profits totaux.</p>
+                </div>
+                <div class="geo-card">
+                    <div class="geo-value neg">−36 $</div>
+                    <p>par transaction en moyenne dans l'Ohio. Avec le Texas et l'Illinois, il reste déficitaire parmi les dix États les plus actifs.</p>
+                </div>
+            </div>
+            <div class="read insight">
+                <span class="read-label">À retenir</span>
+                <p>Pour l'Ohio, le Texas et l'Illinois, des causes opérationnelles sont à investiguer — coûts logistiques, politique de remise locale — pour rétablir la rentabilité.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 07 Stack technique -->
+    <section class="content-section reveal">
+        <div class="section-header">
+            <span class="section-number">05</span>
+            <h2>Outils & livrables</h2>
+        </div>
+        <div class="section-content">
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>R / RStudio</h4>
+                    <p>Langage de base R — import, typage, graphiques natifs (barplot, boxplot, plot, pie)</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Statistiques</h4>
+                    <p>Corrélation de Pearson, rapport de corrélation η², V de Cramér, quartiles</p>
+                </div>
+                <div class="tech-item">
+                    <h4>LaTeX</h4>
+                    <p>Rapport PDF 10 pages — figures référencées, mise en page scientifique</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Marp</h4>
+                    <p>Présentation orale en Markdown — slides exportées en PDF</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Git</h4>
+                    <p>Versionnage du script et du rapport tout au long du projet</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Superstore CSV</h4>
+                    <p>Dataset réel · 9 994 lignes · 21 variables · commandes 2019–2022</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>Voir d'autres projets</h2>
+        <p>Retour au portfolio ou exploration des projets suivants</p>
+        <div class="cta-buttons">
+            <a href="index.html" class="cta-button">
+                <span>← Retour au portfolio</span>
+            </a>
+            <a href="rapport_SAE.pdf" download="Rapport_SAE_Superstore.pdf" class="cta-button cta-secondary">
+                <span>Télécharger le rapport</span>
+            </a>
+            <a href="proget2.html" class="cta-button cta-secondary">
+                <span>Projet suivant →</span>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025–2026 · IUT Grand Ouest Normandie · BUT Science des Données</p>
+    </footer>
+
+    <script>
+        // Apparition douce des sections au scroll
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() {
+            reveals.forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 100)
+                    el.classList.add('active');
+            });
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    </script>
+</body>
+</html>
