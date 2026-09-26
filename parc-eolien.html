@@ -113,6 +113,13 @@
         .figure-caption h3 { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.3rem; color: var(--ink); }
         .figure-caption p { color: var(--ink-soft); font-size: 0.85rem; }
 
+        .solution-steps.compact .step { margin-bottom: 1.6rem; padding-bottom: 1.6rem; }
+        .solution-steps.compact .step:last-child { margin-bottom: 0; padding-bottom: 0; }
+        .group-title { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; color: var(--gold-deep); font-weight: 400; margin: 2.4rem 0 1.4rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
+        .charts-section .charts-grid-top:last-child { margin-bottom: 0; }
+        .viz-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--ink-soft); opacity: 0.75; margin-bottom: 0.5rem; }
+        .finding .figure-caption h3 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+        .finding .figure-caption p { font-size: 0.92rem; line-height: 1.7; }
         /* Results */
         .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.2rem; margin-top: 2rem; }
         .result-card { padding-top: 1.4rem; border-top: 1px solid var(--line); }
@@ -206,52 +213,45 @@
     <section class="content-section textured reveal">
         <div class="section-header"><span class="section-number">01</span><h2>Contexte & démarche</h2></div>
         <div class="section-content">
-            <p>Ce projet, mené dans le cadre du module « Reporting & datavisualisation », répond à un double objectif : construire un <strong style="color:var(--ink);">dashboard Power BI dynamique</strong> à partir des données de l'éolien terrestre français, puis en tirer une <strong style="color:var(--ink);">infographie statique de synthèse</strong> (SAE 2.05), sur le modèle des publications de l'INSEE — qui accompagne chaque étude statistique détaillée d'une infographie mettant en avant les faits essentiels.</p>
+            <p>Module « Reporting & datavisualisation », double objectif : un <strong style="color:var(--ink);">dashboard Power BI dynamique</strong> sur l'éolien terrestre français, puis une <strong style="color:var(--ink);">infographie statique de synthèse</strong> (SAE 2.05), à la manière de l'INSEE qui accompagne chaque étude détaillée d'une infographie des faits essentiels.</p>
             <div class="highlight-box">
                 <strong>Axe d'analyse retenu</strong>
-                <p>Caractériser le parc éolien terrestre français sous l'angle de la puissance installée : sa distribution, son évolution récente, sa répartition géographique et ses déterminants techniques (hauteur, diamètre du rotor, constructeur).</p>
+                <p>La puissance installée du parc : distribution, évolution récente, répartition géographique et déterminants techniques (hauteur, diamètre du rotor, constructeur).</p>
             </div>
 
-            <div class="solution-steps">
+            <div class="solution-steps compact">
                 <div class="step">
                     <div class="step-number">1</div>
                     <div class="step-content">
-                        <h3>Comprendre la structure des données</h3>
-                        <p>Exploration du fichier source <code>Eolien terrestre.xlsx</code> (identifiants, localisation, caractéristiques techniques, balisage, fabrication) pour identifier les types de colonnes et les problèmes potentiels avant toute transformation.</p>
+                        <h3>Comprendre la structure</h3>
+                        <p>Exploration de <code>Eolien terrestre.xlsx</code> (identifiants, localisation, technique, balisage, fabrication) : types de colonnes et problèmes potentiels, avant toute transformation.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
                     <div class="step-content">
-                        <h3>Préparer les données (Power Query)</h3>
-                        <p>Nettoyage et enrichissement : suppression de colonnes inutiles, typage des champs, suppression des doublons, et surtout détection et filtrage des valeurs aberrantes (détail à la section suivante).</p>
+                        <h3>Préparer (Power Query)</h3>
+                        <p>Colonnes inutiles supprimées, champs typés, doublons retirés et surtout valeurs aberrantes filtrées (détail en section 02).</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
                     <div class="step-content">
-                        <h3>Analyser les données</h3>
-                        <p>Statistiques descriptives, visualisations de comparaison, de corrélation et de tendance temporelle pour répondre à l'axe d'analyse retenu.</p>
+                        <h3>Analyser</h3>
+                        <p>Statistiques descriptives, visuels de comparaison, de corrélation et de tendance temporelle au service de l'axe retenu.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
                     <div class="step-content">
-                        <h3>Communiquer — dashboard interactif</h3>
-                        <p>Restitution des résultats dans un tableau de bord Power BI (2 pages), avec une charte graphique cohérente (arrondis, contrastes, hiérarchie visuelle) conforme aux exigences du module.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">5</div>
-                    <div class="step-content">
-                        <h3>Communiquer — infographie de synthèse</h3>
-                        <p>Traduction du dashboard dynamique en un poster statique concis (SAE 2.05), destiné à un lecteur pressé — chaque visuel est accompagné d'une interprétation écrite en une ou deux phrases.</p>
+                        <h3>Communiquer : deux livrables</h3>
+                        <p><strong style="color:var(--ink);font-weight:500;">Dashboard</strong> Power BI de 2 pages, charte graphique cohérente (arrondis, contrastes, hiérarchie visuelle) conforme au module. <strong style="color:var(--ink);font-weight:500;">Infographie</strong> : sa traduction en poster statique pour un lecteur pressé, chaque visuel interprété en une ou deux phrases.</p>
                     </div>
                 </div>
             </div>
 
             <div class="team-note">
-                <strong>Ma contribution :</strong> implication sur l'ensemble du pipeline — du nettoyage des données sous Power Query jusqu'à la rédaction de l'infographie finale.<br><br>
+                <strong>Ma contribution :</strong> tout le pipeline, du nettoyage sous Power Query à la rédaction de l'infographie finale.<br><br>
                 Projet réalisé en groupe de 5 : <strong>Yanh Bambela</strong>, Fatimatou Diagne, Marc-aurel Kamdem Deudjui, Nadira Maulidia, Glaineta Mbang Ndong.
             </div>
         </div>
@@ -331,72 +331,68 @@
         </div>
     </section>
 
-    <!-- 04 Visualisations -->
+    <!-- 04 Visualisations & résultats -->
     <section class="charts-section reveal">
-        <div class="section-header"><span class="section-number">04</span><h2>Visualisations clés</h2></div>
-        <p style="color:var(--ink-soft); max-width:780px; margin-bottom:2.5rem; font-size:1.02rem;">Les six visuels retenus pour l'infographie de synthèse.</p>
+        <div class="section-header"><span class="section-number">04</span><h2>Visualisations & résultats clés</h2></div>
+        <p style="color:var(--ink-soft); max-width:780px; margin-bottom:1rem; font-size:1.02rem;">Les six visuels retenus pour l'infographie, chacun avec ce qu'il révèle.</p>
 
+        <h3 class="group-title">Puissance du parc & tendance</h3>
         <div class="charts-grid-top">
-            <div class="figure">
+            <div class="figure finding">
                 <div class="figure-frame"><img src="assets/fig-distribution-puissance.png" alt="Distribution des puissances" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-distribution-puissance.png</span></div>
-                <div class="figure-caption"><h3>Distribution des puissances</h3><p>Répartition des éoliennes par tranche de puissance (MW)</p></div>
+                <div class="figure-caption">
+                    <span class="viz-label">Distribution des puissances · Répartition par tranche de puissance (MW)</span>
+                    <h3>Le 2–4 MW domine le parc</h3>
+                    <p>Environ 45 % des éoliennes recensées ; au-delà de 7 MW, leur part chute sous les 5 %.</p>
+                </div>
             </div>
-            <div class="figure">
+            <div class="figure finding">
                 <div class="figure-frame"><img src="assets/fig-evolution-puissance.png" alt="Évolution de la puissance moyenne" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-evolution-puissance.png</span></div>
-                <div class="figure-caption"><h3>Évolution de la puissance moyenne</h3><p>Tendance annuelle 2022–2026</p></div>
+                <div class="figure-caption">
+                    <span class="viz-label">Évolution de la puissance moyenne · Tendance annuelle 2022–2026</span>
+                    <h3>Une puissance moyenne en dents de scie</h3>
+                    <p>Creux en 2023 (sous 2,6 MW), pic à 3,2 MW en 2025, puis rechute sous 2,8 MW en 2026.</p>
+                </div>
             </div>
         </div>
 
+        <h3 class="group-title">Géographie & constructeurs</h3>
         <div class="charts-grid-top">
-            <div class="figure">
-                <div class="figure-frame"><img src="assets/fig-carte-ird.png" alt="Corrélation géographique IRD" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-carte-ird.png</span></div>
-                <div class="figure-caption"><h3>Corrélation géographique (IRD)</h3><p>Carte de France par indice de répartition</p></div>
+            <div class="figure finding">
+                <div class="figure-frame"><img src="assets/fig-carte-ird.png" alt="Corrélation géographique (IRD)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-carte-ird.png</span></div>
+                <div class="figure-caption">
+                    <span class="viz-label">Corrélation géographique (IRD) · Carte de France par indice de répartition</span>
+                    <h3>Nord et Ouest concentrent la puissance</h3>
+                    <p>IRD supérieur à 2,5 dans le Nord et l'Ouest, contre moins de 1,0 en Corse et dans le Sud-Est : une répartition nettement inégale.</p>
+                </div>
             </div>
-            <div class="figure">
+            <div class="figure finding">
                 <div class="figure-frame"><img src="assets/fig-top10-constructeurs.png" alt="Top 10 des constructeurs" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-top10-constructeurs.png</span></div>
-                <div class="figure-caption"><h3>Top 10 des constructeurs</h3><p>Classement selon la puissance moyenne</p></div>
+                <div class="figure-caption">
+                    <span class="viz-label">Top 10 des constructeurs · Classement selon la puissance moyenne</span>
+                    <h3>Eno Energy en tête des constructeurs</h3>
+                    <p>4,61 MW de puissance moyenne ; le reste du top 10, mené par Nordex, est plus homogène (2,50 à 3,42 MW).</p>
+                </div>
             </div>
         </div>
 
+        <h3 class="group-title">Déterminants techniques</h3>
         <div class="charts-grid-top">
-            <div class="figure">
+            <div class="figure finding">
                 <div class="figure-frame"><img src="assets/fig-puissance-vs-hauteur.png" alt="Puissance vs hauteur totale" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-puissance-vs-hauteur.png</span></div>
-                <div class="figure-caption"><h3>Puissance vs hauteur totale</h3><p>Nuage de points avec droite de tendance</p></div>
+                <div class="figure-caption">
+                    <span class="viz-label">Puissance vs hauteur totale · Nuage de points avec droite de tendance</span>
+                    <h3>La hauteur détermine la puissance</h3>
+                    <p>Corrélation directe : la plupart des modèles mesurent 100 à 200 m pour 2 à 5 MW.</p>
+                </div>
             </div>
-            <div class="figure">
+            <div class="figure finding">
                 <div class="figure-frame"><img src="assets/fig-puissance-vs-diametre.png" alt="Puissance vs diamètre du rotor" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture à insérer<br>assets/fig-puissance-vs-diametre.png</span></div>
-                <div class="figure-caption"><h3>Puissance vs diamètre du rotor</h3><p>Nuage de points avec droite de tendance</p></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 05 Résultats -->
-    <section class="content-section reveal">
-        <div class="section-header"><span class="section-number">05</span><h2>Résultats clés</h2></div>
-        <div class="results-grid">
-            <div class="result-card">
-                <h3>Le 2–4 MW domine le parc</h3>
-                <p>Les éoliennes de 2 à 4 MW représentent environ 45 % du parc recensé. Au-delà de 7 MW, leur part chute sous les 5 %.</p>
-            </div>
-            <div class="result-card">
-                <h3>Une puissance moyenne en dents de scie</h3>
-                <p>Après un creux en 2023 (sous 2,6 MW), la puissance moyenne installée a grimpé à 3,2 MW en 2025, avant de rechuter sous 2,8 MW en 2026.</p>
-            </div>
-            <div class="result-card">
-                <h3>Nord et Ouest concentrent la puissance</h3>
-                <p>L'indice de répartition (IRD) dépasse 2,5 dans le Nord et l'Ouest, contre moins de 1,0 en Corse et dans le Sud-Est — une répartition géographique nettement inégale.</p>
-            </div>
-            <div class="result-card">
-                <h3>Eno Energy en tête des constructeurs</h3>
-                <p>Eno Energy se distingue avec une puissance moyenne de 4,61 MW. Le reste du top 10, mené par Nordex, reste plus homogène (2,50 à 3,42 MW).</p>
-            </div>
-            <div class="result-card">
-                <h3>La hauteur détermine la puissance</h3>
-                <p>Corrélation directe entre hauteur totale et puissance : la plupart des modèles mesurent 100 à 200 m pour une production de 2 à 5 MW.</p>
-            </div>
-            <div class="result-card">
-                <h3>Le diamètre du rotor aussi</h3>
-                <p>Les rotors de plus de 150 m de diamètre affichent les meilleures performances, confirmant la relation entre taille des pales et puissance produite.</p>
+                <div class="figure-caption">
+                    <span class="viz-label">Puissance vs diamètre du rotor · Nuage de points avec droite de tendance</span>
+                    <h3>Le diamètre du rotor aussi</h3>
+                    <p>Les rotors de plus de 150 m affichent les meilleures performances : plus les pales sont grandes, plus la puissance est élevée.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -409,9 +405,9 @@
         </blockquote>
     </section>
 
-    <!-- 06 Ce que ce projet démontre -->
+    <!-- 05 Ce que ce projet démontre -->
     <section class="content-section reveal">
-        <div class="section-header"><span class="section-number">06</span><h2>Ce que ce projet démontre</h2></div>
+        <div class="section-header"><span class="section-number">05</span><h2>Ce que ce projet démontre</h2></div>
         <div class="why-grid">
             <div class="why-card">
                 <h3>Nettoyage de données rigoureux</h3>
