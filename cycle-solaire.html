@@ -140,6 +140,19 @@
         .figure-frame img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 0.5rem; box-sizing: border-box; }
         .cadran-frame img { width: 100%; height: 100%; object-fit: cover; }
         .figure-placeholder-text { font-family: 'Fraunces', serif; font-style: italic; color: rgba(33,29,23,0.3); font-size: 0.95rem; text-align: center; padding: 1rem; }
+        .svd-figure { margin-bottom: 3rem; }
+        .figure-frame.svd-frame { aspect-ratio: auto; background: #fff; }
+        .figure-frame.svd-frame img { height: auto; padding: 1rem; }
+        .figure-frame.svd-frame .figure-placeholder-text { min-height: 280px; }
+        .figures-title { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; color: var(--gold-deep); font-weight: 400; margin: 3.5rem 0 1.6rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+        .phase-block { margin-top: 3rem; padding-top: 2.4rem; border-top: 1px solid var(--line); }
+        .phase-block .charts-grid-top { margin-bottom: 0; }
+        .phase-block .svd-figure { margin-bottom: 0; }
+        .phase-text { max-width: 780px; margin-bottom: 1.8rem; }
+        .phase-text .phase-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 0.6rem; display: block; }
+        .phase-text h3 { font-size: 1.2rem; margin-bottom: 0.7rem; font-weight: 500; color: var(--ink); }
+        .phase-text p { color: var(--ink-soft); font-size: 0.97rem; line-height: 1.75; }
+        .code-showcase.code-end { padding-top: 0; }
         .figure-caption { margin-top: 1rem; }
         .figure-caption h3 { font-size: 0.98rem; font-weight: 500; margin-bottom: 0.3rem; color: var(--ink); }
         .figure-caption p { color: var(--ink-soft); font-size: 0.88rem; }
@@ -288,7 +301,7 @@
 
     <!-- 02 Démarche & modèle -->
     <section class="content-section reveal">
-        <div class="section-header"><span class="section-number">02</span><h2>Démarche & modèle conçu</h2></div>
+        <div class="section-header"><span class="section-number">02</span><h2>Démarche & modèle harmonique</h2></div>
         <div class="section-content">
             <p>Le cœur du projet est un modèle de régression harmonique construit progressivement par ajout de composantes, chacune validée par test F avant d'être retenue.</p>
 
@@ -340,36 +353,141 @@
                 </div>
             </div>
         </div>
+
+        <h3 class="figures-title">Ce que montrent les données</h3>
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-periodogramme.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : périodogramme R<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-periodogramme.png</em></span></div>
+                <div class="figure-caption"><h3>Périodogramme de la série</h3><p>Pic dominant à 10,82 ans, pic secondaire à 93,75 ans</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-mod3-ajustement.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : ajustement mod3<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-mod3-ajustement.png</em></span></div>
+                <div class="figure-caption"><h3>Modèle harmonique mod3</h3><p>Série brute, série lissée et ajustement — version avant correction du biais de re-transformation</p></div>
+            </div>
+        </div>
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-prevision-mod3-ic.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : prévision mod3 avec IC 95 %<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-prevision-mod3-ic.png</em></span></div>
+                <div class="figure-caption"><h3>Prévision mod3 à horizon 11 ans</h3><p>Intervalle de confiance à 95 % sur la tendance, corrigée du biais de re-transformation</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-cycle24-vs-25.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : cycle 24 vs 25<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-cycle24-vs-25.png</em></span></div>
+                <div class="figure-caption"><h3>Cycle 24 vs Cycle 25</h3><p>Alignés par phase depuis leur minimum — le cycle 25 est significativement plus intense</p></div>
+            </div>
+        </div>
     </section>
 
-    <!-- 03 Extension -->
+    <!-- 03 Extensions -->
     <section class="content-section reveal">
-        <div class="section-header"><span class="section-number">03</span><h2>Extension : algèbre linéaire, 3D & deep learning</h2></div>
+        <div class="section-header"><span class="section-number">03</span><h2>Extensions : algèbre linéaire, 3D & deep learning</h2></div>
         <div class="section-content">
             <p>Trois phases complémentaires prolongent le modèle statistique initial, chacune mobilisant un outil différent sur les mêmes données solaires.</p>
         </div>
-        <div class="extension-grid">
-            <div class="extension-card">
+
+        <div class="phase-block">
+            <div class="phase-text">
                 <span class="phase-tag">Phase B</span>
                 <h3>Décomposition en valeurs singulières</h3>
                 <p>La SVD appliquée au diagramme papillon (2 037 rotations × 50 bandes de latitude) montre qu'un seul mode capture 32 % de l'énergie du signal, et qu'une vingtaine de modes suffisent à dépasser 95 % — révélant une structure dominée par un nombre restreint de composantes cohérentes.</p>
             </div>
-            <div class="extension-card">
+        <!-- Diagramme papillon : reconstruction SVD -->
+        <div class="figure svd-figure">
+            <div class="figure-frame svd-frame"><img src="assets/fig-svd-papillon.png" alt="Diagramme papillon original et reconstructions SVD à 5 et 20 modes" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Image à insérer<br>ici : diagramme papillon SVD<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-svd-papillon.png</em></span></div>
+            <div class="figure-caption"><h3>Diagramme papillon — reconstruction par SVD</h3><p>Matrice de 2 037 rotations de Carrington × 50 bandes de latitude (données Greenwich / USAF-NOAA). Avec seulement 5 modes, les «&nbsp;ailes&nbsp;» successives et la migration des taches vers l'équateur sont déjà reconnaissables, les détails fins étant lissés ; avec 20 modes (≈&nbsp;95&nbsp;% de la variance), la reconstruction devient quasi indiscernable de l'original.</p></div>
+        </div>
+        </div>
+
+        <div class="phase-block">
+            <div class="phase-text">
                 <span class="phase-tag">Phase C</span>
                 <h3>Visualisation 3D & rotation différentielle</h3>
                 <p>Reconstruction de la position réelle des taches solaires sur une sphère 3D interactive (Plotly), et validation empirique de la loi de Snodgrass & Ulrich sur la rotation différentielle du Soleil à partir d'un groupe de taches suivi sur plusieurs jours.</p>
             </div>
-            <div class="extension-card">
+        <!-- Embed 3D interactif -->
+        <div class="figure">
+            <div class="embed-3d-wrap">
+                <iframe src="assets/animation_3d_evolution_solaire.html" loading="lazy" title="Visualisation 3D interactive — rotation différentielle du Soleil"></iframe>
+                <div class="embed-3d-note">// visualisation interactive réelle — rotation, zoom à la souris (Plotly)</div>
+            </div>
+            <div class="figure-caption"><h3>Rotation différentielle du Soleil — visualisation 3D interactive</h3><p>Positions réelles des taches solaires sur la sphère, animées selon la loi de Snodgrass & Ulrich</p></div>
+        </div>
+        </div>
+
+        <div class="phase-block">
+            <div class="phase-text">
                 <span class="phase-tag">Phase D</span>
                 <h3>Prévision par réseau LSTM</h3>
                 <p>Un LSTM (PyTorch) est confronté au modèle harmonique et à une persistance naïve, à deux horizons (1 mois / 11 ans). Résultat nuancé : le classement des modèles s'inverse totalement selon l'horizon de prévision considéré.</p>
             </div>
+        <div class="charts-grid-top">
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-lstm-1mois.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : LSTM prévision à 1 mois<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-lstm-1mois.png</em></span></div>
+                <div class="figure-caption"><h3>LSTM — prévision à 1 mois</h3><p>Cycle 24, prévision glissante mois par mois : le LSTM colle de très près à la réalité</p></div>
+            </div>
+            <div class="figure">
+                <div class="figure-frame"><img src="assets/fig-comparaison-longterme.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : comparaison long terme 4 courbes<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-comparaison-longterme.png</em></span></div>
+                <div class="figure-caption"><h3>Comparaison long terme — 4 approches</h3><p>Réel · Persistance · Harmonique · LSTM récursif — cycle 24, 132 mois</p></div>
+            </div>
+        </div>
         </div>
     </section>
 
-    <!-- 04 Extraits de code -->
-    <section class="code-showcase reveal">
-        <div class="section-header"><span class="section-number">04</span><h2>Extraits de code clés</h2></div>
+    <!-- 04 Tableau comparatif -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">04</span><h2>Tableau comparatif des modèles</h2></div>
+        <div class="section-content">
+            <p>Les quatre approches sont évaluées sur exactement les mêmes fenêtres temporelles, pour une comparaison rigoureuse.</p>
+        </div>
+        <div class="results-tables">
+            <div class="results-table-card">
+                <h3>Prévision à 1 mois</h3>
+                <table>
+                    <tr><th>Modèle</th><th>RMSE</th><th>MAE</th></tr>
+                    <tr><td class="model-name">Persistance naïve</td><td>16,97</td><td>11,70</td></tr>
+                    <tr><td class="model-name">Harmonique (aveugle)</td><td>41,42</td><td>36,49</td></tr>
+                    <tr class="best"><td class="model-name">LSTM</td><td>15,55</td><td>10,67</td></tr>
+                </table>
+            </div>
+            <div class="results-table-card">
+                <h3>Prévision à 11 ans (132 mois)</h3>
+                <table>
+                    <tr><th>Modèle</th><th>RMSE</th><th>MAE</th></tr>
+                    <tr><td class="model-name">Persistance naïve</td><td>52,24</td><td>39,29</td></tr>
+                    <tr class="best"><td class="model-name">Harmonique (aveugle)</td><td>41,17</td><td>35,86</td></tr>
+                    <tr><td class="model-name">LSTM récursif</td><td>47,80</td><td>41,74</td></tr>
+                    <tr><td class="model-name">LSTM direct</td><td>66,80</td><td>48,45</td></tr>
+                </table>
+            </div>
+        </div>
+        <p class="results-note">Le classement s'inverse entièrement selon l'horizon : le LSTM domine à court terme en exploitant l'information récente, mais le modèle harmonique — qui encode une connaissance structurelle du phénomène — l'emporte nettement à long terme. Aucune approche ne domine universellement.</p>
+    </section>
+
+    <!-- 05 Ce que ce projet démontre -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">05</span><h2>Ce que ce projet démontre</h2></div>
+        <div class="why-grid">
+            <div class="why-card">
+                <h3>Rigueur méthodologique</h3>
+                <p>Diagnostic systématique des résidus, correction du biais de re-transformation (smearing de Duan), séparation stricte train/test sans fuite d'information, protocole de backtesting multi-cycles plutôt qu'une confrontation isolée.</p>
+            </div>
+            <div class="why-card">
+                <h3>Honnêteté scientifique</h3>
+                <p>Une extension prometteuse (mod4, amplitude modulée) est explorée, testée, puis explicitement écartée après contrôle indépendant — documentée plutôt que silencieusement abandonnée.</p>
+            </div>
+            <div class="why-card">
+                <h3>Palette technique large</h3>
+                <p>Un même jeu de données traité par quatre approches différentes : régression harmonique classique, algèbre linéaire (SVD), visualisation 3D interactive, deep learning (LSTM/PyTorch).</p>
+            </div>
+            <div class="why-card">
+                <h3>Esprit critique sur les résultats</h3>
+                <p>Un résultat favorable isolé (mod3 bat le panel NOAA sur un cycle) est immédiatement nuancé par un backtesting plus large qui révèle une performance moyenne comparable — pas de sur-vente d'un résultat chanceux.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 06 Extraits de code -->
+    <section class="code-showcase code-end reveal">
+        <div class="section-header"><span class="section-number">06</span><h2>Extraits de code clés</h2></div>
         <div class="code-header">
             <p>L'architecture LSTM (PyTorch) et sa baseline de comparaison — le modèle harmonique aveugle, ré-estimé en Python pour un protocole d'évaluation strictement identique entre les deux approches.</p>
             <div class="code-tabs">
@@ -440,107 +558,6 @@ mod3_aveugle_24 = sm.<span class="fn">OLS</span>(y_train_harm, X_train_harm).<sp
 <span class="cm"># Correction du biais de re-transformation log -> brut (estimateur de smearing de Duan)</span>
 facteur_smearing_24 = np.<span class="fn">mean</span>(np.<span class="fn">exp</span>(mod3_aveugle_24.resid))
 predictions_harmonique = facteur_smearing_24 * np.<span class="fn">exp</span>(pred_log_24) - <span class="op">1</span></pre>
-        </div>
-    </section>
-
-    <!-- 05 Visualisations -->
-    <section class="charts-section reveal">
-        <div class="section-header"><span class="section-number">05</span><h2>Visualisations clés</h2></div>
-        <p style="color:var(--ink-soft); max-width:780px; margin-bottom:2.5rem; font-size:1.02rem;">Sélection des graphiques les plus parlants parmi les deux rapports.</p>
-
-        <div class="charts-grid-top">
-            <div class="figure">
-                <div class="figure-frame"><img src="assets/fig-periodogramme.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : périodogramme R<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-periodogramme.png</em></span></div>
-                <div class="figure-caption"><h3>Périodogramme de la série</h3><p>Pic dominant à 10,82 ans, pic secondaire à 93,75 ans</p></div>
-            </div>
-            <div class="figure">
-                <div class="figure-frame"><img src="assets/fig-mod3-ajustement.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : ajustement mod3<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-mod3-ajustement.png</em></span></div>
-                <div class="figure-caption"><h3>Modèle harmonique mod3</h3><p>Série brute, série lissée et ajustement — version avant correction du biais de re-transformation</p></div>
-            </div>
-        </div>
-
-        <div class="charts-grid-top">
-            <div class="figure">
-                <div class="figure-frame"><img src="assets/fig-cycle24-vs-25.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : cycle 24 vs 25<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-cycle24-vs-25.png</em></span></div>
-                <div class="figure-caption"><h3>Cycle 24 vs Cycle 25</h3><p>Alignés par phase depuis leur minimum — le cycle 25 est significativement plus intense</p></div>
-            </div>
-            <div class="figure">
-                <div class="figure-frame"><img src="assets/fig-lstm-1mois.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : LSTM prévision à 1 mois<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-lstm-1mois.png</em></span></div>
-                <div class="figure-caption"><h3>LSTM — prévision à 1 mois</h3><p>Cycle 24, prévision glissante mois par mois : le LSTM colle de très près à la réalité</p></div>
-            </div>
-        </div>
-
-        <div class="charts-grid-top">
-            <div class="figure">
-                <div class="figure-frame"><img src="assets/fig-prevision-mod3-ic.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : prévision mod3 avec IC 95 %<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-prevision-mod3-ic.png</em></span></div>
-                <div class="figure-caption"><h3>Prévision mod3 à horizon 11 ans</h3><p>Intervalle de confiance à 95 % sur la tendance, corrigée du biais de re-transformation</p></div>
-            </div>
-            <div class="figure">
-                <div class="figure-frame"><img src="assets/fig-comparaison-longterme.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text" style="display:none;">Capture d'écran à insérer<br>ici : comparaison long terme 4 courbes<br><em style="font-size:0.7rem;opacity:0.7;">assets/fig-comparaison-longterme.png</em></span></div>
-                <div class="figure-caption"><h3>Comparaison long terme — 4 approches</h3><p>Réel · Persistance · Harmonique · LSTM récursif — cycle 24, 132 mois</p></div>
-            </div>
-        </div>
-
-        <!-- Embed 3D interactif -->
-        <div class="figure" style="margin-top:1rem;">
-            <div class="embed-3d-wrap">
-                <iframe src="assets/animation_3d_evolution_solaire.html" loading="lazy" title="Visualisation 3D interactive — rotation différentielle du Soleil"></iframe>
-                <div class="embed-3d-note">// visualisation interactive réelle — rotation, zoom à la souris (Plotly)</div>
-            </div>
-            <div class="figure-caption"><h3>Rotation différentielle du Soleil — visualisation 3D interactive</h3><p>Positions réelles des taches solaires sur la sphère, animées selon la loi de Snodgrass & Ulrich</p></div>
-        </div>
-    </section>
-
-    <!-- 06 Tableau comparatif -->
-    <section class="content-section reveal">
-        <div class="section-header"><span class="section-number">06</span><h2>Tableau comparatif des modèles</h2></div>
-        <div class="section-content">
-            <p>Les quatre approches sont évaluées sur exactement les mêmes fenêtres temporelles, pour une comparaison rigoureuse.</p>
-        </div>
-        <div class="results-tables">
-            <div class="results-table-card">
-                <h3>Prévision à 1 mois</h3>
-                <table>
-                    <tr><th>Modèle</th><th>RMSE</th><th>MAE</th></tr>
-                    <tr><td class="model-name">Persistance naïve</td><td>16,97</td><td>11,70</td></tr>
-                    <tr><td class="model-name">Harmonique (aveugle)</td><td>41,42</td><td>36,49</td></tr>
-                    <tr class="best"><td class="model-name">LSTM</td><td>15,55</td><td>10,67</td></tr>
-                </table>
-            </div>
-            <div class="results-table-card">
-                <h3>Prévision à 11 ans (132 mois)</h3>
-                <table>
-                    <tr><th>Modèle</th><th>RMSE</th><th>MAE</th></tr>
-                    <tr><td class="model-name">Persistance naïve</td><td>52,24</td><td>39,29</td></tr>
-                    <tr class="best"><td class="model-name">Harmonique (aveugle)</td><td>41,17</td><td>35,86</td></tr>
-                    <tr><td class="model-name">LSTM récursif</td><td>47,80</td><td>41,74</td></tr>
-                    <tr><td class="model-name">LSTM direct</td><td>66,80</td><td>48,45</td></tr>
-                </table>
-            </div>
-        </div>
-        <p class="results-note">Le classement s'inverse entièrement selon l'horizon : le LSTM domine à court terme en exploitant l'information récente, mais le modèle harmonique — qui encode une connaissance structurelle du phénomène — l'emporte nettement à long terme. Aucune approche ne domine universellement.</p>
-    </section>
-
-    <!-- 07 Ce que ce projet démontre -->
-    <section class="content-section reveal">
-        <div class="section-header"><span class="section-number">07</span><h2>Ce que ce projet démontre</h2></div>
-        <div class="why-grid">
-            <div class="why-card">
-                <h3>Rigueur méthodologique</h3>
-                <p>Diagnostic systématique des résidus, correction du biais de re-transformation (smearing de Duan), séparation stricte train/test sans fuite d'information, protocole de backtesting multi-cycles plutôt qu'une confrontation isolée.</p>
-            </div>
-            <div class="why-card">
-                <h3>Honnêteté scientifique</h3>
-                <p>Une extension prometteuse (mod4, amplitude modulée) est explorée, testée, puis explicitement écartée après contrôle indépendant — documentée plutôt que silencieusement abandonnée.</p>
-            </div>
-            <div class="why-card">
-                <h3>Palette technique large</h3>
-                <p>Un même jeu de données traité par quatre approches différentes : régression harmonique classique, algèbre linéaire (SVD), visualisation 3D interactive, deep learning (LSTM/PyTorch).</p>
-            </div>
-            <div class="why-card">
-                <h3>Esprit critique sur les résultats</h3>
-                <p>Un résultat favorable isolé (mod3 bat le panel NOAA sur un cycle) est immédiatement nuancé par un backtesting plus large qui révèle une performance moyenne comparable — pas de sur-vente d'un résultat chanceux.</p>
-            </div>
         </div>
     </section>
 
