@@ -173,6 +173,10 @@
         .step-details li { padding: 0.35rem 0; color: var(--ink-soft); font-size: 0.95rem; border-bottom: 1px dotted var(--line-soft); }
         .step-details li:last-child { border-bottom: none; }
 
+        .solution-steps.compact .step { margin-bottom: 1.8rem; padding-bottom: 1.8rem; }
+        .solution-steps.compact .step-details { margin-top: 0.9rem; }
+        .solution-steps.compact .evidence-full { margin-top: 1.6rem; }
+        .code-showcase.code-after-quote { padding-top: 5.5rem; }
         /* ===== CODE SHOWCASE ===== */
         .code-showcase { max-width: 1000px; margin: 0 auto; padding: 0 4rem 5.5rem; }
         .code-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
@@ -345,31 +349,83 @@
     <section class="content-section textured reveal">
         <div class="section-header"><span class="section-number">01</span><h2>Contexte du projet</h2></div>
         <div class="section-content">
-            <p>Dans le cadre de la SAE 2.01 (Conception et implémentation d'une base de données), nous avons simulé la situation d'un analyste de données chargé de structurer un jeu de données brut — <code>jeux_olympiques.csv</code>, généré à partir de sources Kaggle sur 120 ans de Jeux Olympiques (1896–2016) — en une base de données relationnelle interrogeable sous MySQL.</p>
+            <p>SAE 2.01 : dans la peau d'un analyste de données, transformer un fichier brut — <code>jeux_olympiques.csv</code>, issu de Kaggle, 120 ans de Jeux Olympiques (1896–2016) — en une base de données relationnelle interrogeable sous MySQL.</p>
             <div class="highlight-box">
                 <strong>Objectif</strong>
-                <p>Construire un pipeline complet : nettoyage des données avec Pandas, conception d'un Modèle Conceptuel (MCD) puis Logique (MLD) et Physique (MPD) de Données, implémentation MySQL avec contraintes d'intégrité référentielle, alimentation par scripts Python transactionnels, puis exploration SQL selon quatre axes — performance sportive globale, égalité homme-femme, disparités géographiques et impact socio-économique.</p>
-            </div>
-            <p>La conception du MCD et du MLD a été un travail obligatoirement collectif : lors de la soutenance, chaque membre devait être capable de justifier individuellement les choix de modélisation, même sur les parties codées par les autres.</p>
-            <div class="evidence-full">
-                <div class="evidence-frame">
-                    <img src="assets/preuve-csv-jo.png" alt="Fichier source jeux_olympiques.csv ouvert dans l'éditeur, avec les colonnes annee, ville, sport, discipline, athlete, code_pays, sexe, epreuve, medaille, saison, pays, population, pibParHab...">
-                </div>
-                <div class="evidence-caption">
-                    <h4>Le fichier source, tel que reçu</h4>
-                    <p>jeux_olympiques.csv — 17 colonnes brutes, avant tout nettoyage Pandas.</p>
-                </div>
+                <p>Nettoyer (Pandas) → modéliser (MCD, MLD, MPD) → implémenter et alimenter la base MySQL → l'explorer en SQL selon quatre axes : performance sportive, égalité femmes-hommes, disparités géographiques et impact socio-économique.</p>
             </div>
             <div class="team-note">
-                <strong>Ma contribution :</strong> nettoyage et préparation des données brutes (traitement du CSV, gestion des valeurs manquantes), conception du MCD et du MLD, et création de la base MySQL avec insertion des données.<br><br>
-                Projet réalisé en groupe de 3 : <strong>Yanh Bambela Mouanda</strong>, Selma Bennani, Drecy Mouele.
+                <strong>Ma contribution :</strong> nettoyage et préparation des données, conception du MCD et du MLD, création de la base MySQL et insertion des données.<br><br>
+                Projet réalisé en groupe de 3 : <strong>Yanh Bambela Mouanda</strong>, Selma Bennani, Drecy Mouele. MCD et MLD conçus collectivement : en soutenance, chaque membre devait pouvoir justifier seul tous les choix de modélisation.
             </div>
         </div>
     </section>
 
-    <!-- 02 Schéma relationnel -->
+    <!-- 02 Méthodologie -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">02</span><h2>Méthodologie & implémentation</h2></div>
+        <div class="section-content">
+            <p>Un pipeline en quatre étapes, du CSV brut à la base interrogeable.</p>
+            <div class="solution-steps compact">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Nettoyage & préparation (Pandas)</h3>
+                        <p>Rendre le CSV exploitable et conforme à la 1NF.</p>
+                        <div class="step-details">
+                            <ul>
+                                <li>Types corrigés : <code>densite</code> et <code>migration</code> (virgule → point → float)</li>
+                                <li>Lignes sans <code>pays</code> / <code>code_pays</code> supprimées, <code>region</code> manquante → « Inconnue », doublons retirés, textes standardisés</li>
+                                <li>Aberrations IQR sur <code>densite</code> conservées car réelles (Singapour, Hong Kong, Bahreïn)</li>
+                                <li><code>athlete</code> éclatée en <code>nom_athlete</code> / <code>prenom_athlete</code> (atomicité 1NF)</li>
+                            </ul>
+                        </div>
+                <div class="evidence-full">
+                        <div class="evidence-frame">
+                            <img src="assets/preuve-csv-jo.png" alt="Fichier source jeux_olympiques.csv ouvert dans l'éditeur, avec les colonnes annee, ville, sport, discipline, athlete, code_pays, sexe, epreuve, medaille, saison, pays, population, pibParHab...">
+                        </div>
+                        <div class="evidence-caption">
+                            <h4>Le fichier source, avant nettoyage</h4>
+                            <p>jeux_olympiques.csv — 17 colonnes brutes, avant tout nettoyage Pandas.</p>
+                        </div>
+                </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Modélisation MCD → MLD → MPD</h3>
+                        <p>Huit entités et des cardinalités 1:N confirmées par <code>groupby().nunique()</code>, traduites en tables MySQL : clés étrangères (<code>REFERENCES</code>), clé primaire composée à 4 colonnes sur <code>participation</code>, tables créées dans l'ordre des dépendances. Détail du schéma en section 03.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Alimentation transactionnelle</h3>
+                        <p>Une fonction d'insertion par entité, ne recevant que des paramètres simples (jamais le DataFrame) : Pandas et MySQL restent séparés.</p>
+                        <div class="step-details">
+                            <ul>
+                                <li>Vérification de l'existence de la base et des tables avant toute (re)création</li>
+                                <li><code>INSERT IGNORE</code> contre les doublons des entités de référence</li>
+                                <li><code>autocommit = False</code> + <code>commit()</code> / <code>rollback()</code>, blocs <code>try/except/finally</code> aux messages explicites</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Exploration SQL</h3>
+                        <p>Requêtes renvoyant des listes de dictionnaires (<code>cursor(dictionary=True)</code>) sur les quatre axes d'analyse : jointures sur 3 à 5 tables, <code>CASE WHEN</code> pour ventiler or / argent / bronze en une requête, <code>COUNT(DISTINCT CONCAT(…))</code> pour dédupliquer les médailles par équipe, <code>GROUP BY</code> / <code>ORDER BY</code> / <code>LIMIT</code> pour les classements. Extraits en section 04.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 Schéma relationnel -->
     <section id="modelisation" class="content-section reveal">
-        <div class="section-header"><span class="section-number">02</span><h2>Schéma relationnel</h2></div>
+        <div class="section-header"><span class="section-number">03</span><h2>Schéma relationnel</h2></div>
         <div class="section-content">
             <p>L'analyse du CSV a fait émerger huit entités reliées par des associations 1:N, avec une table de faits centrale — <code>participation</code> — qui relie un athlète, une épreuve, une édition et un pays autour d'une médaille éventuelle.</p>
             <div class="evidence-grid">
@@ -472,79 +528,6 @@
         </div>
     </section>
 
-    <!-- 03 Méthodologie -->
-    <section class="content-section reveal">
-        <div class="section-header"><span class="section-number">03</span><h2>Méthodologie & implémentation</h2></div>
-        <div class="section-content">
-            <p>Le pipeline suit quatre étapes : nettoyage Pandas → conception MCD/MLD/MPD → alimentation transactionnelle de la base MySQL → exploration par requêtes SQL dédiées.</p>
-            <div class="solution-steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>Nettoyage & préparation (Pandas)</h3>
-                        <p>Le CSV brut contenait des colonnes numériques stockées en texte (virgule décimale), des valeurs manquantes, des doublons et une colonne non atomique.</p>
-                        <div class="step-details">
-                            <strong>Traitements appliqués</strong>
-                            <ul>
-                                <li>Correction des types : <code>densite</code> et <code>migration</code> (virgule → point → float)</li>
-                                <li>Suppression des lignes sans <code>pays</code> / <code>code_pays</code> ; valeurs de <code>region</code> manquantes remplacées par « Inconnue »</li>
-                                <li>Suppression des doublons exacts, standardisation des colonnes textuelles (casse, espaces, caractères parasites)</li>
-                                <li>Vérification des valeurs aberrantes par méthode IQR sur <code>densite</code> — écarts conservés car justifiés (Singapour, Hong Kong, Bahreïn)</li>
-                                <li>Atomicité (1NF) : éclatement de la colonne <code>athlete</code> en <code>nom_athlete</code> / <code>prenom_athlete</code></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>Modélisation MCD → MLD → MPD</h3>
-                        <p>Identification des huit entités, de leurs attributs et des cardinalités entre elles, en s'appuyant sur des analyses Pandas (<code>groupby().nunique()</code>) pour confirmer les relations 1:N. Traduction en tables MySQL avec clés primaires, clés étrangères et contraintes de type.</p>
-                        <div class="step-details">
-                            <strong>Contraintes d'intégrité appliquées</strong>
-                            <ul>
-                                <li>Clés étrangères sur chaque table dépendante (<code>REFERENCES</code>)</li>
-                                <li>Clé primaire composée à 4 colonnes sur la table de faits <code>participation</code></li>
-                                <li>Ordre de création des tables respecté pour éviter les erreurs de dépendance</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Alimentation transactionnelle de la base</h3>
-                        <p>Une connexion unique vérifie d'abord l'existence de la base et des tables avant toute (re)création. L'insertion suit des fonctions modulaires, une par entité, qui ne dépendent jamais directement du DataFrame — uniquement des paramètres simples — afin de séparer clairement traitement des données (Pandas) et gestion de la BDD (MySQL).</p>
-                        <div class="step-details">
-                            <strong>Robustesse appliquée</strong>
-                            <ul>
-                                <li><code>INSERT IGNORE</code> pour éviter les doublons sur les entités de référence</li>
-                                <li><code>autocommit = False</code> + <code>commit()</code> / <code>rollback()</code> pour garantir la cohérence de l'insertion complète</li>
-                                <li>Blocs <code>try/except/finally</code> sur chaque opération sensible, avec messages d'erreur explicites</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h3>Exploration SQL</h3>
-                        <p>Les fonctions d'exploration interrogent directement la base via des requêtes SQL renvoyant des listes de dictionnaires (<code>cursor(dictionary=True)</code>), couvrant les quatre axes d'analyse demandés : performance des pays, égalité femmes-hommes, disparités géographiques et facteurs socio-économiques.</p>
-                        <div class="step-details">
-                            <strong>Techniques SQL mobilisées</strong>
-                            <ul>
-                                <li>Jointures sur 3 à 5 tables (participation ↔ athlete/epreuve/discipline/sport/pays)</li>
-                                <li>Agrégation conditionnelle <code>CASE WHEN … END</code> pour ventiler or / argent / bronze en une seule requête</li>
-                                <li><code>COUNT(DISTINCT …)</code> avec <code>CONCAT</code> pour dédupliquer des médailles par équipe</li>
-                                <li><code>GROUP BY</code> / <code>ORDER BY</code> multi-colonnes / <code>LIMIT</code> pour les classements</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Bandeau citation -->
     <section class="quote-banner reveal">
         <blockquote>
@@ -554,7 +537,7 @@
     </section>
 
     <!-- 04 Extraits de code -->
-    <section class="code-showcase reveal">
+    <section class="code-showcase code-after-quote reveal">
         <div class="section-header"><span class="section-number">04</span><h2>Extraits de code clés</h2></div>
         <div class="code-header">
             <p style="max-width:600px;">Trois fonctions d'exploration de <code>gestion_bdd.py</code>, illustrant l'agrégation conditionnelle, la déduplication via jointures multiples et le filtrage croisé sur plusieurs tables. Extraits sélectionnés — code complet du projet disponible sur demande.</p>
