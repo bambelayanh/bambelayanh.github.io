@@ -1,159 +1,429 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Quand faire le plein pour payer moins cher ? — Yanh Bambela</title>
-<meta name="description" content="Projet personnel en cours de conception — Quand faire le plein pour payer moins cher ?">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --creme: #F7F5F0;
-    --encre: #1C1B19;
-    --gris: #6B6862;
-    --ligne: #E2DED5;
-    --accent: #9A6B1F;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--creme); color: var(--encre);
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column;
-  }
-  a { color: inherit; }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quand faire le plein pour payer moins cher ? · Portfolio Data Analyst</title>
+    <meta name="description" content="10 millions de prix de carburants analysés (2023-2026) : le jour de la semaine compte peu, le choix de la station beaucoup. Python, SQL, statistiques et Power BI.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #211d17;
+            --ink-soft: #4a4338;
+            --cream: #f7f2e6;
+            --cream-deep: #eae3d2;
+            --paper: #fbf8f1;
+            --gold: #1f4e79;
+            --gold-deep: #163a5c;
+            --rouge: #c0504d;
+            --line: rgba(33, 29, 23, 0.14);
+            --line-soft: rgba(33, 29, 23, 0.08);
+            --code-bg: #18222d;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--ink); line-height: 1.65; overflow-x: hidden; }
+        h1, h2, h3, .serif { font-family: 'Fraunces', serif; font-weight: 500; color: var(--ink); }
+        :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
-  .topbar {
-    position: absolute; top: 0; left: 0; right: 0; z-index: 3;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 1.4rem clamp(1.25rem, 5vw, 4rem);
-    color: #fff; font-size: 0.9rem;
-  }
-  .topbar a { text-decoration: none; opacity: 0.9; }
-  .topbar a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
-  .topbar .logo { font-family: 'Fraunces', Georgia, serif; font-size: 1.1rem; font-weight: 600; opacity: 1; }
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; padding: 1.4rem 4rem;
+            display: flex; justify-content: space-between; align-items: center; z-index: 1000;
+            background: rgba(247, 242, 230, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+        }
+        .back-button { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--gold-deep); font-weight: 500; font-size: 0.92rem; }
+        .back-button:hover { opacity: 0.7; }
+        .nav-title { font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); }
 
-  .hero {
-    position: relative; min-height: 62vh; display: flex; align-items: flex-end;
-    padding: 7rem clamp(1.25rem, 5vw, 4rem) 3.5rem;
-    background-color: var(--accent);
-    background-image: linear-gradient(180deg, rgba(20,19,17,0.35) 0%, rgba(20,19,17,0.72) 100%), url('assets/hero-bg-carburant.jpg');
-    background-size: cover; background-position: center;
-    color: #fff;
-  }
-  .hero-inner { max-width: 60rem; }
-  .kicker { font-size: 0.95rem; opacity: 0.85; margin-bottom: 1rem; }
-  .hero h1 {
-    font-family: 'Fraunces', Georgia, serif; font-weight: 600;
-    font-size: clamp(2.2rem, 5.5vw, 4.2rem); line-height: 1.08; letter-spacing: -0.01em;
-  }
-  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.6rem; }
-  .tags span {
-    font-size: 0.82rem; padding: 0.35rem 0.85rem; border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.45); background: rgba(255,255,255,0.1);
-  }
+        .hero {
+            min-height: 80vh; display: flex; align-items: flex-end; position: relative; padding: 10rem 4rem 5rem;
+            background-color: var(--gold-deep);
+            background-image: linear-gradient(180deg, rgba(16,24,34,0.5) 0%, rgba(16,24,34,0.74) 65%, rgba(12,18,26,0.92) 100%), url('assets/hero-bg-carburant.jpg');
+            background-size: cover; background-position: center; color: var(--paper);
+        }
+        .hero-content { max-width: 920px; width: 100%; }
+        .project-meta { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.8rem; font-size: 0.85rem; color: rgba(251,248,241,0.75); }
+        .project-meta span:not(:last-child)::after { content: '·'; margin-left: 0.6rem; color: rgba(251,248,241,0.4); }
+        h1 { font-size: clamp(2.1rem, 4.6vw, 3.3rem); font-weight: 500; line-height: 1.2; margin-bottom: 1.4rem; letter-spacing: -0.5px; color: var(--paper); }
+        .hero-description { font-size: 1.08rem; color: rgba(251,248,241,0.85); line-height: 1.8; max-width: 740px; margin-bottom: 2rem; font-weight: 300; }
+        .tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .tag { padding: 0.4rem 1rem; border: 1px solid rgba(251,248,241,0.35); border-radius: 3px; font-size: 0.78rem; letter-spacing: 0.3px; color: rgba(251,248,241,0.85); }
 
-  main { flex: 1; padding: clamp(3.5rem, 8vw, 6rem) clamp(1.25rem, 5vw, 4rem); }
-  .wip { max-width: 40rem; margin: 0 auto; text-align: center; }
-  .wip svg { width: min(100%, 300px); height: auto; color: var(--accent); margin-bottom: 2.25rem; }
-  .wip h2 {
-    font-family: 'Fraunces', Georgia, serif; font-weight: 400;
-    font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin-bottom: 1rem;
-  }
-  .wip .lead { color: var(--gris); font-size: 1.05rem; max-width: 34rem; margin: 0 auto; }
-  .wip .brief {
-    margin: 2.5rem auto 0; padding-top: 2rem; border-top: 1px solid var(--ligne);
-    text-align: left; max-width: 34rem;
-  }
-  .wip .brief h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }
-  .wip .brief p { color: var(--gris); font-size: 0.98rem; }
-  .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 2.75rem; }
-  .btn {
-    display: inline-block; padding: 0.8rem 1.4rem; border-radius: 999px;
-    font-size: 0.92rem; font-weight: 500; text-decoration: none;
-    border: 1px solid var(--encre); transition: background-color .2s, color .2s;
-  }
-  .btn.primary { background: var(--encre); color: var(--creme); }
-  .btn.primary:hover { background: var(--accent); border-color: var(--accent); }
-  .btn.ghost:hover { background: var(--encre); color: var(--creme); }
+        .stats-banner { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 3rem 4rem; }
+        .stats-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2.5rem; }
+        .stat-item { text-align: left; border-left: 1px solid var(--line); padding-left: 1.2rem; }
+        .stat-value { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 500; color: var(--gold-deep); margin-bottom: 0.3rem; line-height: 1.1; }
+        .stat-label { color: var(--ink-soft); font-size: 0.84rem; }
 
-  footer { padding: 2rem; text-align: center; color: var(--gris); font-size: 0.82rem; border-top: 1px solid var(--ligne); }
+        .content-section { max-width: 1000px; margin: 0 auto; padding: 5.5rem 4rem; }
+        .section-header { display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2.2rem; }
+        .section-number { font-family: 'Fraunces', serif; font-size: 1.1rem; color: var(--gold); font-weight: 400; }
+        h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 500; }
+        .section-content p { font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 1.4rem; max-width: 780px; }
+        .section-content p:last-child { margin-bottom: 0; }
+        .section-content strong { color: var(--ink); font-weight: 500; }
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--gold-deep); background: var(--cream-deep); padding: 0.1rem 0.4rem; border-radius: 3px; }
+        .highlight-box { border-left: 2px solid var(--gold); padding: 0.3rem 0 0.3rem 1.5rem; margin: 2rem 0; }
+        .highlight-box strong { display: block; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: var(--ink); }
+        .highlight-box p { margin-bottom: 0; }
 
-  /* La partie en pointillé de la courbe avance doucement, comme un tracé en cours */
-  .draw { stroke-dasharray: 5 6; animation: dash 2.4s linear infinite; }
-  @keyframes dash { to { stroke-dashoffset: -22; } }
-  @media (prefers-reduced-motion: reduce) { .draw { animation: none; } }
-  @media (max-width: 600px) { .hero { min-height: 52vh; padding-bottom: 2.5rem; } .topbar .back-list { display: none; } }
-</style>
+        .solution-steps { margin-top: 2rem; }
+        .step { display: flex; gap: 2rem; margin-bottom: 1.6rem; align-items: flex-start; padding-bottom: 1.6rem; border-bottom: 1px solid var(--line-soft); }
+        .step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .step-number { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 400; color: var(--gold); min-width: 3rem; }
+        .step-content { flex: 1; }
+        .step-content h3 { font-size: 1.1rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .step-content p { color: var(--ink-soft); line-height: 1.8; margin-bottom: 0; font-size: 1rem; }
+
+        .pipeline { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 2rem 0 0.5rem; }
+        .pipeline-step { padding: 0.4rem 0.9rem; border: 1px solid var(--line); font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; color: var(--ink-soft); border-radius: 3px; background: var(--paper); }
+        .pipeline-step.current { border-color: var(--gold); color: var(--gold-deep); font-weight: 600; background: var(--cream-deep); }
+        .pipeline-arrow { color: var(--ink-soft); opacity: 0.5; font-size: 0.9rem; }
+        .pipeline-caption { margin-top: 1rem; font-size: 0.88rem; color: var(--ink-soft); }
+
+        .code-showcase { max-width: 1000px; margin: 0 auto; padding: 0 4rem 5.5rem; }
+        .code-header { margin-bottom: 1.8rem; border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
+        .code-header p { color: var(--ink-soft); font-size: 1rem; max-width: 760px; line-height: 1.8; }
+        pre { background: var(--code-bg); border-radius: 6px; padding: 1.6rem 2rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; line-height: 1.7; color: #dde6ef; margin-bottom: 2rem; }
+        .kw { color: #8fb6dc; } .fn { color: #a8c99f; } .str { color: #d9c48f; } .cm { color: #7d8894; font-style: italic; }
+
+        .typo-demo { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); margin: 2rem 0; }
+        .typo-demo div { padding: 1.3rem 1.4rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+        .typo-demo .lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-soft); margin-bottom: 0.4rem; }
+        .typo-demo .val { font-family: 'Fraunces', serif; font-size: 1.7rem; color: var(--ink); }
+        .typo-demo .val.bad { color: var(--rouge); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+        .charts-section { max-width: 1100px; margin: 0 auto; padding: 5.5rem 4rem; }
+        .group-title { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; color: var(--gold-deep); font-weight: 400; margin: 2.8rem 0 1.4rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
+        .figure { margin-bottom: 2.6rem; }
+        .figure:last-child { margin-bottom: 0; }
+        .figure-frame { width: 100%; border: 1px solid var(--line); background: #fff; overflow: hidden; }
+        .figure-frame img { width: 100%; height: auto; display: block; }
+        .figure-placeholder-text { display: none; align-items: center; justify-content: center; min-height: 240px; font-family: 'Fraunces', serif; font-style: italic; color: rgba(33,29,23,0.3); font-size: 0.9rem; text-align: center; padding: 1rem; }
+        .figure-caption { margin-top: 1rem; max-width: 820px; }
+        .viz-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--ink-soft); opacity: 0.75; margin-bottom: 0.5rem; }
+        .figure-caption h3 { font-size: 1.08rem; font-weight: 500; margin-bottom: 0.4rem; color: var(--ink); }
+        .figure-caption p { color: var(--ink-soft); font-size: 0.94rem; line-height: 1.75; }
+
+        .levers { margin: 1rem 0 0; border-top: 1px solid var(--line); }
+        .lever { display: grid; grid-template-columns: 1fr 150px 110px; gap: 1rem; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--line-soft); }
+        .lever .name { color: var(--ink); font-size: 0.98rem; }
+        .lever .bar { height: 10px; background: var(--gold); border-radius: 2px; }
+        .lever .bar-wrap { background: var(--cream-deep); border-radius: 2px; }
+        .lever .num { font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--gold-deep); text-align: right; }
+        .lever .num small { font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--ink-soft); display: block; }
+        .levers-caption { font-size: 0.85rem; color: var(--ink-soft); margin-top: 1rem; }
+
+        .results-grid, .why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.2rem; margin-top: 2rem; }
+        .why-card { padding-top: 1.4rem; border-top: 1px solid var(--line); }
+        .why-card h3 { font-size: 1.02rem; margin-bottom: 0.6rem; font-weight: 500; color: var(--ink); }
+        .why-card p { color: var(--ink-soft); line-height: 1.7; font-size: 0.94rem; }
+
+        .quote-banner {
+            position: relative; min-height: 46vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 4rem;
+            background-color: var(--gold-deep);
+            background-image: linear-gradient(rgba(14,22,32,0.72), rgba(14,22,32,0.86)), url('assets/hero-bg-carburant.jpg');
+            background-size: cover; background-position: center 70%; color: var(--paper);
+        }
+        .quote-banner blockquote { font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(1.4rem, 3vw, 2.3rem); line-height: 1.35; max-width: 780px; letter-spacing: -0.3px; }
+        .quote-banner cite { display: block; margin-top: 1.4rem; font-style: normal; font-size: 0.85rem; letter-spacing: 0.3px; color: rgba(251,248,241,0.72); }
+
+        .cta-section { border-top: 1px solid var(--line); padding: 5rem 4rem; text-align: center; }
+        .cta-section h2 { margin-bottom: 0.8rem; }
+        .cta-section p { color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 2.2rem; }
+        .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-button { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.9rem 2.2rem; background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 500; border-radius: 2px; font-size: 0.92rem; border: 1px solid var(--ink); }
+        .cta-button:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+        .cta-secondary { background: transparent; color: var(--ink); }
+        .cta-secondary:hover { background: var(--ink); color: var(--paper); }
+
+        footer { padding: 3rem 4rem; text-align: center; border-top: 1px solid var(--line); }
+        footer p { color: var(--ink-soft); font-size: 0.88rem; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+        @media (max-width: 968px) {
+            nav { padding: 1.2rem 1.6rem; }
+            .nav-title { display: none; }
+            .hero, .content-section, .cta-section, .charts-section, .code-showcase, .quote-banner { padding-left: 1.6rem; padding-right: 1.6rem; }
+            .why-grid, .results-grid { grid-template-columns: 1fr; }
+            .step { flex-direction: column; gap: 0.8rem; }
+            .stats-banner { padding: 2.5rem 1.6rem; }
+            .typo-demo { grid-template-columns: 1fr; }
+            .lever { grid-template-columns: 1fr 90px; }
+            .lever .bar-wrap { display: none; }
+        }
+    </style>
 </head>
 <body>
-  <header class="topbar">
-    <a class="logo" href="index.html">Yanh Bambela</a>
-    <a class="back-list" href="projets-personnels.html">Tous les projets personnels</a>
-  </header>
 
-  <section class="hero">
-    <div class="hero-inner">
-      <p class="kicker">Projet personnel</p>
-      <h1>Quand faire le plein pour payer moins cher ?</h1>
-      <div class="tags"><span>Python</span><span>Power BI</span></div>
-    </div>
-  </section>
+    <nav>
+        <a href="index.html" class="back-button"><span>←</span><span>Retour au portfolio</span></a>
+        <div class="nav-title">Projet personnel · Python · SQL · Power BI</div>
+    </nav>
 
-  <main>
-    <div class="wip">
-      <svg viewBox="0 0 320 220" fill="none" role="img" aria-label="Esquisse d'un graphique en cours de tracé">
-        <!-- feuille -->
-        <rect x="30" y="18" width="220" height="176" rx="6" fill="#fff" stroke="#1C1B19" stroke-opacity=".18"/>
-        <!-- quadrillage -->
-        <g stroke="#1C1B19" stroke-opacity=".07">
-          <path d="M60 50H230M60 80H230M60 110H230M60 140H230"/>
-          <path d="M90 40V166M120 40V166M150 40V166M180 40V166M210 40V166"/>
-        </g>
-        <!-- axes -->
-        <path d="M60 40V166H232" stroke="#1C1B19" stroke-opacity=".55" stroke-width="1.5" stroke-linecap="round"/>
-        <!-- barres : tracées puis esquissées -->
-        <rect x="72" y="118" width="16" height="48" rx="2" fill="currentColor" fill-opacity=".85"/>
-        <rect x="100" y="98" width="16" height="68" rx="2" fill="currentColor" fill-opacity=".85"/>
-        <rect x="128" y="108" width="16" height="58" rx="2" fill="currentColor" fill-opacity=".85"/>
-        <rect x="156" y="84" width="16" height="82" rx="2" stroke="currentColor" stroke-width="1.4" stroke-dasharray="4 4"/>
-        <rect x="184" y="72" width="16" height="94" rx="2" stroke="currentColor" stroke-width="1.4" stroke-dasharray="4 4" stroke-opacity=".6"/>
-        <!-- courbe : réalisée puis en cours -->
-        <path d="M68 128C88 112 100 92 118 96S140 104 150 86" stroke="#1C1B19" stroke-width="2" stroke-linecap="round"/>
-        <path class="draw" d="M150 86C164 64 180 70 194 58S214 50 224 46" stroke="#1C1B19" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="150" cy="86" r="3.5" fill="#1C1B19"/>
-        <!-- crayon -->
-        <g transform="translate(236 118) rotate(38)">
-          <rect x="0" y="-6" width="64" height="12" rx="2" fill="#fff" stroke="#1C1B19" stroke-width="1.4"/>
-          <path d="M0 -6L-14 0L0 6Z" fill="#F7F5F0" stroke="#1C1B19" stroke-width="1.4" stroke-linejoin="round"/>
-          <path d="M-9 -2L-14 0L-9 2Z" fill="#1C1B19"/>
-          <rect x="50" y="-6" width="14" height="12" fill="currentColor" stroke="#1C1B19" stroke-width="1.4"/>
-        </g>
-        <!-- règle -->
-        <g transform="translate(22 196) rotate(-4)">
-          <rect x="0" y="0" width="150" height="14" rx="2" fill="#fff" stroke="#1C1B19" stroke-opacity=".5"/>
-          <path d="M12 0v5M24 0v8M36 0v5M48 0v8M60 0v5M72 0v8M84 0v5M96 0v8M108 0v5M120 0v8M132 0v5" stroke="#1C1B19" stroke-opacity=".45"/>
-        </g>
-      </svg>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-meta">
+                <span>Projet personnel</span>
+                <span>Septembre–octobre 2026</span>
+                <span>Données ouvertes</span>
+            </div>
+            <h1>Quand faire le plein pour payer moins cher&nbsp;?</h1>
+            <p class="hero-description">
+                Dix millions de prix de carburants relevés dans toutes les stations de France entre 2023 et 2026, pour tester une idée reçue : existe-t-il un bon jour pour faire le plein ? Réponse courte : le jour compte peu, la station beaucoup.
+            </p>
+            <div class="tags">
+                <span class="tag">Python</span>
+                <span class="tag">SQL (SQLite)</span>
+                <span class="tag">Statistiques</span>
+                <span class="tag">Régression asymétrique</span>
+                <span class="tag">Power BI</span>
+                <span class="tag">DAX</span>
+            </div>
+        </div>
+    </section>
 
-      <h2>Projet en cours de conception</h2>
-      <p class="lead">Les données sont en cours de collecte et d'analyse. Cette page présentera bientôt la démarche, les résultats et les visualisations du projet.</p>
+    <!-- Stats -->
+    <section class="stats-banner reveal">
+        <div class="stats-grid">
+            <div class="stat-item"><div class="stat-value">10,2 M</div><div class="stat-label">changements de prix analysés</div></div>
+            <div class="stat-item"><div class="stat-value">~14 000</div><div class="stat-label">stations, toute la France</div></div>
+            <div class="stat-item"><div class="stat-value">0,3 ct</div><div class="stat-label">gagnés en choisissant son jour</div></div>
+            <div class="stat-item"><div class="stat-value">4,7 ct</div><div class="stat-label">gagnés en choisissant sa station</div></div>
+            <div class="stat-item"><div class="stat-value">0,02 %</div><div class="stat-label">de prix écartés au nettoyage</div></div>
+        </div>
+    </section>
 
-      <div class="brief">
-        <h3>Ce que le projet va étudier</h3>
-        <p>L'historique des prix des carburants sur toute la France entre 2023 et 2026 : trouver le jour le moins cher, comparer autoroutes, supermarchés et stations indépendantes, et chiffrer l'économie annuelle possible.</p>
-      </div>
+    <!-- 01 Question -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">01</span><h2>La question</h2></div>
+        <div class="section-content">
+            <p>« Il faut faire le plein le lundi », « jamais le week-end »… Ces conseils circulent partout, mais reposent rarement sur des chiffres. Depuis 2007, l'État publie en données ouvertes le prix de chaque carburant dans chaque station : de quoi les vérifier.</p>
+            <p>J'ai voulu répondre à trois questions, de la plus quotidienne à la plus technique : <strong>quel jour</strong> faire le plein, <strong>où</strong> le faire, et <strong>pourquoi</strong> les prix bougent comme ils bougent. Pour cette dernière, j'ai testé l'effet « fusée et plume » : les stations répercutent-elles plus vite les hausses du pétrole que ses baisses ?</p>
+            <div class="highlight-box">
+                <strong>Périmètre</strong>
+                <p>Toute la France, de janvier 2023 à septembre 2026, gazole et SP95-E10. La période inclut volontairement la flambée de 2026, pour observer le comportement des stations en temps de crise.</p>
+            </div>
+        </div>
+    </section>
 
-      <div class="actions">
-        <a class="btn primary" href="projets-personnels.html">Voir les autres projets</a>
-        <a class="btn ghost" href="index.html">Retour à l'accueil</a>
-      </div>
-    </div>
-  </main>
+    <!-- 02 Pipeline -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">02</span><h2>Des données brutes au dashboard</h2></div>
+        <div class="section-content">
+            <p>Le projet est construit comme une chaîne reproductible : un seul script reconstruit toute la base à partir des fichiers officiels.</p>
+        </div>
+        <div class="pipeline">
+            <span class="pipeline-step">XML open data</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Python (parsing en flux)</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">SQLite</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">SQL : nettoyage & panel</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Python : modèle statistique</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step current">Power BI</span>
+        </div>
+        <p class="pipeline-caption">Power BI ne reçoit que des tables déjà agrégées en SQL : le rapport reste léger, et les calculs lourds restent traçables dans le code.</p>
 
-  <footer>&copy; 2026 Yanh Bambela Mouanda — BUT Science des Données, IUT Grand Ouest Normandie</footer>
+        <div class="solution-steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Ingestion</h3>
+                    <p>Quatre fichiers annuels de 30 Mo, parsés en flux (<code>iterparse</code>) pour ne jamais charger un fichier entier en mémoire. Résultat : 10,2 millions de changements de prix dans une base SQLite, en cinq minutes.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Reconstruire un prix par jour</h3>
+                    <p>Les données sont des <em>événements</em> : une ligne quand une station change son prix. Pour comparer lundi et samedi, j'ai reconstruit en SQL un panel de 22 millions de lignes (un prix par station et par jour) en reportant le dernier prix connu, dans une limite de 30 jours choisie à partir de la distribution réelle des écarts entre deux mises à jour.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Isoler l'effet du jour</h3>
+                    <p>Comparer directement les prix moyens du lundi et du samedi mélangerait l'effet du jour et la tendance (en 2026, les prix montaient chaque semaine). Chaque prix est donc comparé à la moyenne de la même station sur les sept jours qui l'entourent : il ne reste que l'effet du jour.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Modéliser et restituer</h3>
+                    <p>Un modèle de régression asymétrique (statsmodels, erreurs-types de Newey-West) teste l'effet « fusée et plume », puis un dashboard Power BI de cinq pages restitue l'ensemble, avec un modèle en étoile et des mesures DAX.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 Préparation Power BI -->
+    <section class="content-section reveal" style="padding-top:0;">
+        <div class="section-header"><span class="section-number">03</span><h2>Préparer les données dans Power BI</h2></div>
+        <div class="section-content">
+            <p>Le gros du nettoyage a lieu en amont, en SQL : seuls 0,02 % des prix ont été écartés, dont 75 % des erreurs du gazole en 2026 étaient un premier chiffre tapé « 1 » au lieu de « 2 », juste après le passage durable du gazole au-dessus de 2 €. Une fois les tables agrégées, la préparation se poursuit dans <strong>Power Query</strong>, puis dans le <strong>modèle de données</strong>.</p>
+        </div>
+
+        <h3 class="group-title">Power Query : chaque table typée à la main</h3>
+        <div class="section-content">
+            <p>J'ai désactivé la détection automatique des types : Power BI transformait les codes de département « 01 » en 1 et « 2A » en erreur. Chaque colonne est donc typée explicitement, et chaque transformation reste une étape nommée, rejouée à chaque actualisation.</p>
+        </div>
+        <div class="pipeline">
+            <span class="pipeline-step">Source</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">En-têtes promus</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Type modifié</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Année insérée</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step">Type modifié1</span><span class="pipeline-arrow">→</span>
+            <span class="pipeline-step current">Colonnes renommées</span>
+        </div>
+        <div class="figure" style="margin-top:2rem;">
+            <div class="figure-frame"><img src="assets/fig-carburant-powerquery.png" alt="Éditeur Power Query : la table prix_national_jour, ses types de colonnes et ses étapes appliquées" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text">Capture à insérer<br>assets/fig-carburant-powerquery.png</span></div>
+            <div class="figure-caption">
+                <span class="viz-label">Power Query · table prix_national_jour</span>
+                <h3>Des types contrôlés, zéro erreur</h3>
+                <p>Douze requêtes, dont deux tables de dimension créées à la main. L'indicateur de qualité affiche 100 % de valeurs valides sur chaque colonne ; les autres tables reçoivent les mêmes contrôles (codes postaux en texte, libellés harmonisés, colonne « commune » construite pour distinguer les homonymes).</p>
+            </div>
+        </div>
+
+        <h3 class="group-title">Le modèle en étoile</h3>
+        <div class="section-content">
+            <p>Toutes les tables de faits partagent les colonnes carburant et année. Deux tables de dimension, <code>dim_carburant</code> et <code>dim_annee</code>, les relient : un seul segment filtre alors toute la page. Le référentiel <code>departements</code> apporte les noms et les régions nécessaires à la carte.</p>
+        </div>
+        <div class="figure" style="margin-top:2rem;">
+            <div class="figure-frame"><img src="assets/fig-carburant-schema-etoile.png" alt="Vue Modèle Power BI : dimensions carburant, année et départements reliées aux tables de faits" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text">Capture à insérer<br>assets/fig-carburant-schema-etoile.png</span></div>
+            <div class="figure-caption">
+                <span class="viz-label">Power BI · vue Modèle · 14 relations un-à-plusieurs</span>
+                <h3>Trois dimensions, sept tables de faits</h3>
+                <p>Relations à sens unique, des dimensions vers les faits ; colonnes techniques masquées ; mesures regroupées dans une table dédiée. En construisant ce modèle, j'ai repéré quatre relations restées inactives à cause d'un double chemin : le segment carburant ne filtrait plus la moitié des tables.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 Résultats -->
+    <section class="charts-section reveal">
+        <div class="section-header"><span class="section-number">04</span><h2>Résultats</h2></div>
+        <div class="section-content">
+            <p>Ce que gagne un automobiliste, pour le gazole en 2025, selon le levier qu'il actionne :</p>
+        </div>
+        <div class="levers" role="table" aria-label="Économie selon le levier, gazole 2025">
+            <div class="lever" role="row"><span class="name" role="cell">Faire le plein le bon jour de la semaine</span><span class="bar-wrap" role="cell"><span class="bar" style="display:block;width:1.5%"></span></span><span class="num" role="cell">0,3 ct<small>0,13 € / plein</small></span></div>
+            <div class="lever" role="row"><span class="name" role="cell">Choisir la station la moins chère de sa commune</span><span class="bar-wrap" role="cell"><span class="bar" style="display:block;width:24%"></span></span><span class="num" role="cell">4,7 ct<small>2,35 € / plein</small></span></div>
+            <div class="lever" role="row"><span class="name" role="cell">Éviter l'autoroute</span><span class="bar-wrap" role="cell"><span class="bar" style="display:block;width:86%"></span></span><span class="num" role="cell">16,8 ct<small>8,39 € / plein</small></span></div>
+            <div class="lever" role="row"><span class="name" role="cell">Département le plus cher face au moins cher</span><span class="bar-wrap" role="cell"><span class="bar" style="display:block;width:100%"></span></span><span class="num" role="cell">19,5 ct<small>9,76 € / plein</small></span></div>
+        </div>
+        <p class="levers-caption">En centimes par litre ; plein de 50 litres. Choisir sa station rapporte 15 à 20 fois plus que choisir son jour.</p>
+
+        <h3 class="group-title">Quand ? Le jour de la semaine</h3>
+        <div class="figure">
+            <div class="figure-frame"><img src="assets/fig-carburant-quand.png" alt="Dashboard Power BI : écart au prix moyen de la semaine selon le jour, par année" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text">Capture à insérer<br>assets/fig-carburant-quand.png</span></div>
+            <div class="figure-caption">
+                <span class="viz-label">Power BI · page « Quand ? »</span>
+                <h3>Le vendredi est le moins cher… d'un tiers de centime</h3>
+                <p>De 2023 à 2025, le même schéma se répète pour les deux carburants : prix légèrement plus élevés en milieu de semaine, creux le vendredi. L'effet est statistiquement net mais pratiquement négligeable. En 2026, pendant la flambée, le schéma s'inverse : le dimanche et le lundi deviennent les moins chers.</p>
+            </div>
+        </div>
+
+        <h3 class="group-title">Où ? La station et le territoire</h3>
+        <div class="figure">
+            <div class="figure-frame"><img src="assets/fig-carburant-ou.png" alt="Dashboard Power BI : carte des départements, autoroute et écarts entre stations d'une même commune" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text">Capture à insérer<br>assets/fig-carburant-ou.png</span></div>
+            <div class="figure-caption">
+                <span class="viz-label">Power BI · page « Où ? »</span>
+                <h3>Près de 20 centimes entre Paris et le Finistère</h3>
+                <p>Paris, la petite couronne et la Corse sont les plus chers ; la Bretagne et la façade atlantique les moins chers. À Caen, entre la station la plus chère et la moins chère, l'écart moyen dépasse 13 centimes par litre. Et pendant la crise de 2026, ces écarts se creusent : bien choisir rapporte encore plus.</p>
+            </div>
+        </div>
+
+        <h3 class="group-title">Pourquoi ? Fusée ou plume</h3>
+        <div class="figure">
+            <div class="figure-frame"><img src="assets/fig-carburant-pompe-couts.png" alt="Prix à la pompe, prix de gros du produit raffiné et Brent, moyennes hebdomadaires 2023-2026" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text">Capture à insérer<br>assets/fig-carburant-pompe-couts.png</span></div>
+            <div class="figure-caption">
+                <span class="viz-label">Python · matplotlib · données FRED</span>
+                <h3>La crise de 2026 est une crise du diesel, pas du pétrole</h3>
+                <p>En juillet 2026, le Brent s'effondre mais le gazole ne baisse presque pas : c'est le prix de gros du diesel raffiné qui guide la pompe. Un premier modèle fondé sur le Brent donnait une répercussion impossible (1,39 centime à la pompe pour 1 centime de brut, au-delà du maximum de 1,20 TVA comprise) ; le remplacer par le prix de gros a fait passer le R² de 0,73 à 0,84.</p>
+            </div>
+        </div>
+        <div class="figure">
+            <div class="figure-frame"><img src="assets/fig-carburant-fusee-plume.png" alt="Réponse cumulée du prix à la pompe à une hausse et à une baisse du coût de gros, par carburant et par période" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text">Capture à insérer<br>assets/fig-carburant-fusee-plume.png</span></div>
+            <div class="figure-caption">
+                <span class="viz-label">Python · statsmodels · régression asymétrique, erreurs-types de Newey-West</span>
+                <h3>Hausses et baisses sont répercutées à la même vitesse</h3>
+                <p>Les stations répercutent intégralement les variations du prix de gros en deux à trois semaines, dans un sens comme dans l'autre. Aucun des tests d'égalité n'est significatif au seuil de 5 % : l'effet « fusée et plume » n'est pas confirmé au niveau national. La méthode a d'abord été validée sur des données simulées dont l'asymétrie était connue.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Citation -->
+    <section class="quote-banner reveal">
+        <blockquote>
+            « Le jour compte peu, la station beaucoup. »
+            <cite>Choisir sa station rapporte 15 à 20 fois plus que choisir son jour · gazole, 2025</cite>
+        </blockquote>
+    </section>
+
+    <!-- 05 Dashboard -->
+    <section class="charts-section reveal">
+        <div class="section-header"><span class="section-number">05</span><h2>Le dashboard</h2></div>
+        <div class="section-content">
+            <p>Cinq pages (Accueil, Quand ?, Où ?, Pourquoi ?, Méthode) construites sur le modèle en étoile présenté plus haut. Les segments pilotent les indicateurs, tandis que la courbe de contexte reste volontairement fixe pour toujours montrer toute la période.</p>
+        </div>
+        <div class="figure" style="margin-top:2rem;">
+            <div class="figure-frame"><img src="assets/fig-carburant-accueil.png" alt="Page d'accueil du dashboard Power BI : quatre leviers d'économie et prix moyen national 2023-2026" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="figure-placeholder-text">Capture à insérer<br>assets/fig-carburant-accueil.png</span></div>
+            <div class="figure-caption">
+                <span class="viz-label">Power BI · page d'accueil · gazole, 2025</span>
+                <h3>Quatre leviers, chiffrés en centimes et en euros par plein</h3>
+                <p>Les indicateurs sont calculés par des mesures DAX (moyennes pondérées, écarts maximum-minimum), vérifiées une à une contre les résultats Python.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 06 Ce que démontre -->
+    <section class="content-section reveal">
+        <div class="section-header"><span class="section-number">06</span><h2>Ce que ce projet démontre</h2></div>
+        <div class="why-grid">
+            <div class="why-card">
+                <h3>Traiter un vrai volume de données</h3>
+                <p>Plus de 10 millions de lignes, parsing en flux, fonctions de fenêtre SQL et agrégation en amont de Power BI : une architecture pensée pour le volume, pas un simple fichier Excel.</p>
+            </div>
+            <div class="why-card">
+                <h3>Comprendre pourquoi les données sont sales</h3>
+                <p>Une règle de nettoyage corrigée quand elle écartait de vrais prix, puis l'erreur « 1 au lieu de 2 » identifiée et chiffrée : le nettoyage comme une enquête, pas comme un filtre aveugle.</p>
+            </div>
+            <div class="why-card">
+                <h3>Rigueur statistique</h3>
+                <p>Effet de tendance neutralisé, variable de coût remise en question, méthode validée sur données simulées, et refus de sur-interpréter des p-values limites : distinguer « significatif » et « important ».</p>
+            </div>
+            <div class="why-card">
+                <h3>Raconter un résultat</h3>
+                <p>Une idée reçue testée, une conclusion en une phrase, et un dashboard qui la traduit en euros par plein, compréhensible par n'importe quel automobiliste.</p>
+            </div>
+        </div>
+        <div class="section-content" style="margin-top:2.5rem;">
+            <p style="font-size:0.92rem;"><strong>Limites :</strong> les résultats portent sur des moyennes nationales et hebdomadaires ; une asymétrie de quelques jours, ou propre à certaines stations, pourrait exister sans y apparaître. Sources : prix-carburants.gouv.fr (licence ouverte) ; FRED, Federal Reserve Bank of St. Louis.</p>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal">
+        <h2>Explorer le dashboard</h2>
+        <p>Les cinq pages du rapport Power BI, au format PDF ou dans le fichier source</p>
+        <div class="cta-buttons">
+            <a href="assets/dashboard-carburants.pdf" class="cta-button" target="_blank" rel="noopener"><span>Voir le dashboard (PDF)</span></a>
+            <a href="assets/carburants.pbix" download class="cta-button cta-secondary"><span>Télécharger le fichier .pbix</span></a>
+            <a href="projets-personnels.html" class="cta-button cta-secondary"><span>Tous les projets personnels</span></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Yanh Bambela Mouanda — Tous droits réservés · IUT Grand Ouest Normandie · BUT Science des Données</p>
+    </footer>
+
+    <script>
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() { reveals.forEach(el => { if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active'); }); }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    </script>
 </body>
 </html>
