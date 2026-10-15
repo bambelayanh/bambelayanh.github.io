@@ -498,26 +498,6 @@
             </div>
         </div>
 
-        <div class="sub-title">Quatre obstacles, quatre réponses</div>
-        <p class="sub-intro">Les difficultés qui ont vraiment façonné le code.</p>
-        <div class="obstacles">
-            <div class="obstacle">
-                <div><div class="obstacle-label">Obstacle</div><div class="pb">Les jointures entre 4 tables dupliquaient des lignes et faussaient les moyennes.</div></div>
-                <div><div class="obstacle-label">Réponse</div><div class="sol">Les indicateurs globaux sont calculés par des sous-requêtes séparées, table par table.</div></div>
-            </div>
-            <div class="obstacle">
-                <div><div class="obstacle-label">Obstacle</div><div class="pb">La recherche d'universités devait accepter des filtres facultatifs : pays, année, seuils de score.</div></div>
-                <div><div class="obstacle-label">Réponse</div><div class="sol">Les conditions sont ajoutées à la requête seulement si le filtre est renseigné, toujours avec des marqueurs <code>?</code> — ce qui protège aussi des injections SQL.</div></div>
-            </div>
-            <div class="obstacle">
-                <div><div class="obstacle-label">Obstacle</div><div class="pb">Classer les pays par tranche de PIB en Python demandait 9 listes et 68 lignes.</div></div>
-                <div><div class="obstacle-label">Réponse</div><div class="sol">Un seul <code>SELECT</code> avec <code>CASE WHEN</code> fait tout le travail : 35 lignes, plus lisibles et plus rapides.</div></div>
-            </div>
-            <div class="obstacle">
-                <div><div class="obstacle-label">Obstacle</div><div class="pb">Un pays avec une seule université brillante se retrouvait en tête du Top 10.</div></div>
-                <div><div class="obstacle-label">Réponse</div><div class="sol">Seuls les pays d'au moins 20 universités sont retenus (<code>HAVING</code>), et le score est pondéré : <code>score × nb / (nb + 20)</code>.</div></div>
-            </div>
-        </div>
     </section>
 
     <!-- Bandeau citation -->
@@ -703,7 +683,27 @@
     <span class="kw">return</span> <span class="fn">sorted</span>(res, key=<span class="kw">lambda</span> x: x[<span class="op">1</span>], reverse=<span class="kw">True</span>)[:<span class="op">10</span>]</pre>
         </div>
     </section>
-
+    
+        <div class="sub-title">Quatre obstacles, quatre réponses</div>
+        <p class="sub-intro">Les difficultés qui ont vraiment façonné le code.</p>
+        <div class="obstacles">
+            <div class="obstacle">
+                <div><div class="obstacle-label">Obstacle</div><div class="pb">Les jointures entre 4 tables dupliquaient des lignes et faussaient les moyennes.</div></div>
+                <div><div class="obstacle-label">Réponse</div><div class="sol">Les indicateurs globaux sont calculés par des sous-requêtes séparées, table par table.</div></div>
+            </div>
+            <div class="obstacle">
+                <div><div class="obstacle-label">Obstacle</div><div class="pb">La recherche d'universités devait accepter des filtres facultatifs : pays, année, seuils de score.</div></div>
+                <div><div class="obstacle-label">Réponse</div><div class="sol">Les conditions sont ajoutées à la requête seulement si le filtre est renseigné, toujours avec des marqueurs <code>?</code> — ce qui protège aussi des injections SQL.</div></div>
+            </div>
+            <div class="obstacle">
+                <div><div class="obstacle-label">Obstacle</div><div class="pb">Classer les pays par tranche de PIB en Python demandait 9 listes et 68 lignes.</div></div>
+                <div><div class="obstacle-label">Réponse</div><div class="sol">Un seul <code>SELECT</code> avec <code>CASE WHEN</code> fait tout le travail : 35 lignes, plus lisibles et plus rapides.</div></div>
+            </div>
+            <div class="obstacle">
+                <div><div class="obstacle-label">Obstacle</div><div class="pb">Un pays avec une seule université brillante se retrouvait en tête du Top 10.</div></div>
+                <div><div class="obstacle-label">Réponse</div><div class="sol">Seuls les pays d'au moins 20 universités sont retenus (<code>HAVING</code>), et le score est pondéré : <code>score × nb / (nb + 20)</code>.</div></div>
+            </div>
+        </div>
     <!-- ===================== 05 À RETENIR ===================== -->
     <section class="content-section reveal">
         <div class="section-header"><span class="section-number">05</span><h2>À retenir</h2></div>
